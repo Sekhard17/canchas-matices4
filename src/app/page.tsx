@@ -45,10 +45,10 @@ export default function MaticesLanding() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
 
   const slides: Slide[] = [
-    { title: "Fútbol 5", description: "Canchas de última generación", image: "/placeholder.svg?height=600&width=800" },
-    { title: "Fútbol 7", description: "Espacio perfecto para tus partidos", image: "/placeholder.svg?height=600&width=800" },
-    { title: "Torneos", description: "Compite y diviértete", image: "/placeholder.svg?height=600&width=800" },
-  ]
+    { title: "Fútbol 5", description: "Canchas de última generación", image: "/images/hero-image.jpg" },
+    { title: "Fútbol 7", description: "Espacio perfecto para tus partidos", image: "/images/matices.jpg" },
+    { title: "Torneos", description: "Compite y diviértete", image: "/images/sobre-nosotros.jpg" },
+  ];  
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -163,16 +163,16 @@ export default function MaticesLanding() {
                 <TabsTrigger value="futbol5">Fútbol 5</TabsTrigger>
                 <TabsTrigger value="futbol7">Fútbol 7</TabsTrigger>
               </TabsList>
-              <TabsContent value="futbol5">
+                <TabsContent value="futbol5">
                 <InstallationCard
-                  image="/placeholder.svg?height=400&width=600"
+                  image="/images/hero-bg.jpg"
                   title="Canchas de Fútbol 5"
                   description="4 canchas con césped sintético de alta calidad y sistema de iluminación LED. Perfectas para partidos rápidos y emocionantes con tus amigos."
                 />
               </TabsContent>
               <TabsContent value="futbol7">
                 <InstallationCard
-                  image="/placeholder.svg?height=400&width=600"
+                  image="/images/matices.jpg"
                   title="Canchas de Fútbol 7"
                   description="2 canchas espaciosas ideales para partidos más grandes y torneos. Disfruta de más espacio y acción en nuestras canchas de fútbol 7."
                 />
