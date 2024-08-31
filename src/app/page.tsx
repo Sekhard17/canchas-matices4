@@ -285,6 +285,7 @@ export default function MaticesLanding() {
           </div>
           <div className="mt-8 pt-8 border-t border-gray-800 text-center">
             <p>&copy; 2023 Matices Fútbol. Todos los derechos reservados.</p>
+            <p>&copy; Desarrollado por Spectrum Code Software.</p>
           </div>
         </div>
       </footer>
