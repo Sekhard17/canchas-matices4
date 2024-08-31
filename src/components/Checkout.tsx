@@ -67,7 +67,7 @@ export default function ReservaExitosa() {
         >
           <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} border-none shadow-lg`}>
             <CardHeader className="text-center">
-              <CardTitle className="text-3xl font-bold text-green-600">¡Reserva Confirmada!</CardTitle>
+              <CardTitle className="text-3xl font-bold text-green-600">&iexcl;Reserva Confirmada!</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex justify-center">
@@ -79,7 +79,7 @@ export default function ReservaExitosa() {
                 />
               </div>
               <p className="text-center text-sm text-muted-foreground">
-                Presenta este código QR al llegar a las instalaciones
+                Presenta este c&oacute;digo QR al llegar a las instalaciones
               </p>
               <Separator />
               <div className="flex items-center space-x-4">
@@ -125,7 +125,7 @@ export default function ReservaExitosa() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Balón:</span>
+                  <span className="font-medium">Bal&oacute;n:</span>
                   <span>{reservaData.reserva.tieneBalon ? 'Incluido' : 'No incluido'}</span>
                 </div>
                 <div className="flex items-center justify-between text-lg font-semibold">

@@ -33,13 +33,13 @@ type Turno = {
 
 // Datos de ejemplo
 const encargadosIniciales: Encargado[] = [
-  { id: '1', nombre: 'Juan Pérez', email: 'juan@example.com', telefono: '123456789', activo: true },
-  { id: '2', nombre: 'María López', email: 'maria@example.com', telefono: '987654321', activo: true },
-  { id: '3', nombre: 'Carlos Gómez', email: 'carlos@example.com', telefono: '456789123', activo: false },
+  { id: '1', nombre: 'Juan P&eacute;rez', email: 'juan@example.com', telefono: '123456789', activo: true },
+  { id: '2', nombre: 'Mar&iacute;a L&oacute;pez', email: 'maria@example.com', telefono: '987654321', activo: true },
+  { id: '3', nombre: 'Carlos G&oacute;mez', email: 'carlos@example.com', telefono: '456789123', activo: false },
 ]
 
 const turnosIniciales: Turno[] = [
-  { id: '1', encargadoId: '1', fecha: '2023-06-01', horario: 'Mañana' },
+  { id: '1', encargadoId: '1', fecha: '2023-06-01', horario: 'Ma&ntilde;ana' },
   { id: '2', encargadoId: '2', fecha: '2023-06-01', horario: 'Tarde' },
   { id: '3', encargadoId: '1', fecha: '2023-06-02', horario: 'Noche' },
 ]
@@ -55,18 +55,18 @@ export default function AdminEncargados() {
   const agregarEncargado = (nuevoEncargado: Omit<Encargado, 'id'>) => {
     const id = (encargados.length + 1).toString()
     setEncargados([...encargados, { ...nuevoEncargado, id }])
-    toast.success('Encargado agregado con éxito')
+    toast.success('Encargado agregado con &eacute;xito')
   }
 
   const actualizarEncargado = (encargadoActualizado: Encargado) => {
     setEncargados(encargados.map(e => e.id === encargadoActualizado.id ? encargadoActualizado : e))
-    toast.success('Encargado actualizado con éxito')
+    toast.success('Encargado actualizado con &eacute;xito')
   }
 
   const eliminarEncargado = (id: string) => {
     setEncargados(encargados.filter(e => e.id !== id))
     setTurnos(turnos.filter(t => t.encargadoId !== id))
-    toast.success('Encargado eliminado con éxito')
+    toast.success('Encargado eliminado con &eacute;xito')
   }
 
   const toggleEstadoEncargado = (id: string) => {
@@ -105,7 +105,7 @@ export default function AdminEncargados() {
   const agregarTurno = (nuevoTurno: Omit<Turno, 'id'>) => {
     const id = (turnos.length + 1).toString()
     setTurnos([...turnos, { ...nuevoTurno, id }])
-    toast.success('Turno asignado con éxito')
+    toast.success('Turno asignado con &eacute;xito')
   }
 
   const encargadosFiltrados = filtroActivos !== null
@@ -119,7 +119,7 @@ export default function AdminEncargados() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Administración de Encargados</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Administraci&oacute;n de Encargados</h1>
         <p className="text-gray-600 dark:text-gray-400">Gestiona los encargados y sus turnos</p>
       </motion.div>
 
@@ -157,7 +157,7 @@ export default function AdminEncargados() {
                       <DialogHeader>
                         <DialogTitle>{encargadoEditando ? 'Editar Encargado' : 'Agregar Nuevo Encargado'}</DialogTitle>
                         <DialogDescription>
-                          {encargadoEditando ? 'Modifica los detalles del encargado aquí.' : 'Ingresa los detalles del nuevo encargado aquí.'}
+                          {encargadoEditando ? 'Modifica los detalles del encargado aqu&iacute;.' : 'Ingresa los detalles del nuevo encargado aqu&iacute;.'}
                         </DialogDescription>
                       </DialogHeader>
                       <form onSubmit={guardarEncargado}>
@@ -187,7 +187,7 @@ export default function AdminEncargados() {
                           </div>
                           <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="telefono" className="text-right">
-                              Teléfono
+                              Tel&eacute;fono
                             </Label>
                             <Input
                               id="telefono"
@@ -198,7 +198,7 @@ export default function AdminEncargados() {
                           </div>
                           <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="password" className="text-right">
-                              Contraseña
+                              Contrase&ntilde;a
                             </Label>
                             <Input
                               id="password"
@@ -233,7 +233,7 @@ export default function AdminEncargados() {
                   <TableRow>
                     <TableHead>Nombre</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Teléfono</TableHead>
+                    <TableHead>Tel&eacute;fono</TableHead>
                     <TableHead>Estado</TableHead>
                     <TableHead>Acciones</TableHead>
                   </TableRow>
@@ -279,7 +279,7 @@ export default function AdminEncargados() {
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Asignación de Turnos</CardTitle>
+                <CardTitle>Asignaci&oacute;n de Turnos</CardTitle>
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button className="bg-green-600 hover:bg-green-700">
@@ -338,7 +338,7 @@ export default function AdminEncargados() {
                               <SelectValue placeholder="Selecciona un horario" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Mañana">Mañana</SelectItem>
+                              <SelectItem value="Ma&ntilde;ana">Ma&ntilde;ana</SelectItem>
                               <SelectItem value="Tarde">Tarde</SelectItem>
                               <SelectItem value="Noche">Noche</SelectItem>
                             </SelectContent>
@@ -379,7 +379,7 @@ export default function AdminEncargados() {
                         <TableCell>
                           <Button variant="destructive" size="icon" onClick={() => {
                             setTurnos(turnos.filter(t => t.id !== turno.id))
-                            toast.success('Turno eliminado con éxito')
+                            toast.success('Turno eliminado con &eacute;xito')
                           }}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -396,7 +396,7 @@ export default function AdminEncargados() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Estadísticas de Encargados</CardTitle>
+          <CardTitle>Estad&iacute;sticas de Encargados</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

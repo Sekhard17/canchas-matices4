@@ -57,7 +57,7 @@ export default function Component() {
               <Clock className="mr-2 h-5 w-5" /> Ver Horarios
             </Button>
             <Button variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-green-600" size="lg">
-              <MapPin className="mr-2 h-5 w-5" /> Ubicación
+              <MapPin className="mr-2 h-5 w-5" /> Ubicaci&oacute;n
             </Button>
           </div>
         </motion.div>

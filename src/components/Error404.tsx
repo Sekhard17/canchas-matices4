@@ -17,9 +17,9 @@ export default function Error404() {
         className="text-center relative z-10"
       >
         <AlertTriangle className="w-24 h-24 text-yellow-400 mx-auto mb-8" />
-        <h1 className="text-4xl font-bold mb-4">404 - Página no encontrada</h1>
+        <h1 className="text-4xl font-bold mb-4">404 - P&aacute;gina no encontrada</h1>
         <p className="text-xl mb-8 max-w-md mx-auto">
-          Lo sentimos, la página que estás buscando no existe o no tienes acceso a ella.
+          Lo sentimos, la p&aacute;gina que est&aacute;s buscando no existe o no tienes acceso a ella.
         </p>
       </motion.div>
       <motion.div
@@ -35,7 +35,7 @@ export default function Error404() {
         </Button>
         <Button asChild variant="outline" className="border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-[#0A192F]">
           <Link href="javascript:history.back()">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Volver atrás
+            <ArrowLeft className="mr-2 h-4 w-4" /> Volver atr&aacute;s
           </Link>
         </Button>
       </motion.div>

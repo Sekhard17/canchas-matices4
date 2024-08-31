@@ -42,17 +42,17 @@ export default function AdminCanchas() {
   const agregarCancha = (nuevaCancha: Omit<Cancha, 'id'>) => {
     const id = (canchas.length + 1).toString()
     setCanchas([...canchas, { ...nuevaCancha, id }])
-    toast.success('Cancha agregada con éxito')
+    toast.success('Cancha agregada con &eacute;xito')
   }
 
   const actualizarCancha = (canchaActualizada: Cancha) => {
     setCanchas(canchas.map(c => c.id === canchaActualizada.id ? canchaActualizada : c))
-    toast.success('Cancha actualizada con éxito')
+    toast.success('Cancha actualizada con &eacute;xito')
   }
 
   const eliminarCancha = (id: string) => {
     setCanchas(canchas.filter(c => c.id !== id))
-    toast.success('Cancha eliminada con éxito')
+    toast.success('Cancha eliminada con &eacute;xito')
   }
 
   const toggleEstadoCancha = (id: string) => {
@@ -100,7 +100,7 @@ export default function AdminCanchas() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Administración de Canchas</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Administraci&oacute;n de Canchas</h1>
         <p className="text-gray-600 dark:text-gray-400">Gestiona las canchas del complejo deportivo</p>
       </motion.div>
 
@@ -132,7 +132,7 @@ export default function AdminCanchas() {
                   <DialogHeader>
                     <DialogTitle>{canchaEditando ? 'Editar Cancha' : 'Agregar Nueva Cancha'}</DialogTitle>
                     <DialogDescription>
-                      {canchaEditando ? 'Modifica los detalles de la cancha aquí.' : 'Ingresa los detalles de la nueva cancha aquí.'}
+                      {canchaEditando ? 'Modifica los detalles de la cancha aqu&iacute;.' : 'Ingresa los detalles de la nueva cancha aqu&iacute;.'}
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={guardarCancha}>
@@ -259,7 +259,7 @@ export default function AdminCanchas() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Estadísticas de Canchas</CardTitle>
+          <CardTitle>Estad&iacute;sticas de Canchas</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

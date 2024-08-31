@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Toast } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
 import { Clock, CalendarX, UserPlus, MessageSquare, Send, History } from 'lucide-react'
 import {
@@ -59,7 +58,6 @@ export default function SolicitudesUsuario() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Aquí iría la lógica para procesar la solicitud
     toast({
       title: "Solicitud enviada",
       description: "Hemos recibido tu solicitud. Te contactaremos pronto.",

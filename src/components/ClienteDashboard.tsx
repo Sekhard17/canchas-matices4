@@ -17,9 +17,9 @@ import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, ChevronRight, Sear
 const reservas = [
   { id: 1, fecha: '2024-08-20', cancha: 'Cancha Principal', hora: '10:00 AM', estado: 'Confirmada' },
   { id: 2, fecha: '2024-08-22', cancha: 'Cancha 2', hora: '12:00 PM', estado: 'Pendiente' },
-  { id: 3, fecha: '2024-08-25', cancha: 'Cancha de Fútbol 7', hora: '3:00 PM', estado: 'Confirmada' },
+  { id: 3, fecha: '2024-08-25', cancha: 'Cancha de F&uacute;tbol 7', hora: '3:00 PM', estado: 'Confirmada' },
   { id: 4, fecha: '2024-08-28', cancha: 'Cancha Principal', hora: '5:00 PM', estado: 'Pendiente' },
-  { id: 5, fecha: '2024-09-01', cancha: 'Cancha de Fútbol 7', hora: '11:00 AM', estado: 'Confirmada' },
+  { id: 5, fecha: '2024-09-01', cancha: 'Cancha de F&uacute;tbol 7', hora: '11:00 AM', estado: 'Confirmada' },
   { id: 6, fecha: '2024-09-03', cancha: 'Cancha 2', hora: '2:00 PM', estado: 'Pendiente' },
 ]
 
@@ -52,7 +52,7 @@ export default function NewDashboard() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder.svg?height=32&width=32" alt="@username" />
+                    <AvatarImage src="/placeholder.svg?height=32&amp;width=32" alt="@username" />
                     <AvatarFallback>JD</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -66,12 +66,12 @@ export default function NewDashboard() {
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
-                  <span>Configuración</span>
+                  <span>Configuraci&oacute;n</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Cerrar Sesión</span>
+                  <span>Cerrar Sesi&oacute;n</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -102,7 +102,7 @@ export default function NewDashboard() {
                     <select id="cancha" className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
                       <option>Cancha Principal</option>
                       <option>Cancha 2</option>
-                      <option>Cancha de Fútbol 7</option>
+                      <option>Cancha de F&uacute;tbol 7</option>
                     </select>
                   </div>
                   <div className="space-y-2">
@@ -125,18 +125,18 @@ export default function NewDashboard() {
               className="mb-8"
             >
               <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Bienvenido, Juan</h2>
-              <p className="text-gray-600 dark:text-gray-400">Gestiona tus reservas de canchas fácilmente</p>
+              <p className="text-gray-600 dark:text-gray-400">Gestiona tus reservas de canchas f&aacute;cilmente</p>
             </motion.div>
 
             <Tabs defaultValue="proximas" className="mb-8">
               <TabsList>
-                <TabsTrigger value="proximas">Próximas Reservas</TabsTrigger>
+                <TabsTrigger value="proximas">Pr&oacute;ximas Reservas</TabsTrigger>
                 <TabsTrigger value="calendario">Calendario</TabsTrigger>
               </TabsList>
               <TabsContent value="proximas">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Próximas Reservas</CardTitle>
+                    <CardTitle>Pr&oacute;ximas Reservas</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ScrollArea className="h-[400px] pr-4">
@@ -195,7 +195,7 @@ export default function NewDashboard() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Estadísticas de Uso</CardTitle>
+                <CardTitle>Estad&iacute;sticas de Uso</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

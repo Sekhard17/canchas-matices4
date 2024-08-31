@@ -27,11 +27,7 @@ const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, isActive }) 
   <Link
     href={href}
     className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 ease-in-out
-      ${
-        isActive
-          ? 'bg-blue-900 text-white'
-          : 'text-blue-100 hover:bg-blue-800 hover:text-white'
-      }`}
+      ${isActive ? 'bg-blue-900 text-white' : 'text-blue-100 hover:bg-blue-800 hover:text-white'}`}
   >
     <Icon className="w-5 h-5 mr-2" />
     <span>{label}</span>
@@ -89,12 +85,8 @@ export default function EnhancedNavbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  Tu Perfil
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  Configuración
-                </DropdownMenuItem>
+                <DropdownMenuItem>Tu Perfil</DropdownMenuItem>
+                <DropdownMenuItem>Configuración</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <FaSignOutAlt className="mr-2 h-4 w-4" />
@@ -107,7 +99,7 @@ export default function EnhancedNavbar() {
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" className="h-10 w-10 p-0">
-                  <span className="sr-only">Open menu</span>
+                  <span className="sr-only">Abrir menú</span>
                   <svg
                     className="h-6 w-6 text-blue-100"
                     fill="none"

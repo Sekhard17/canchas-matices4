@@ -19,17 +19,17 @@ import { es } from 'date-fns/locale'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend)
 
-const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Mi&eacute;rcoles', 'Jueves', 'Viernes', 'S&aacute;bado']
 const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
 const horas = Array.from({ length: 14 }, (_, i) => i + 8) // 8:00 AM a 9:00 PM
 
 const reservasMock = [
-  { id: 1, fecha: new Date(2023, 5, 15, 10, 0), cancha: 'Fútbol 5', cliente: 'Juan Pérez' },
-  { id: 2, fecha: new Date(2023, 5, 15, 14, 0), cancha: 'Fútbol 7', cliente: 'María González' },
-  { id: 3, fecha: new Date(2023, 5, 16, 16, 0), cancha: 'Fútbol 11', cliente: 'Carlos Rodríguez' },
-  { id: 4, fecha: new Date(2023, 5, 17, 18, 0), cancha: 'Fútbol 5', cliente: 'Ana Martínez' },
-  { id: 5, fecha: new Date(2023, 5, 18, 20, 0), cancha: 'Fútbol 7', cliente: 'Luis Sánchez' },
+  { id: 1, fecha: new Date(2023, 5, 15, 10, 0), cancha: 'F&uacute;tbol 5', cliente: 'Juan P&eacute;rez' },
+  { id: 2, fecha: new Date(2023, 5, 15, 14, 0), cancha: 'F&uacute;tbol 7', cliente: 'Mar&iacute;a Gonz&aacute;lez' },
+  { id: 3, fecha: new Date(2023, 5, 16, 16, 0), cancha: 'F&uacute;tbol 11', cliente: 'Carlos Rodr&iacute;guez' },
+  { id: 4, fecha: new Date(2023, 5, 17, 18, 0), cancha: 'F&uacute;tbol 5', cliente: 'Ana Mart&iacute;nez' },
+  { id: 5, fecha: new Date(2023, 5, 18, 20, 0), cancha: 'F&uacute;tbol 7', cliente: 'Luis S&aacute;nchez' },
 ]
 
 export default function ManagerDashboard() {
@@ -119,7 +119,7 @@ export default function ManagerDashboard() {
   ]
 
   const barData = {
-    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+    labels: ['Lun', 'Mar', 'Mi&eacute;', 'Jue', 'Vie', 'S&aacute;b', 'Dom'],
     datasets: [
       {
         label: 'Reservas Diarias',
@@ -184,10 +184,10 @@ export default function ManagerDashboard() {
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-3xl font-bold">Bienvenido, Carlos</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Última conexión: Hoy, 10:30 AM</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">&Uacute;ltima conexi&oacute;n: Hoy, 10:30 AM</p>
           </motion.div>
           <div className="flex items-center space-x-4">
-            <Button variant="outline" onClick={() => console.log('Abrir módulo de verificación QR')}>
+            <Button variant="outline" onClick={() => console.log('Abrir m&oacute;dulo de verificaci&oacute;n QR')}>
               <QrCodeIcon className="h-5 w-5 mr-2" />
               Verificar QR
             </Button>
@@ -222,11 +222,11 @@ export default function ManagerDashboard() {
                 <div className="grid gap-4">
                   <Button variant="ghost" className="justify-start">
                     <SettingsIcon className="mr-2 h-4 w-4" />
-                    Configuración
+                    Configuraci&oacute;n
                   </Button>
                   <Button variant="ghost" className="justify-start">
                     <LogOutIcon className="mr-2 h-4 w-4" />
-                    Cerrar sesión
+                    Cerrar sesi&oacute;n
                   </Button>
                 </div>
               </PopoverContent>

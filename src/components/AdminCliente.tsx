@@ -36,9 +36,9 @@ type Reserva = {
 
 // Datos de ejemplo
 const clientesIniciales: Cliente[] = [
-  { id: '1', nombre: 'Ana García', email: 'ana@example.com', telefono: '123456789', fechaRegistro: '2023-01-15', activo: true },
-  { id: '2', nombre: 'Luis Martínez', email: 'luis@example.com', telefono: '987654321', fechaRegistro: '2023-02-20', activo: true },
-  { id: '3', nombre: 'Carmen Rodríguez', email: 'carmen@example.com', telefono: '456789123', fechaRegistro: '2023-03-10', activo: false },
+  { id: '1', nombre: 'Ana Garc&iacute;a', email: 'ana@example.com', telefono: '123456789', fechaRegistro: '2023-01-15', activo: true },
+  { id: '2', nombre: 'Luis Mart&iacute;nez', email: 'luis@example.com', telefono: '987654321', fechaRegistro: '2023-02-20', activo: true },
+  { id: '3', nombre: 'Carmen Rodr&iacute;guez', email: 'carmen@example.com', telefono: '456789123', fechaRegistro: '2023-03-10', activo: false },
 ]
 
 const reservasIniciales: Reserva[] = [
@@ -59,18 +59,18 @@ export default function AdminClientes() {
     const id = (clientes.length + 1).toString()
     const fechaRegistro = format(new Date(), 'yyyy-MM-dd')
     setClientes([...clientes, { ...nuevoCliente, id, fechaRegistro }])
-    toast.success('Cliente agregado con éxito')
+    toast.success('Cliente agregado con &eacute;xito')
   }
 
   const actualizarCliente = (clienteActualizado: Cliente) => {
     setClientes(clientes.map(c => c.id === clienteActualizado.id ? clienteActualizado : c))
-    toast.success('Cliente actualizado con éxito')
+    toast.success('Cliente actualizado con &eacute;xito')
   }
 
   const eliminarCliente = (id: string) => {
     setClientes(clientes.filter(c => c.id !== id))
     setReservas(reservas.filter(r => r.clienteId !== id))
-    toast.success('Cliente eliminado con éxito')
+    toast.success('Cliente eliminado con &eacute;xito')
   }
 
   const toggleEstadoCliente = (id: string) => {
@@ -119,7 +119,7 @@ export default function AdminClientes() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Administración de Clientes</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Administraci&oacute;n de Clientes</h1>
         <p className="text-gray-600 dark:text-gray-400">Gestiona los clientes y sus reservas</p>
       </motion.div>
 
@@ -151,7 +151,7 @@ export default function AdminClientes() {
                   <DialogHeader>
                     <DialogTitle>{clienteEditando ? 'Editar Cliente' : 'Agregar Nuevo Cliente'}</DialogTitle>
                     <DialogDescription>
-                      {clienteEditando ? 'Modifica los detalles del cliente aquí.' : 'Ingresa los detalles del nuevo cliente aquí.'}
+                      {clienteEditando ? 'Modifica los detalles del cliente aqu&iacute;.' : 'Ingresa los detalles del nuevo cliente aqu&iacute;.'}
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={guardarCliente}>
@@ -181,7 +181,7 @@ export default function AdminClientes() {
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="telefono" className="text-right">
-                          Teléfono
+                          Tel&eacute;fono
                         </Label>
                         <Input
                           id="telefono"
@@ -216,7 +216,7 @@ export default function AdminClientes() {
               <TableRow>
                 <TableHead>Nombre</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Teléfono</TableHead>
+                <TableHead>Tel&eacute;fono</TableHead>
                 <TableHead>Fecha de Registro</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Acciones</TableHead>
@@ -293,7 +293,7 @@ export default function AdminClientes() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Estadísticas de Clientes</CardTitle>
+          <CardTitle>Estad&iacute;sticas de Clientes</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

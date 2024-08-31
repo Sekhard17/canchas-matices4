@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -150,14 +150,14 @@ export default function ValidacionReserva() {
                   <CardTitle className="text-center">Escanea el Código QR</CardTitle>
                 </CardHeader>
                 <CardContent>
-                <QrScanner
+                  <QrScanner
                     onScan={(detectedCodes) => {
-                        if (detectedCodes && detectedCodes.length > 0) {
-                        handleScan(detectedCodes[0].rawValue);
-                        }
+                      if (detectedCodes && detectedCodes.length > 0) {
+                        handleScan(detectedCodes[0].rawValue)
+                      }
                     }}
                     onError={handleError}
-                    />
+                  />
                 </CardContent>
                 <CardFooter>
                   <Button variant="outline" className="w-full" onClick={() => setEscaneando(false)}>

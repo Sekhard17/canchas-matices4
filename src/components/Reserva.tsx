@@ -1,20 +1,20 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { format, isSameDay } from 'date-fns'
-import { es } from 'date-fns/locale'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar } from "@/components/ui/calendar"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
+import { useState, useEffect } from 'react';
+import { format, isSameDay } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -22,21 +22,35 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
+} from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { CalendarIcon, TrashIcon, UserIcon, MoonIcon, SunIcon, CheckCircleIcon, InfoIcon, ClockIcon, MapPinIcon, AlertTriangleIcon, ArrowLeftIcon, EyeIcon, EyeOffIcon } from 'lucide-react'
-import { toast, Toaster } from 'react-hot-toast'
+} from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  CalendarIcon,
+  TrashIcon,
+  UserIcon,
+  MoonIcon,
+  SunIcon,
+  CheckCircleIcon,
+  InfoIcon,
+  ClockIcon,
+  MapPinIcon,
+  AlertTriangleIcon,
+  ArrowLeftIcon,
+  EyeIcon,
+  EyeOffIcon,
+} from 'lucide-react';
+import { toast, Toaster } from 'react-hot-toast';
 
 const horariosDisponibles = [
   { hora: '08:00', dia: '2024-08-24', disponible: true, cancha: 'C1F5', precio: 10000 },
@@ -47,77 +61,75 @@ const horariosDisponibles = [
   { hora: '13:00', dia: '2024-08-25', disponible: true, cancha: 'C2F5', precio: 12000 },
   { hora: '14:00', dia: '2024-08-25', disponible: true, cancha: 'C3F7', precio: 15000 },
   { hora: '15:00', dia: '2024-08-25', disponible: true, cancha: 'C4F7', precio: 15000 },
-]
+];
 
-const canchas = ['Todas', 'C1F5', 'C2F5', 'C3F7', 'C4F7']
+const canchas = ['Todas', 'C1F5', 'C2F5', 'C3F7', 'C4F7'];
 
 export default function Component() {
-  const [modalOpen, setModalOpen] = useState(false)
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
-  const [selectedHoras, setSelectedHoras] = useState<typeof horariosDisponibles>([])
-  const [formData, setFormData] = useState({ tieneBalon: false })
-  const [darkMode, setDarkMode] = useState(false)
-  const [infoModalOpen, setInfoModalOpen] = useState(false)
-  const [selectedCancha, setSelectedCancha] = useState(canchas[0])
-  const [isMobile, setIsMobile] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [step, setStep] = useState(1)
-  const [showUnavailable, setShowUnavailable] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedHoras, setSelectedHoras] = useState<typeof horariosDisponibles>([]);
+  const [formData, setFormData] = useState({ tieneBalon: false });
+  const [darkMode, setDarkMode] = useState(false);
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [selectedCancha, setSelectedCancha] = useState(canchas[0]);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState(1);
+  const [showUnavailable, setShowUnavailable] = useState(false);
 
   useEffect(() => {
-    const checkIfMobile = () => setIsMobile(window.innerWidth < 768)
-    checkIfMobile()
-    window.addEventListener('resize', checkIfMobile)
-    return () => window.removeEventListener('resize', checkIfMobile)
-  }, [])
+    const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
 
   const handleHoraClick = (slot: (typeof horariosDisponibles)[number]) => {
     setSelectedHoras((prev) => {
-      const isAlreadySelected = prev.some((item) => item.hora === slot.hora && item.dia === slot.dia)
+      const isAlreadySelected = prev.some((item) => item.hora === slot.hora && item.dia === slot.dia);
       if (isAlreadySelected) {
-        return prev.filter((item) => !(item.hora === slot.hora && item.dia === slot.dia))
+        return prev.filter((item) => !(item.hora === slot.hora && item.dia === slot.dia));
       } else {
-        return [...prev, slot]
+        return [...prev, slot];
       }
-    })
-  }
+    });
+  };
 
   const handleDeleteHora = (index: number) => {
-    setSelectedHoras((prev) => prev.filter((_, i) => i !== index))
-  }
+    setSelectedHoras((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleFormSubmit = () => {
-    setIsLoading(true)
+    setIsLoading(true);
     setTimeout(() => {
-      setIsLoading(false)
-      console.log('Reserva confirmada:', { ...formData, selectedHoras })
-      setModalOpen(false)
-      setSelectedHoras([])
-      toast.success('¡Reserva confirmada con éxito!')
-      setStep(1)
-    }, 2000)
-  }
+      setIsLoading(false);
+      console.log('Reserva confirmada:', { ...formData, selectedHoras });
+      setModalOpen(false);
+      setSelectedHoras([]);
+      toast.success('¡Reserva confirmada con éxito!');
+      setStep(1);
+    }, 2000);
+  };
 
-  const availableHours = horariosDisponibles.filter(
-    (slot) => {
-      const sameDay = isSameDay(new Date(slot.dia), selectedDate!)
-      const matchCancha = selectedCancha === 'Todas' || slot.cancha === selectedCancha
-      return sameDay && matchCancha && (showUnavailable || slot.disponible)
-    }
-  )
+  const availableHours = horariosDisponibles.filter((slot) => {
+    const sameDay = isSameDay(new Date(slot.dia), selectedDate!);
+    const matchCancha = selectedCancha === 'Todas' || slot.cancha === selectedCancha;
+    return sameDay && matchCancha && (showUnavailable || slot.disponible);
+  });
 
-  const total = selectedHoras.reduce((acc, curr) => acc + curr.precio, 0)
+  const total = selectedHoras.reduce((acc, curr) => acc + curr.precio, 0);
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode)
-    document.documentElement.classList.toggle('dark')
-  }
+    setDarkMode(!darkMode);
+    document.documentElement.classList.toggle('dark');
+  };
 
   return (
     <div className={`min-h-screen p-4 sm:p-6 md:p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
       <div className="max-w-md mx-auto">
         <header className="flex justify-between items-center mb-8">
-          <motion.h1 
+          <motion.h1
             className="text-2xl sm:text-3xl font-bold"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -138,8 +150,8 @@ export default function Component() {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <Switch 
-              checked={darkMode} 
+            <Switch
+              checked={darkMode}
               onCheckedChange={toggleDarkMode}
               className="data-[state=checked]:bg-blue-600"
             />
@@ -172,8 +184,8 @@ export default function Component() {
                   />
                 </CardContent>
                 <CardFooter>
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     onClick={() => setStep(2)}
                     disabled={!selectedDate}
                   >
@@ -416,5 +428,6 @@ export default function Component() {
       </div>
       <Toaster position="bottom-center" />
     </div>
-  )
+  );
 }
+

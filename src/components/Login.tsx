@@ -33,7 +33,7 @@ export default function LoginElegante() {
   return (
     <div className={`min-h-screen flex items-center justify-center p-4 transition-all duration-500 ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-green-400 to-blue-500'}`}>
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{backgroundImage: "url('/placeholder.svg?height=1080&width=1920')", filter: 'blur(8px)', opacity: 0.2}}></div>
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/placeholder.svg?height=1080&width=1920')", filter: 'blur(8px)', opacity: 0.2 }}></div>
       </div>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
@@ -58,11 +58,11 @@ export default function LoginElegante() {
           <CardContent className="space-y-4">
             <div className="flex justify-center">
               <motion.div
-                animate={{ 
+                animate={{
                   rotate: [0, 360],
                   scale: [1, 1.1, 1]
                 }}
-                transition={{ 
+                transition={{
                   duration: 4,
                   repeat: Infinity,
                   ease: "easeInOut"
@@ -73,7 +73,7 @@ export default function LoginElegante() {
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Correo electrónico</Label>
+                <Label htmlFor="email">Correo electr&oacute;nico</Label>
                 <div className="relative">
                   <Input
                     id="email"
@@ -88,7 +88,7 @@ export default function LoginElegante() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password">Contrase&ntilde;a</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -111,8 +111,8 @@ export default function LoginElegante() {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="remember" 
+                <Checkbox
+                  id="remember"
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                 />
@@ -124,7 +124,7 @@ export default function LoginElegante() {
                 </label>
               </div>
               <Button type="submit" className="w-full bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 transition-all duration-300">
-                Iniciar sesión
+                Iniciar sesi&oacute;n
               </Button>
             </form>
           </CardContent>
@@ -134,7 +134,7 @@ export default function LoginElegante() {
               Registrarse
             </Button>
             <Button variant="link" className="text-sm text-blue-500 hover:text-blue-600 transition-colors duration-300">
-              ¿Olvidaste tu contraseña?
+              &iquest;Olvidaste tu contrase&ntilde;a?
             </Button>
           </CardFooter>
         </Card>
