@@ -39,7 +39,7 @@ export default function AppDownloadPage() {
         <Card className={`w-full max-w-md border-none shadow-2xl ${darkMode ? 'bg-gray-800 text-white' : 'bg-white'}`}>
           <CardHeader className="text-center">
             <CardTitle className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-green-400">
-              Matices Fútbol App
+              Matices App
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -58,7 +58,7 @@ export default function AppDownloadPage() {
               </motion.div>
             </div>
             <p className="text-center text-lg">
-              ¡Nuestra app está en desarrollo! Pronto podrás reservar canchas, unirte a torneos y más, todo desde tu teléfono.
+              ¡Nuestra app está en desarrollo! Pronto podrás reservar canchas, encontrar rivales y más, todo desde tu teléfono.
             </p>
             <div className="flex justify-center space-x-4">
               <Button disabled className="bg-black text-white hover:bg-gray-800 flex items-center space-x-2">
