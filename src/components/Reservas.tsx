@@ -1,21 +1,21 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react'
-import { ChevronLeft, ChevronRight, Bell, Plus, Edit, Trash } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight, Bell, Plus, Edit, Trash } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -24,92 +24,102 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-// Datos de ejemplo para las reservas
-const reservasEjemplo = [
+// Define los tipos de datos para las reservas
+interface Reserva {
+  id: number;
+  nombre: string;
+  inicio: string;
+  fin: string;
+  cancha: string;
+  tipo: 'VIP' | 'Regular' | 'Torneo' | 'Club';
+  rut: string;
+}
+
+const reservasEjemplo: Reserva[] = [
   { id: 1, nombre: 'Ricardo García', inicio: '15:00', fin: '16:00', cancha: 'Cancha C1', tipo: 'VIP', rut: '12345678-9' },
   { id: 2, nombre: 'Héctor Uribe', inicio: '16:00', fin: '17:00', cancha: 'Cancha C1', tipo: 'Regular', rut: '98765432-1' },
   { id: 3, nombre: 'Agustín Masuzzo', inicio: '18:00', fin: '19:00', cancha: 'Cancha C2', tipo: 'Torneo', rut: '11223344-5' },
   { id: 4, nombre: 'Sofía Beltrán', inicio: '19:00', fin: '20:00', cancha: 'Cancha C2', tipo: 'Club', rut: '55667788-9' },
   { id: 5, nombre: 'Lucas Matazzi', inicio: '20:00', fin: '21:00', cancha: 'Cancha C3', tipo: 'Regular', rut: '99887766-5' },
   { id: 6, nombre: 'Ignacio Sekhard', inicio: '21:00', fin: '22:00', cancha: 'Cancha C3', tipo: 'VIP', rut: '44332211-0' },
-]
+];
 
-const canchas = ['Todas las canchas', 'Cancha C1', 'Cancha C2', 'Cancha C3', 'Cancha C4']
-const horas = ['15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00']
-const tipos = ['VIP', 'Regular', 'Torneo', 'Club']
+const canchas = ['Todas las canchas', 'Cancha C1', 'Cancha C2', 'Cancha C3', 'Cancha C4'];
+const horas = ['15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00'];
+const tipos = ['VIP', 'Regular', 'Torneo', 'Club'];
 
 const colorPorTipo = {
   VIP: 'bg-purple-200 text-purple-800',
   Regular: 'bg-blue-200 text-blue-800',
   Torneo: 'bg-green-200 text-green-800',
   Club: 'bg-orange-200 text-orange-800',
-}
+};
 
 export default function GestorReservasDeportivas() {
-  const [fecha, setFecha] = useState(new Date())
-  const [canchaSeleccionada, setCanchaSeleccionada] = useState('Todas las canchas')
-  const [reservas, setReservas] = useState(reservasEjemplo)
-  const [reservaEditando, setReservaEditando] = useState(null)
-  const [mostrarFormulario, setMostrarFormulario] = useState(false)
-  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false)
-  const [reservaEliminar, setReservaEliminar] = useState(null)
+  const [fecha, setFecha] = useState<Date | undefined>(new Date());
+  const [canchaSeleccionada, setCanchaSeleccionada] = useState('Todas las canchas');
+  const [reservas, setReservas] = useState<Reserva[]>(reservasEjemplo);
+  const [reservaEditando, setReservaEditando] = useState<Reserva | null>(null);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [reservaEliminar, setReservaEliminar] = useState<Reserva | null>(null);
 
   const cambiarFecha = (nuevaFecha: Date | undefined) => {
     if (nuevaFecha) {
-      setFecha(nuevaFecha)
+      setFecha(nuevaFecha);
     }
-  }
+  };
 
   const filtrarReservas = () => {
     return canchaSeleccionada === 'Todas las canchas'
       ? reservas
-      : reservas.filter(r => r.cancha === canchaSeleccionada)
-  }
+      : reservas.filter(r => r.cancha === canchaSeleccionada);
+  };
 
-  const handleEditarReserva = (reserva) => {
-    setReservaEditando(reserva)
-    setMostrarFormulario(true)
-  }
+  const handleEditarReserva = (reserva: Reserva) => {
+    setReservaEditando(reserva);
+    setMostrarFormulario(true);
+  };
 
-  const handleEliminarReserva = (reserva) => {
-    setReservaEliminar(reserva)
-    setMostrarConfirmacion(true)
-  }
+  const handleEliminarReserva = (reserva: Reserva) => {
+    setReservaEliminar(reserva);
+    setMostrarConfirmacion(true);
+  };
 
   const confirmarEliminarReserva = () => {
     if (reservaEliminar) {
-      setReservas(reservas.filter(r => r.id !== reservaEliminar.id))
-      setMostrarConfirmacion(false)
-      setReservaEliminar(null)
+      setReservas(reservas.filter(r => r.id !== reservaEliminar.id));
+      setMostrarConfirmacion(false);
+      setReservaEliminar(null);
     }
-  }
+  };
 
-  const handleGuardarReserva = (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
-    const nuevaReserva = {
+  const handleGuardarReserva = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const nuevaReserva: Reserva = {
       id: reservaEditando ? reservaEditando.id : Date.now(),
-      nombre: formData.get('nombre'),
-      rut: formData.get('rut'),
-      inicio: formData.get('inicio'),
-      fin: formData.get('fin'),
-      cancha: formData.get('cancha'),
-      tipo: formData.get('tipo'),
-    }
+      nombre: formData.get('nombre') as string,
+      rut: formData.get('rut') as string,
+      inicio: formData.get('inicio') as string,
+      fin: formData.get('fin') as string,
+      cancha: formData.get('cancha') as string,
+      tipo: formData.get('tipo') as 'VIP' | 'Regular' | 'Torneo' | 'Club',
+    };
 
     if (reservaEditando) {
-      setReservas(reservas.map(r => r.id === reservaEditando.id ? nuevaReserva : r))
+      setReservas(reservas.map(r => r.id === reservaEditando.id ? nuevaReserva : r));
     } else {
-      setReservas([...reservas, nuevaReserva])
+      setReservas([...reservas, nuevaReserva]);
     }
 
-    setMostrarFormulario(false)
-    setReservaEditando(null)
-  }
+    setMostrarFormulario(false);
+    setReservaEditando(null);
+  };
 
   return (
     <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg space-y-6">
@@ -133,7 +143,7 @@ export default function GestorReservasDeportivas() {
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline">
-                {fecha.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                {fecha?.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
@@ -304,5 +314,5 @@ export default function GestorReservasDeportivas() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
