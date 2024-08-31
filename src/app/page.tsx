@@ -45,7 +45,7 @@ export default function MaticesLanding() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
 
   const slides: Slide[] = [
-    { title: "Fútbol 5", description: "Canchas de última generación", image: "/images/hero-image.jpg" },
+    { title: "Fútbol 5", description: "Canchas de última generación", image: "/images/hero-bg.jpg" },
     { title: "Fútbol 7", description: "Espacio perfecto para tus partidos", image: "/images/matices.jpg" },
     { title: "Torneos", description: "Compite y diviértete", image: "/images/sobre-nosotros.jpg" },
   ];  
