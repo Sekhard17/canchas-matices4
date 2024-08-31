@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { toast, Toaster } from 'react-hot-toast'
-import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from 'lucide-react'
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, SunIcon, MoonIcon } from 'lucide-react'
 import { GiSoccerBall } from 'react-icons/gi'
 
 export default function LoginElegante() {
@@ -40,10 +40,10 @@ export default function LoginElegante() {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-sm md:max-w-md z-10" // Cambiado para max-w-sm en móviles para hacerlo más compacto
+        className="w-full max-w-md z-10"
       >
         <Card className={`border-none shadow-2xl backdrop-blur-sm ${darkMode ? 'bg-gray-800/90 text-white' : 'bg-white/90'}`}>
-          <CardHeader className="space-y-1">
+          <CardHeader className="space-y-1 pt-6">
             <div className="flex items-center justify-between">
               <CardTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-green-400">
                 Matices Fútbol
@@ -54,9 +54,9 @@ export default function LoginElegante() {
                 className="data-[state=checked]:bg-blue-600"
               />
             </div>
-            <p className="text-xs text-muted-foreground">Ingresa a tu cuenta para reservar tu cancha</p>
+            <p className="text-sm text-muted-foreground">Ingresa a tu cuenta para reservar tu cancha</p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-0">
             <div className="flex justify-center">
               <motion.div
                 animate={{
@@ -72,11 +72,11 @@ export default function LoginElegante() {
                 <GiSoccerBall className="w-16 h-16 text-blue-500" />
               </motion.div>
             </div>
-            <div className="text-center text-xs font-medium text-blue-600 dark:text-blue-400">
+            <div className="text-center text-sm font-medium text-blue-600 dark:text-blue-400">
               ¡Sabia decisión! Estás a un paso de disfrutar del mejor fútbol en Osorno.
             </div>
-            <form onSubmit={handleSubmit} className="space-y-3"> {/* Ajustado para menos espacio */}
-              <div className="space-y-2">
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="space-y-1">
                 <Label htmlFor="email">Correo electrónico</Label>
                 <div className="relative">
                   <Input
@@ -91,7 +91,7 @@ export default function LoginElegante() {
                   <MailIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="password">Contraseña</Label>
                 <div className="relative">
                   <Input
@@ -122,7 +122,7 @@ export default function LoginElegante() {
                 />
                 <label
                   htmlFor="remember"
-                  className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   Recordarme
                 </label>
@@ -132,8 +132,8 @@ export default function LoginElegante() {
               </Button>
             </form>
           </CardContent>
-          <Separator className={`my-2 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} /> {/* Espaciado más pequeño */}
-          <CardFooter className="flex flex-col space-y-2"> {/* Ajustado para menos espacio */}
+          <Separator className={`my-2 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+          <CardFooter className="flex flex-col space-y-2 pt-2 pb-6">
             <div className="text-center text-xs">
               ¿Aún no tienes una cuenta? ¡No te pierdas la diversión!
             </div>
