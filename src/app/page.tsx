@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, ReactNode } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { GiSoccerField, GiWhistle, GiSoccerBall } from "react-icons/gi"
-import { FaCalendarAlt, FaUsers, FaMedal, FaInstagram, FaFacebookF, FaTwitter } from "react-icons/fa"
-import { MdSportsSoccer, MdLocationOn, MdPhone, MdEmail } from "react-icons/md"
+import { FaCalendarAlt, FaUsers, FaMedal, FaInstagram, FaFacebookF, FaTwitter, FaUserCircle, FaDownload } from "react-icons/fa"
+import { MdSportsSoccer, MdLocationOn, MdPhone, MdEmail, MdHome, MdContactSupport } from "react-icons/md"
+
+// Definir interfaces para los tipos de los props
 
 interface Slide {
   title: string;
@@ -19,12 +21,13 @@ interface Slide {
 
 interface NavLinkProps {
   href: string;
-  children: React.ReactNode;
+  children: ReactNode;
+  icon?: ReactNode;
   onClick?: () => void;
 }
 
 interface ServiceCardProps {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   description: string;
 }
@@ -48,7 +51,7 @@ export default function MaticesLanding() {
     { title: "Fútbol 5", description: "Canchas de última generación", image: "/images/hero-bg.jpg" },
     { title: "Fútbol 7", description: "Espacio perfecto para tus partidos", image: "/images/matices.jpg" },
     { title: "Torneos", description: "Compite y diviértete", image: "/images/sobre-nosotros.jpg" },
-  ];  
+  ]
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -65,12 +68,20 @@ export default function MaticesLanding() {
             <GiSoccerBall className="w-8 h-8 text-blue-600" />
             <span className="text-2xl font-bold text-blue-600">Matices Fútbol</span>
           </Link>
-          <nav className="hidden md:flex space-x-6">
-            <NavLink href="#inicio">Inicio</NavLink>
-            <NavLink href="#servicios">Servicios</NavLink>
-            <NavLink href="#instalaciones">Instalaciones</NavLink>
-            <NavLink href="#reservas">Reservas</NavLink>
-            <NavLink href="#contacto">Contacto</NavLink>
+          <nav className="hidden md:flex items-center space-x-6">
+            <NavLink href="#inicio" icon={<MdHome className="w-5 h-5" />}>Inicio</NavLink>
+            <NavLink href="#servicios" icon={<MdSportsSoccer className="w-5 h-5" />}>Servicios</NavLink>
+            <NavLink href="#instalaciones" icon={<GiSoccerField className="w-5 h-5" />}>Instalaciones</NavLink>
+            <NavLink href="#reservas" icon={<FaCalendarAlt className="w-5 h-5" />}>Reservas</NavLink>
+            <NavLink href="#contacto" icon={<MdContactSupport className="w-5 h-5" />}>Contacto</NavLink>
+            <Button variant="outline" size="sm" className="ml-4">
+              <FaUserCircle className="w-5 h-5 mr-2" />
+              Iniciar Sesión
+            </Button>
+            <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+              <FaDownload className="w-5 h-5 mr-2" />
+              Descargar App
+            </Button>
           </nav>
           <Button
             className="md:hidden"
@@ -91,17 +102,25 @@ export default function MaticesLanding() {
           className="md:hidden bg-white py-4 shadow-md"
         >
           <div className="container mx-auto flex flex-col space-y-4">
-            <NavLink href="#inicio" onClick={() => setIsMenuOpen(false)}>Inicio</NavLink>
-            <NavLink href="#servicios" onClick={() => setIsMenuOpen(false)}>Servicios</NavLink>
-            <NavLink href="#instalaciones" onClick={() => setIsMenuOpen(false)}>Instalaciones</NavLink>
-            <NavLink href="#reservas" onClick={() => setIsMenuOpen(false)}>Reservas</NavLink>
-            <NavLink href="#contacto" onClick={() => setIsMenuOpen(false)}>Contacto</NavLink>
+            <NavLink href="#inicio" icon={<MdHome className="w-5 h-5" />} onClick={() => setIsMenuOpen(false)}>Inicio</NavLink>
+            <NavLink href="#servicios" icon={<MdSportsSoccer className="w-5 h-5" />} onClick={() => setIsMenuOpen(false)}>Servicios</NavLink>
+            <NavLink href="#instalaciones" icon={<GiSoccerField className="w-5 h-5" />} onClick={() => setIsMenuOpen(false)}>Instalaciones</NavLink>
+            <NavLink href="#reservas" icon={<FaCalendarAlt className="w-5 h-5" />} onClick={() => setIsMenuOpen(false)}>Reservas</NavLink>
+            <NavLink href="#contacto" icon={<MdContactSupport className="w-5 h-5" />} onClick={() => setIsMenuOpen(false)}>Contacto</NavLink>
+            <Button variant="outline" size="sm" className="w-full justify-center">
+              <FaUserCircle className="w-5 h-5 mr-2" />
+              Iniciar Sesión
+            </Button>
+            <Button variant="default" size="sm" className="w-full justify-center bg-blue-600 hover:bg-blue-700 text-white">
+              <FaDownload className="w-5 h-5 mr-2" />
+              Descargar App
+            </Button>
           </div>
         </motion.nav>
       )}
 
       <main>
-        <section id="inicio" className="relative h-screen">
+        <section id="inicio" className="relative h-[60vh] md:h-[70vh]">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentSlide}
@@ -121,8 +140,8 @@ export default function MaticesLanding() {
               <div className="absolute inset-0 bg-black bg-opacity-50" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">
-                  <h1 className="text-5xl md:text-7xl font-bold mb-4">{slides[currentSlide].title}</h1>
-                  <p className="text-xl md:text-2xl mb-8">{slides[currentSlide].description}</p>
+                  <h1 className="text-4xl md:text-5xl font-bold mb-4">{slides[currentSlide].title}</h1>
+                  <p className="text-lg md:text-xl mb-8">{slides[currentSlide].description}</p>
                   <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
                     Reserva ahora
                   </Button>
@@ -163,7 +182,7 @@ export default function MaticesLanding() {
                 <TabsTrigger value="futbol5">Fútbol 5</TabsTrigger>
                 <TabsTrigger value="futbol7">Fútbol 7</TabsTrigger>
               </TabsList>
-                <TabsContent value="futbol5">
+              <TabsContent value="futbol5">
                 <InstallationCard
                   image="/images/hero-bg.jpg"
                   title="Canchas de Fútbol 5"
@@ -273,9 +292,10 @@ export default function MaticesLanding() {
   )
 }
 
-function NavLink({ href, children, ...props }: NavLinkProps) {
+function NavLink({ href, children, icon, onClick }: NavLinkProps) {
   return (
-    <Link href={href} className="text-gray-600 hover:text-blue-600 transition-colors" prefetch={false} {...props}>
+    <Link href={href} className="text-gray-600 hover:text-blue-600 transition-colors flex items-center" prefetch={false} onClick={onClick}>
+      {icon && <span className="mr-2">{icon}</span>}
       {children}
     </Link>
   )
