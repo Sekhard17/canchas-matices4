@@ -397,12 +397,12 @@ export default function Component() {
                   <h3 className="font-semibold mb-2">Pasos para reservar:</h3>
                   <ol className="list-decimal pl-5 space-y-2">
                     <li>Selecciona una fecha en el calendario.</li>
-                    <li>Elige una cancha específica o selecciona "Todas" para ver todas las opciones.</li>
+                    <li>Elige una cancha específica o selecciona &quot;Todas&quot; para ver todas las opciones.</li>
                     <li>Selecciona las horas disponibles que desees reservar.</li>
-                    <li>Haz clic en "Reservar" para revisar y confirmar tu selección.</li>
+                    <li>Haz clic en &quot;Reservar&quot; para revisar y confirmar tu selección.</li>
                     <li>Verifica los detalles de tu reserva en la ventana emergente.</li>
                     <li>Indica si traerás tu propio balón.</li>
-                    <li>Haz clic en "Confirmar Reserva" para finalizar el proceso.</li>
+                    <li>Haz clic en &quot;Confirmar Reserva&quot; para finalizar el proceso.</li>
                   </ol>
                 </div>
                 <div className="p-4 bg-yellow-100 dark:bg-yellow-900 rounded-md">
@@ -430,4 +430,3 @@ export default function Component() {
     </div>
   );
 }
-
