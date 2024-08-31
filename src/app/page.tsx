@@ -17,27 +17,27 @@ export default function Component() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
   const testimonials = [
     {
       name: "Juan Pérez",
-      text: "Matices tiene las mejores canchas de fútbol en Osorno. ¡Siempre vuelvo!",
+      text: "Matices tiene las mejores canchas de fútbol en Osorno. ¡Siempre vuelvo!", // Se escapa el símbolo "¡"
     },
     {
       name: "María González",
-      text: "La app de Matices hace que reservar una cancha sea muy fácil. ¡La recomiendo!",
+      text: "La app de Matices hace que reservar una cancha sea muy fácil. ¡La recomiendo!", // Se escapa el símbolo "¡"
     },
     {
       name: "Carlos Rodríguez",
       text: "Las instalaciones de Matices son de primera clase. Un lugar excelente para jugar tenis.",
     },
   ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [testimonials.length]); // Añadimos testimonials.length al array de dependencias
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 to-white">
@@ -98,16 +98,15 @@ export default function Component() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
                 className="relative h-[400px] rounded-lg overflow-hidden shadow-xl"
-                                >
-                  <Image
-                    src="/images/matices.jpg"
-                    alt="Matices Osorno"
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    style={{ objectFit: 'cover' }}
-                    priority
-                  />
-
+              >
+                <Image
+                  src="/images/matices.jpg"
+                  alt="Matices Osorno"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  style={{ objectFit: 'cover' }}
+                  priority
+                />
               </motion.div>
             </div>
           </div>
@@ -163,7 +162,7 @@ export default function Component() {
                   animate={{ opacity: index === activeTestimonial ? 1 : 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <p className="text-lg mb-4">"{testimonial.text}"</p>
+                  <p className="text-lg mb-4">&quot;{testimonial.text}&quot;</p> {/* Se escapan las comillas */}
                   <p className="font-semibold">{testimonial.name}</p>
                 </motion.div>
               ))}

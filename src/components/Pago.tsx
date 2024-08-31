@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -168,7 +169,7 @@ export default function PagoReservaEstilizado() {
                       </TabsContent>
                       <TabsContent value="flow">
                         <div className="text-center p-4">
-                          <img src="/placeholder.svg?height=60&width=120" alt="Flow logo" className="mx-auto mb-4" />
+                          <Image src="/placeholder.svg" alt="Flow logo" width={120} height={60} className="mx-auto mb-4" />
                           <Button onClick={handlePago} className="w-full bg-blue-600 hover:bg-blue-700">
                             <DollarSign className="mr-2 h-4 w-4" />
                             Pagar con Flow
@@ -177,7 +178,7 @@ export default function PagoReservaEstilizado() {
                       </TabsContent>
                       <TabsContent value="transbank">
                         <div className="text-center p-4">
-                          <img src="/placeholder.svg?height=60&width=120" alt="Transbank logo" className="mx-auto mb-4" />
+                          <Image src="/placeholder.svg" alt="Transbank logo" width={120} height={60} className="mx-auto mb-4" />
                           <Button onClick={handlePago} className="w-full bg-red-600 hover:bg-red-700">
                             <CreditCard className="mr-2 h-4 w-4" />
                             Pagar con Transbank
