@@ -74,14 +74,19 @@ export default function MaticesLanding() {
             <NavLink href="#instalaciones" icon={<GiSoccerField className="w-5 h-5" />}>Instalaciones</NavLink>
             <NavLink href="#reservas" icon={<FaCalendarAlt className="w-5 h-5" />}>Reservas</NavLink>
             <NavLink href="#contacto" icon={<MdContactSupport className="w-5 h-5" />}>Contacto</NavLink>
-            <Button variant="outline" size="sm" className="ml-4">
-              <FaUserCircle className="w-5 h-5 mr-2" />
-              Iniciar Sesión
-            </Button>
-            <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-              <FaDownload className="w-5 h-5 mr-2" />
-              Descargar App
-            </Button>
+
+            <Link href="/login">
+              <Button variant="outline" size="sm" className="ml-4">
+                <FaUserCircle className="w-5 h-5 mr-2" />
+                Iniciar Sesión
+              </Button>
+            </Link>
+            <Link href="/downloads">
+              <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                <FaDownload className="w-5 h-5 mr-2" />
+                Descargar App
+              </Button>
+            </Link>
           </nav>
           <Button
             className="md:hidden"
@@ -107,14 +112,19 @@ export default function MaticesLanding() {
             <NavLink href="#instalaciones" icon={<GiSoccerField className="w-5 h-5" />} onClick={() => setIsMenuOpen(false)}>Instalaciones</NavLink>
             <NavLink href="#reservas" icon={<FaCalendarAlt className="w-5 h-5" />} onClick={() => setIsMenuOpen(false)}>Reservas</NavLink>
             <NavLink href="#contacto" icon={<MdContactSupport className="w-5 h-5" />} onClick={() => setIsMenuOpen(false)}>Contacto</NavLink>
-            <Button variant="outline" size="sm" className="w-full justify-center">
-              <FaUserCircle className="w-5 h-5 mr-2" />
-              Iniciar Sesión
-            </Button>
-            <Button variant="default" size="sm" className="w-full justify-center bg-blue-600 hover:bg-blue-700 text-white">
-              <FaDownload className="w-5 h-5 mr-2" />
-              Descargar App
-            </Button>
+            
+            <Link href="/login">
+              <Button variant="outline" size="sm" className="w-full justify-center">
+                <FaUserCircle className="w-5 h-5 mr-2" />
+                Iniciar Sesión
+              </Button>
+            </Link>
+            <Link href="/downloads">
+              <Button variant="default" size="sm" className="w-full justify-center bg-blue-600 hover:bg-blue-700 text-white">
+                <FaDownload className="w-5 h-5 mr-2" />
+                Descargar App
+              </Button>
+            </Link>
           </div>
         </motion.nav>
       )}
@@ -142,9 +152,11 @@ export default function MaticesLanding() {
                 <div className="text-center text-white">
                   <h1 className="text-4xl md:text-5xl font-bold mb-4">{slides[currentSlide].title}</h1>
                   <p className="text-lg md:text-xl mb-8">{slides[currentSlide].description}</p>
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
-                    Reserva ahora
-                  </Button>
+                  <Link href="/reserva">
+                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                      Reserva ahora
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </motion.div>
@@ -206,9 +218,11 @@ export default function MaticesLanding() {
             <p className="text-xl mb-8">
               Reserva tu cancha de fútbol 5 o 7 en pocos clics. ¡Juega cuando quieras!
             </p>
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
-              Reservar Ahora
-            </Button>
+            <Link href="/reserva">
+              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
+                Reservar Ahora
+              </Button>
+            </Link>
           </div>
         </section>
 
@@ -262,15 +276,15 @@ export default function MaticesLanding() {
             </div>
             <div>
               <h3 className="text-xl font-bold mb-4">Horarios</h3>
-              <p>Lunes a Viernes: 10:00 - 23:00</p>
-              <p>Sábados y Domingos: 09:00 - 00:00</p>
+              <p>Lunes a Viernes: 15:00 - 0:00</p>
+              <p>Sábados y Domingos: 10:00 - 00:00</p>
             </div>
             <div>
               <h3 className="text-xl font-bold mb-4">Contacto</h3>
               <ul className="space-y-2">
                 <li className="flex items-center">
                   <MdLocationOn className="w-5 h-5 mr-2" />
-                  <span>Av. Principal 123, Osorno</span>
+                  <span>Av. Real 1065 Rahue Alto, Osorno</span>
                 </li>
                 <li className="flex items-center">
                   <MdPhone className="w-5 h-5 mr-2" />
@@ -278,13 +292,13 @@ export default function MaticesLanding() {
                 </li>
                 <li className="flex items-center">
                   <MdEmail className="w-5 h-5 mr-2" />
-                  <span>info@maticesfutbol.cl</span>
+                  <span>info@matices.cl</span>
                 </li>
               </ul>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-800 text-center">
-            <p>&copy; 2023 Matices Fútbol. Todos los derechos reservados.</p>
+            <p>&copy; 2024 Matices Fútbol. Todos los derechos reservados.</p>
             <p>&copy; Desarrollado por Spectrum Code Software.</p>
           </div>
         </div>
