@@ -84,7 +84,7 @@ export default function AppDownloadPage() {
 
       <footer className={`py-4 px-6 text-center ${darkMode ? 'text-gray-400' : 'text-white'}`}>
         <p className="text-sm">
-          © 2023 Canchas Matices Osorno. Todos los derechos reservados.
+          © 2024 Canchas Matices Osorno. Todos los derechos reservados.
         </p>
         <p className="text-xs mt-1">
           Desarrollado con ❤️ por <a href="#" className="underline hover:text-blue-300">Spectrum Code Software</a>
