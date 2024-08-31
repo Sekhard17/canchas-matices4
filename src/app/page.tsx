@@ -1,224 +1,318 @@
-"use client";
-import Image from "next/image";
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
-import { GiSoccerBall as SoccerBallIcon } from "react-icons/gi";
-import { MdCalendarToday as CalendarIcon } from "react-icons/md";
-import { FaDownload as DownloadIcon } from "react-icons/fa";
-import { MdLocationOn as MapPinIcon } from "react-icons/md";
-import { IoIosMenu as MenuIcon } from "react-icons/io";
-import { FaApple as AppleIcon, FaGooglePlay as PlayIcon } from "react-icons/fa";
-import { MdSmartphone as SmartphoneIcon } from "react-icons/md";
+'use client'
 
-export default function Component() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
+import { useState, useEffect } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { GiSoccerField, GiWhistle, GiSoccerBall } from "react-icons/gi"
+import { FaCalendarAlt, FaUsers, FaMedal, FaInstagram, FaFacebookF, FaTwitter } from "react-icons/fa"
+import { MdSportsSoccer, MdLocationOn, MdPhone, MdEmail } from "react-icons/md"
 
-  const testimonials = [
-    {
-      name: "Juan Pérez",
-      text: "Matices tiene las mejores canchas de fútbol en Osorno. ¡Siempre vuelvo!", // Se escapa el símbolo "¡"
-    },
-    {
-      name: "María González",
-      text: "La app de Matices hace que reservar una cancha sea muy fácil. ¡La recomiendo!", // Se escapa el símbolo "¡"
-    },
-    {
-      name: "Carlos Rodríguez",
-      text: "Las instalaciones de Matices son de primera clase. Un lugar excelente para jugar tenis.",
-    },
-  ];
+interface Slide {
+  title: string;
+  description: string;
+  image: string;
+}
+
+interface NavLinkProps {
+  href: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+}
+
+interface ServiceCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}
+
+interface InstallationCardProps {
+  image: string;
+  title: string;
+  description: string;
+}
+
+interface TestimonialCardProps {
+  quote: string;
+  author: string;
+}
+
+export default function MaticesLanding() {
+  const [currentSlide, setCurrentSlide] = useState<number>(0)
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
+
+  const slides: Slide[] = [
+    { title: "Fútbol 5", description: "Canchas de última generación", image: "/placeholder.svg?height=600&width=800" },
+    { title: "Fútbol 7", description: "Espacio perfecto para tus partidos", image: "/placeholder.svg?height=600&width=800" },
+    { title: "Torneos", description: "Compite y diviértete", image: "/placeholder.svg?height=600&width=800" },
+  ]
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [testimonials.length]); // Añadimos testimonials.length al array de dependencias
+    const timer = setInterval(() => {
+      setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [slides.length])
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      <header className="bg-blue-900 text-white py-4 px-6 sticky top-0 z-50">
-        <div className="container mx-auto flex items-center justify-between">
-          <Link href="#" className="flex items-center gap-2 text-2xl font-bold" prefetch={false}>
-            <SoccerBallIcon className="w-8 h-8" />
-            <span>Matices</span>
+    <div className="min-h-screen bg-gray-50 text-gray-800">
+      <header className="bg-white py-4 px-6 sticky top-0 z-50 shadow-md">
+        <div className="container mx-auto flex justify-between items-center">
+          <Link href="/" className="flex items-center space-x-2" prefetch={false}>
+            <GiSoccerBall className="w-8 h-8 text-blue-600" />
+            <span className="text-2xl font-bold text-blue-600">Matices Fútbol</span>
           </Link>
-          <nav
-            className={`${
-              isMenuOpen ? "flex" : "hidden"
-            } md:flex items-center gap-6 text-sm font-medium absolute md:relative top-full left-0 right-0 bg-blue-900 md:bg-transparent p-4 md:p-0 flex-col md:flex-row`}
-          >
-            <Link href="#" className="hover:text-blue-300 transition-colors" prefetch={false}>
-              Reservar Cancha
-            </Link>
-            <Link href="#" className="hover:text-blue-300 transition-colors" prefetch={false}>
-              Nosotros
-            </Link>
-            <Link href="#" className="hover:text-blue-300 transition-colors" prefetch={false}>
-              Contacto
-            </Link>
+          <nav className="hidden md:flex space-x-6">
+            <NavLink href="#inicio">Inicio</NavLink>
+            <NavLink href="#servicios">Servicios</NavLink>
+            <NavLink href="#instalaciones">Instalaciones</NavLink>
+            <NavLink href="#reservas">Reservas</NavLink>
+            <NavLink href="#contacto">Contacto</NavLink>
           </nav>
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <MenuIcon className="w-6 h-6" />
-            <span className="sr-only">Toggle menu</span>
+          <Button
+            className="md:hidden"
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <MdSportsSoccer className="h-6 w-6" />
           </Button>
         </div>
       </header>
-      <main className="flex-1">
-        <section className="relative py-20 md:py-32 overflow-hidden">
-          <div className="container mx-auto px-4 md:px-6 relative z-10">
-            <div className="grid gap-6 md:grid-cols-2 items-center">
-              <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
-                className="space-y-4"
-              >
-                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl text-blue-900">
-                  Bienvenido a Matices
-                </h1>
-                <p className="text-xl text-blue-700">Disfruta de nuestras canchas de fútbol y tenis en Osorno, Chile.</p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
-                    <CalendarIcon className="w-5 h-5" />
-                    Reservar Cancha
-                  </Button>
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
-                    <DownloadIcon className="w-5 h-5" />
-                    Descargar App
+
+      {isMenuOpen && (
+        <motion.nav
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="md:hidden bg-white py-4 shadow-md"
+        >
+          <div className="container mx-auto flex flex-col space-y-4">
+            <NavLink href="#inicio" onClick={() => setIsMenuOpen(false)}>Inicio</NavLink>
+            <NavLink href="#servicios" onClick={() => setIsMenuOpen(false)}>Servicios</NavLink>
+            <NavLink href="#instalaciones" onClick={() => setIsMenuOpen(false)}>Instalaciones</NavLink>
+            <NavLink href="#reservas" onClick={() => setIsMenuOpen(false)}>Reservas</NavLink>
+            <NavLink href="#contacto" onClick={() => setIsMenuOpen(false)}>Contacto</NavLink>
+          </div>
+        </motion.nav>
+      )}
+
+      <main>
+        <section id="inicio" className="relative h-screen">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSlide}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={slides[currentSlide].image}
+                alt={slides[currentSlide].title}
+                fill
+                style={{ objectFit: "cover" }}
+                priority
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-50" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <h1 className="text-5xl md:text-7xl font-bold mb-4">{slides[currentSlide].title}</h1>
+                  <p className="text-xl md:text-2xl mb-8">{slides[currentSlide].description}</p>
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Reserva ahora
                   </Button>
                 </div>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="relative h-[400px] rounded-lg overflow-hidden shadow-xl"
-              >
-                <Image
-                  src="/images/matices.jpg"
-                  alt="Matices Osorno"
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  style={{ objectFit: 'cover' }}
-                  priority
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </section>
+
+        <section id="servicios" className="py-20 bg-white">
+          <div className="container mx-auto px-4">
+            <h2 className="text-4xl font-bold text-center mb-12 text-blue-600">Nuestros Servicios</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <ServiceCard
+                icon={<GiSoccerField className="w-12 h-12 text-blue-600" />}
+                title="Canchas de Fútbol 5 y 7"
+                description="Césped sintético de última generación y medidas reglamentarias."
+              />
+              <ServiceCard
+                icon={<FaCalendarAlt className="w-12 h-12 text-blue-600" />}
+                title="Reservas Online"
+                description="Sistema fácil y rápido para reservar tu cancha en cualquier momento."
+              />
+              <ServiceCard
+                icon={<GiWhistle className="w-12 h-12 text-blue-600" />}
+                title="Organización de Torneos"
+                description="Torneos empresariales y amateurs con premios atractivos."
+              />
+            </div>
+          </div>
+        </section>
+
+        <section id="instalaciones" className="py-20 bg-gray-100">
+          <div className="container mx-auto px-4">
+            <h2 className="text-4xl font-bold text-center mb-12 text-blue-600">Nuestras Instalaciones</h2>
+            <Tabs defaultValue="futbol5" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-8">
+                <TabsTrigger value="futbol5">Fútbol 5</TabsTrigger>
+                <TabsTrigger value="futbol7">Fútbol 7</TabsTrigger>
+              </TabsList>
+              <TabsContent value="futbol5">
+                <InstallationCard
+                  image="/placeholder.svg?height=400&width=600"
+                  title="Canchas de Fútbol 5"
+                  description="4 canchas con césped sintético de alta calidad y sistema de iluminación LED. Perfectas para partidos rápidos y emocionantes con tus amigos."
                 />
-              </motion.div>
-            </div>
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-100 to-green-100 opacity-50"></div>
-        </section>
-        <section className="py-20">
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl font-bold text-center mb-12 text-blue-900">Nuestras Características</h2>
-            <div className="grid gap-8 md:grid-cols-3">
-              {[
-                {
-                  icon: <MapPinIcon className="w-12 h-12 text-blue-600" />,
-                  title: "Ubicación Estratégica",
-                  description: "Fácil acceso en el corazón de Osorno",
-                },
-                {
-                  icon: <CalendarIcon className="w-12 h-12 text-blue-600" />,
-                  title: "Reservas en Línea",
-                  description: "Sistema de reservas fácil y rápido",
-                },
-                {
-                  icon: <SmartphoneIcon className="w-12 h-12 text-blue-600" />,
-                  title: "App Móvil",
-                  description: "Gestiona tus reservas desde tu smartphone",
-                },
-              ].map((feature, index) => (
-                <Card key={index} className="bg-white shadow-lg hover:shadow-xl transition-shadow">
-                  <CardContent className="p-6 text-center">
-                    <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: index * 0.2 }}
-                    >
-                      {feature.icon}
-                      <h3 className="text-xl font-semibold mt-4 mb-2 text-blue-900">{feature.title}</h3>
-                      <p className="text-blue-600">{feature.description}</p>
-                    </motion.div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+              </TabsContent>
+              <TabsContent value="futbol7">
+                <InstallationCard
+                  image="/placeholder.svg?height=400&width=600"
+                  title="Canchas de Fútbol 7"
+                  description="2 canchas espaciosas ideales para partidos más grandes y torneos. Disfruta de más espacio y acción en nuestras canchas de fútbol 7."
+                />
+              </TabsContent>
+            </Tabs>
           </div>
         </section>
-        <section className="bg-blue-900 text-white py-20">
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl font-bold text-center mb-12">Lo que dicen nuestros clientes</h2>
-            <div className="relative h-48">
-              {testimonials.map((testimonial, index) => (
-                <motion.div
-                  key={index}
-                  className="absolute inset-0 flex flex-col items-center justify-center text-center p-6"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: index === activeTestimonial ? 1 : 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <p className="text-lg mb-4">&quot;{testimonial.text}&quot;</p> {/* Se escapan las comillas */}
-                  <p className="font-semibold">{testimonial.name}</p>
-                </motion.div>
-              ))}
+
+        <section id="reservas" className="py-20 bg-blue-600 text-white">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-4xl font-bold mb-8">Haz tu Reserva</h2>
+            <p className="text-xl mb-8">
+              Reserva tu cancha de fútbol 5 o 7 en pocos clics. ¡Juega cuando quieras!
+            </p>
+            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
+              Reservar Ahora
+            </Button>
+          </div>
+        </section>
+
+        <section id="opiniones" className="py-20 bg-white">
+          <div className="container mx-auto px-4">
+            <h2 className="text-4xl font-bold text-center mb-12 text-blue-600">Lo que dicen nuestros jugadores</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <TestimonialCard
+                quote="Las mejores canchas de fútbol en Osorno. Siempre vuelvo con mis amigos."
+                author="Juan Pérez"
+              />
+              <TestimonialCard
+                quote="El sistema de reservas online es súper fácil de usar. ¡Recomendado!"
+                author="María González"
+              />
+              <TestimonialCard
+                quote="Los torneos que organizan son geniales. Hemos participado en varios y siempre es divertido."
+                author="Carlos Rodríguez"
+              />
             </div>
           </div>
         </section>
       </main>
-      <footer className="bg-blue-900 text-white py-10">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid gap-8 md:grid-cols-3">
+
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <Link href="#" className="flex items-center gap-2 text-2xl font-bold mb-4" prefetch={false}>
-                <SoccerBallIcon className="w-8 h-8" />
-                <span>Matices</span>
-              </Link>
-              <p className="text-blue-300">Desarrollado por Spectrum Code Software</p>
-            </div>
-            <nav className="space-y-4">
-              <h3 className="text-lg font-semibold mb-2">Enlaces Rápidos</h3>
-              <Link href="#" className="block hover:text-blue-300 transition-colors" prefetch={false}>
-                Reservar Cancha
-              </Link>
-              <Link href="#" className="block hover:text-blue-300 transition-colors" prefetch={false}>
-                Nosotros
-              </Link>
-              <Link href="#" className="block hover:text-blue-300 transition-colors" prefetch={false}>
-                Contacto
-              </Link>
-            </nav>
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Descarga Nuestra App</h3>
-              <div className="flex gap-4">
-                <Link
-                  href="#"
-                  className="bg-white text-blue-900 px-4 py-2 rounded-md flex items-center gap-2 hover:bg-blue-100 transition-colors"
-                  prefetch={false}
-                >
-                  <AppleIcon className="w-5 h-5" />
-                  App Store
-                </Link>
-                <Link
-                  href="#"
-                  className="bg-white text-blue-900 px-4 py-2 rounded-md flex items-center gap-2 hover:bg-blue-100 transition-colors"
-                  prefetch={false}
-                >
-                  <PlayIcon className="w-5 h-5" />
-                  Google Play
-                </Link>
+              <h3 className="text-xl font-bold mb-4">Matices Fútbol</h3>
+              <p className="mb-4">Tu lugar para jugar fútbol en Osorno.</p>
+              <div className="flex space-x-4">
+                <a href="#" className="text-white hover:text-blue-400" aria-label="Instagram">
+                  <FaInstagram className="w-6 h-6" />
+                </a>
+                <a href="#" className="text-white hover:text-blue-400" aria-label="Facebook">
+                  <FaFacebookF className="w-6 h-6" />
+                </a>
+                <a href="#" className="text-white hover:text-blue-400" aria-label="Twitter">
+                  <FaTwitter className="w-6 h-6" />
+                </a>
               </div>
             </div>
+            <div>
+              <h3 className="text-xl font-bold mb-4">Enlaces Rápidos</h3>
+              <ul className="space-y-2">
+                <li><Link href="#inicio" className="hover:text-blue-400" prefetch={false}>Inicio</Link></li>
+                <li><Link href="#servicios" className="hover:text-blue-400" prefetch={false}>Servicios</Link></li>
+                <li><Link href="#instalaciones" className="hover:text-blue-400" prefetch={false}>Instalaciones</Link></li>
+                <li><Link href="#reservas" className="hover:text-blue-400" prefetch={false}>Reservas</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-4">Horarios</h3>
+              <p>Lunes a Viernes: 10:00 - 23:00</p>
+              <p>Sábados y Domingos: 09:00 - 00:00</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-4">Contacto</h3>
+              <ul className="space-y-2">
+                <li className="flex items-center">
+                  <MdLocationOn className="w-5 h-5 mr-2" />
+                  <span>Av. Principal 123, Osorno</span>
+                </li>
+                <li className="flex items-center">
+                  <MdPhone className="w-5 h-5 mr-2" />
+                  <span>+56 9 1234 5678</span>
+                </li>
+                <li className="flex items-center">
+                  <MdEmail className="w-5 h-5 mr-2" />
+                  <span>info@maticesfutbol.cl</span>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-blue-800 text-center text-blue-300">
-            <p>&copy; 2023 Matices. Todos los derechos reservados.</p>
+          <div className="mt-8 pt-8 border-t border-gray-800 text-center">
+            <p>&copy; 2023 Matices Fútbol. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
     </div>
-  );
+  )
+}
+
+function NavLink({ href, children, ...props }: NavLinkProps) {
+  return (
+    <Link href={href} className="text-gray-600 hover:text-blue-600 transition-colors" prefetch={false} {...props}>
+      {children}
+    </Link>
+  )
+}
+
+function ServiceCard({ icon, title, description }: ServiceCardProps) {
+  return (
+    <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
+      <CardContent className="p-6 text-center">
+        <div className="mb-4">{icon}</div>
+        <h3 className="text-xl font-semibold mb-2 text-blue-600">{title}</h3>
+        <p className="text-gray-600">{description}</p>
+      </CardContent>
+    </Card>
+  )
+}
+
+function InstallationCard({ image, title, description }: InstallationCardProps) {
+  return (
+    <Card className="bg-white border-gray-200 shadow-lg overflow-hidden">
+      <Image src={image} alt={title} width={600} height={400} className="w-full h-64 object-cover" />
+      <CardContent className="p-6">
+        <h3 className="text-2xl font-semibold mb-2 text-blue-600">{title}</h3>
+        <p className="text-gray-600">{description}</p>
+      </CardContent>
+    </Card>
+  )
+}
+
+function TestimonialCard({ quote, author }: TestimonialCardProps) {
+  return (
+    <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
+      <CardContent className="p-6 text-center">
+        <FaUsers className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+        <p className="mb-4 italic text-gray-600">&quot;{quote}&quot;</p>
+        <p className="font-semibold text-blue-600">- {author}</p>
+      </CardContent>
+    </Card>
+  )
 }
