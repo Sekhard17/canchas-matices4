@@ -10,7 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { toast, Toaster } from 'react-hot-toast'
-import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, MoonIcon, SunIcon } from 'lucide-react'
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, SunIcon, MoonIcon } from 'lucide-react'
+import { GiSoccerBall } from 'react-icons/gi'
 
 export default function LoginElegante() {
   const [email, setEmail] = useState('')
@@ -22,7 +23,7 @@ export default function LoginElegante() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // Aquí iría la lógica de autenticación
-    toast.success('Inicio de sesión exitoso')
+    toast.success('¡Bienvenido de vuelta! Prepárate para jugar.')
   }
 
   const toggleDarkMode = () => {
@@ -31,7 +32,7 @@ export default function LoginElegante() {
   }
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 transition-all duration-500 ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-green-400 to-blue-500'}`}>
+    <div className={`min-h-screen flex items-center justify-center p-4 transition-all duration-500 ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-500 to-green-400'}`}>
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/placeholder.svg?height=1080&width=1920')", filter: 'blur(8px)', opacity: 0.2 }}></div>
       </div>
@@ -44,8 +45,8 @@ export default function LoginElegante() {
         <Card className={`border-none shadow-2xl backdrop-blur-sm ${darkMode ? 'bg-gray-800/90 text-white' : 'bg-white/90'}`}>
           <CardHeader className="space-y-1">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
-                Matices Canchas
+              <CardTitle className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-green-400">
+                Matices Fútbol
               </CardTitle>
               <Switch
                 checked={darkMode}
@@ -53,7 +54,7 @@ export default function LoginElegante() {
                 className="data-[state=checked]:bg-blue-600"
               />
             </div>
-            <p className="text-sm text-muted-foreground">Ingresa a tu cuenta para reservar</p>
+            <p className="text-sm text-muted-foreground">Ingresa a tu cuenta para reservar tu cancha</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-center">
@@ -68,12 +69,15 @@ export default function LoginElegante() {
                   ease: "easeInOut"
                 }}
               >
-                <MoonIcon className="w-20 h-20 text-green-500" />
+                <GiSoccerBall className="w-20 h-20 text-blue-500" />
               </motion.div>
+            </div>
+            <div className="text-center text-sm font-medium text-blue-600 dark:text-blue-400">
+              ¡Sabia decisión! Estás a un paso de disfrutar del mejor fútbol en Osorno.
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Correo electr&oacute;nico</Label>
+                <Label htmlFor="email">Correo electrónico</Label>
                 <div className="relative">
                   <Input
                     id="email"
@@ -81,21 +85,21 @@ export default function LoginElegante() {
                     placeholder="tu@ejemplo.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-transparent border-2 border-gray-300 focus:border-green-500 transition-all duration-300"
+                    className="pl-10 bg-transparent border-2 border-gray-300 focus:border-blue-500 transition-all duration-300"
                     required
                   />
                   <MailIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Contrase&ntilde;a</Label>
+                <Label htmlFor="password">Contraseña</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 bg-transparent border-2 border-gray-300 focus:border-green-500 transition-all duration-300"
+                    className="pl-10 bg-transparent border-2 border-gray-300 focus:border-blue-500 transition-all duration-300"
                     required
                   />
                   <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -123,18 +127,21 @@ export default function LoginElegante() {
                   Recordarme
                 </label>
               </div>
-              <Button type="submit" className="w-full bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 transition-all duration-300">
-                Iniciar sesi&oacute;n
+              <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500 text-white font-bold transition-all duration-300">
+                Iniciar sesión
               </Button>
             </form>
           </CardContent>
           <Separator className={`my-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
           <CardFooter className="flex flex-col space-y-4">
-            <Button variant="outline" className="w-full border-2 border-gray-300 hover:border-green-500 transition-all duration-300">
-              Registrarse
+            <div className="text-center text-sm">
+              ¿Aún no tienes una cuenta? ¡No te pierdas la diversión!
+            </div>
+            <Button variant="outline" className="w-full border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300">
+              Regístrate ahora
             </Button>
             <Button variant="link" className="text-sm text-blue-500 hover:text-blue-600 transition-colors duration-300">
-              &iquest;Olvidaste tu contrase&ntilde;a?
+              ¿Olvidaste tu contraseña?
             </Button>
           </CardFooter>
         </Card>
