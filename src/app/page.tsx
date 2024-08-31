@@ -66,7 +66,7 @@ export default function MaticesLanding() {
         <div className="container mx-auto flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2" prefetch={false}>
             <GiSoccerBall className="w-8 h-8 text-blue-600" />
-            <span className="text-2xl font-bold text-blue-600">Matices Fútbol</span>
+            <span className="text-2xl font-bold text-blue-600">Matices Osorno</span>
           </Link>
           <nav className="hidden md:flex items-center space-x-6">
             <NavLink href="#inicio" icon={<MdHome className="w-5 h-5" />}>Inicio</NavLink>
