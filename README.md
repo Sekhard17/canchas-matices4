@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Canchas Matices Osorno
 
-## Getting Started
+Este es un proyecto de [Next.js](https://nextjs.org/) creado con [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-First, run the development server:
+## Descripción del Proyecto
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Canchas Matices Osorno es una plataforma web desarrollada para gestionar la reserva de canchas de fútbol en la ciudad de Osorno. El objetivo del proyecto es proporcionar una herramienta eficiente y fácil de usar para que los usuarios puedan reservar canchas, verificar la disponibilidad, calificar el servicio y realizar pagos en línea. El sistema también permite la administración completa de las reservas y los usuarios, asegurando una gestión eficaz para los administradores del complejo deportivo.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Funcionalidades Principales
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Reserva de Canchas**: Los usuarios pueden ver la disponibilidad de canchas en tiempo real y realizar reservas para una fecha y hora específicas.
+- **Gestión de Usuarios**: Incluye un sistema de registro e inicio de sesión para usuarios, donde pueden administrar sus datos personales y ver el historial de reservas.
+- **Sistema de Calificaciones**: Los usuarios pueden calificar su experiencia después de utilizar las instalaciones, lo que ayuda a mantener un alto nivel de servicio.
+- **Pago en Línea**: Integración con sistemas de pago en línea para que los usuarios puedan pagar sus reservas de manera segura.
+- **Panel Administrativo**: Los administradores pueden gestionar las reservas, usuarios, y supervisar la operación general de las canchas a través de un panel administrativo.
+- **Verificación con Código QR**: A la llegada, los usuarios pueden presentar un código QR para verificar su reserva, facilitando el control de acceso.
+- **Notificaciones**: Envío de notificaciones a los usuarios para recordar sus reservas y cualquier cambio en la disponibilidad.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Tecnologías Utilizadas
 
-## Learn More
+### Frontend
 
-To learn more about Next.js, take a look at the following resources:
+- **Next.js**: Framework utilizado para el desarrollo de la interfaz de usuario con capacidades de rendering estático y dinámico.
+- **React**: Biblioteca JavaScript para la construcción de interfaces de usuario.
+- **Tailwind CSS**: Framework de CSS utilizado para estilizar la interfaz de manera rápida y eficiente.
+- **Radix UI**: Componentes accesibles y de bajo nivel para construir la UI.
+- **Framer Motion**: Biblioteca de animaciones para React.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Backend
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- **Express.js**: Framework de Node.js que se utilizará para manejar la lógica del servidor y la comunicación con la base de datos.
+- **MySQL**: Sistema de gestión de bases de datos relacional utilizado para almacenar la información de usuarios, reservas, y otras entidades.
+- **API REST**: Se utilizará para la comunicación entre el frontend y el backend, facilitando las operaciones CRUD (Crear, Leer, Actualizar, Eliminar).
 
-## Deploy on Vercel
+### Otros
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Vercel**: Plataforma utilizada para el despliegue y hosting del proyecto.
+- **GitHub**: Sistema de control de versiones utilizado para el desarrollo colaborativo y el almacenamiento del código fuente.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Estructura del Proyecto
+
+El proyecto sigue una estructura modular donde cada funcionalidad está organizada en componentes reutilizables. Los archivos principales del proyecto incluyen:
+
+- `app/page.tsx`: Página principal del proyecto, donde se muestra el contenido inicial.
+- `components/`: Contiene todos los componentes reutilizables del proyecto, como botones, formularios, modales, etc.
+- `pages/`: Estructura de las diferentes páginas del sitio web.
+- `public/`: Archivos estáticos como imágenes y fuentes.
