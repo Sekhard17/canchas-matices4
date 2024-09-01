@@ -81,7 +81,7 @@ export default function MaticesLanding() {
                 Iniciar Sesión
               </Button>
             </Link>
-            <Link href="/downloads">
+            <Link href="/produccion">
               <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                 <FaDownload className="w-5 h-5 mr-2" />
                 Descargar App
