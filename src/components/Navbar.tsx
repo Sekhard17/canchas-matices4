@@ -25,17 +25,15 @@ interface NavItemProps {
 }
 
 const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, isActive }) => (
-  <Link href={href} className="relative">
-    <Button
-      variant="ghost"
-      className={`w-full justify-start ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-    >
-      <Icon className="mr-2 h-4 w-4" />
+  <Link href={href} className="relative group">
+    <div className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ease-in-out
+      ${isActive ? 'bg-purple-100 text-purple-800' : 'text-gray-600 hover:bg-purple-50 hover:text-purple-700'}`}>
+      <Icon className="inline-block w-5 h-5 mr-2 transition-transform group-hover:scale-110" />
       {label}
-    </Button>
+    </div>
     {isActive && (
       <motion.div
-        className="absolute bottom-0 left-0 h-0.5 w-full bg-primary"
+        className="absolute bottom-0 left-0 h-0.5 w-full bg-purple-500"
         layoutId="activeNavItem"
         initial={false}
         transition={{
@@ -61,28 +59,24 @@ export default function ModernNavbar() {
   ]
 
   return (
-    <nav className="bg-background border-b">
+    <nav className="bg-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            <Link href="/" className="flex-shrink-0">
-              <span className="text-2xl font-bold bg-gradient-to-r from-primary to-blue-600 text-transparent bg-clip-text">
-                Matices
-              </span>
+          <div className="flex-shrink-0">
+            <Link href="/" className="flex items-center">
+              <span className="text-2xl font-bold text-purple-700">Matices</span>
             </Link>
-            <div className="hidden md:block ml-10">
-              <div className="flex space-x-4">
-                {navItems.map((item) => (
-                  <NavItem
-                    key={item.href}
-                    href={item.href}
-                    icon={item.icon}
-                    label={item.label}
-                    isActive={pathname === item.href}
-                  />
-                ))}
-              </div>
-            </div>
+          </div>
+          <div className="hidden md:flex md:items-center md:space-x-4 flex-grow justify-center">
+            {navItems.map((item) => (
+              <NavItem
+                key={item.href}
+                href={item.href}
+                icon={item.icon}
+                label={item.label}
+                isActive={pathname === item.href}
+              />
+            ))}
           </div>
           <div className="hidden md:block">
             <DropdownMenu>
@@ -127,7 +121,7 @@ export default function ModernNavbar() {
                   <MenuIcon className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                 <nav className="flex flex-col space-y-4 mt-4">
                   {navItems.map((item) => (
                     <NavItem
