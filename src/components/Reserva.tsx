@@ -292,23 +292,31 @@ export default function Component() {
                           >
                             <Button
                               variant={slot.disponible ? "outline" : "secondary"}
-                              className={`w-full h-auto py-2 px-3 justify-between ${
-                                selectedHoras.some(h => h.hora === slot.hora && h.dia === slot.dia) 
-                                  ? 'ring-2 ring-primary bg-primary/10' 
-                                  : ''
-                              } ${slot.disponible ? '' : 'opacity-50 cursor-not-allowed'}`}
+                              className={`
+                                w-full h-auto py-2 px-3 justify-between
+                                transition-all duration-200 ease-in-out
+                                ${selectedHoras.some(h => h.hora === slot.hora && h.dia === slot.dia)
+                                  ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                                  : 'hover:bg-secondary'
+                                }
+                                ${slot.disponible ? '' : 'opacity-50 cursor-not-allowed'}
+                              `}
                               onClick={() => slot.disponible && handleHoraClick(slot)}
                               disabled={!slot.disponible}
                             >
                               <span className="text-sm font-medium">{slot.hora}</span>
-                              <Badge variant={slot.disponible ? "secondary" : "outline"} className="ml-2">
+                              <Badge 
+                                variant={selectedHoras.some(h => h.hora === slot.hora && h.dia === slot.dia) ? "outline" : "secondary"}
+                                className={`ml-2 ${selectedHoras.some(h => h.hora === slot.hora && h.dia === slot.dia) ? 'bg-primary-foreground text-primary' : ''}`}
+                              >
                                 ${slot.precio.toLocaleString()}
                               </Badge>
                             </Button>
                           </motion.div>
                         ))
                       ) : (
-                        <p className="text-muted-foreground text-center py-4 col-span-2">No hay horas disponibles para esta fecha y cancha</p>
+                        <p className="text-muted-foreground text-center py-4 col-span-2">No hay horas dispon
+ibles para esta fecha y cancha</p>
                       )}
                     </div>
                   </ScrollArea>
