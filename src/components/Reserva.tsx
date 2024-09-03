@@ -63,7 +63,7 @@ const horariosDisponibles = [
   { hora: '15:00', dia: '2024-08-25', disponible: true, cancha: 'C4F7', precio: 15000 },
 ];
 
-const canchas = ['Todas', 'C1F5', 'C2F5', 'C3F7', 'C4F7'];
+const canchas = ['C1F5', 'C2F5', 'C3F7', 'C4F7'];
 
 export default function Component() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -72,7 +72,7 @@ export default function Component() {
   const [formData, setFormData] = useState({ tieneBalon: false });
   const [darkMode, setDarkMode] = useState(false);
   const [infoModalOpen, setInfoModalOpen] = useState(false);
-  const [selectedCancha, setSelectedCancha] = useState(canchas[0]);
+  const [selectedCancha, setSelectedCancha] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
@@ -109,12 +109,13 @@ export default function Component() {
       setSelectedHoras([]);
       toast.success('¡Reserva confirmada con éxito!');
       setStep(1);
+      setSelectedCancha(null);
     }, 2000);
   };
 
   const availableHours = horariosDisponibles.filter((slot) => {
     const sameDay = isSameDay(new Date(slot.dia), selectedDate!);
-    const matchCancha = selectedCancha === 'Todas' || slot.cancha === selectedCancha;
+    const matchCancha = slot.cancha === selectedCancha;
     return sameDay && matchCancha && (showUnavailable || slot.disponible);
   });
 
@@ -170,24 +171,29 @@ export default function Component() {
               <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} border-none shadow-lg`}>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <CalendarIcon className="mr-2" />
-                    Selecciona una fecha
+                    <MapPinIcon className="mr-2" />
+                    Selecciona una cancha
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    locale={es}
-                    className={`rounded-md border ${darkMode ? 'bg-gray-700 text-white' : 'bg-white'} w-full`}
-                  />
+                  <Select onValueChange={(value) => setSelectedCancha(value)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecciona una cancha" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {canchas.map((cancha) => (
+                        <SelectItem key={cancha} value={cancha}>
+                          {cancha}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </CardContent>
                 <CardFooter>
                   <Button
                     className="w-full"
                     onClick={() => setStep(2)}
-                    disabled={!selectedDate}
+                    disabled={!selectedCancha}
                   >
                     Continuar
                   </Button>
@@ -205,11 +211,11 @@ export default function Component() {
               transition={{ duration: 0.5 }}
             >
               <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} border-none shadow-lg mb-4`}>
-                <CardHeader className="pb-2">
+                <CardHeader>
                   <CardTitle className="flex items-center justify-between text-lg">
                     <div className="flex items-center">
-                      <MapPinIcon className="mr-2 h-5 w-5" />
-                      Selecciona una cancha
+                      <CalendarIcon className="mr-2 h-5 w-5" />
+                      Selecciona una fecha
                     </div>
                     <Button
                       variant="ghost"
@@ -218,26 +224,40 @@ export default function Component() {
                       className="text-sm"
                     >
                       <ArrowLeftIcon className="mr-2 h-4 w-4" />
-                      Volver al calendario
+                      Volver a selección de cancha
                     </Button>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Select onValueChange={setSelectedCancha} defaultValue={selectedCancha}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecciona una cancha" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {canchas.map((cancha) => (
-                        <SelectItem key={cancha} value={cancha}>
-                          {cancha}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    locale={es}
+                    className={`rounded-md border ${darkMode ? 'bg-gray-700 text-white' : 'bg-white'} w-full`}
+                  />
                 </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full"
+                    onClick={() => setStep(3)}
+                    disabled={!selectedDate}
+                  >
+                    Continuar
+                  </Button>
+                </CardFooter>
               </Card>
+            </motion.div>
+          )}
 
+          {step === 3 && (
+            <motion.div
+              key="step3"
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.5 }}
+            >
               <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} border-none shadow-lg`}>
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center justify-between text-lg">
@@ -248,19 +268,15 @@ export default function Component() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setShowUnavailable(!showUnavailable)}
+                      onClick={() => setStep(2)}
                       className="text-sm"
                     >
-                      {showUnavailable ? (
-                        <><EyeOffIcon className="mr-2 h-4 w-4" /> Ocultar no disponibles</>
-                      ) : (
-                        <><EyeIcon className="mr-2 h-4 w-4" /> Mostrar no disponibles</>
-                      )}
+                      <ArrowLeftIcon className="mr-2 h-4 w-4" />
+                      Volver al calendario
                     </Button>
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Selecciona las horas que deseas reservar para {format(selectedDate!, 'dd/MM/yyyy')}
-                    {selectedCancha !== 'Todas' && ` en ${selectedCancha}`}
+                    Selecciona las horas que deseas reservar para {format(selectedDate!, 'dd/MM/yyyy')} en {selectedCancha}
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -284,10 +300,7 @@ export default function Component() {
                               onClick={() => slot.disponible && handleHoraClick(slot)}
                               disabled={!slot.disponible}
                             >
-                              <div className="flex flex-col items-start">
-                                <span className="text-sm font-medium">{slot.hora}</span>
-                                <span className="text-xs text-muted-foreground">{slot.cancha}</span>
-                              </div>
+                              <span className="text-sm font-medium">{slot.hora}</span>
                               <Badge variant={slot.disponible ? "secondary" : "outline"} className="ml-2">
                                 ${slot.precio.toLocaleString()}
                               </Badge>
@@ -396,13 +409,13 @@ export default function Component() {
                 <div>
                   <h3 className="font-semibold mb-2">Pasos para reservar:</h3>
                   <ol className="list-decimal pl-5 space-y-2">
-                    <li>Selecciona una fecha en el calendario.</li>
-                    <li>Elige una cancha específica o selecciona &quot;Todas&quot; para ver todas las opciones.</li>
+                    <li>Selecciona el tipo de cancha que prefieres.</li>
+                    <li>Elige una fecha en el calendario.</li>
                     <li>Selecciona las horas disponibles que desees reservar.</li>
-                    <li>Haz clic en &quot;Reservar&quot; para revisar y confirmar tu selección.</li>
+                    <li>Haz clic en "Reservar" para revisar y confirmar tu selección.</li>
                     <li>Verifica los detalles de tu reserva en la ventana emergente.</li>
                     <li>Indica si traerás tu propio balón.</li>
-                    <li>Haz clic en &quot;Confirmar Reserva&quot; para finalizar el proceso.</li>
+                    <li>Haz clic en "Confirmar Reserva" para finalizar el proceso.</li>
                   </ol>
                 </div>
                 <div className="p-4 bg-yellow-100 dark:bg-yellow-900 rounded-md">
