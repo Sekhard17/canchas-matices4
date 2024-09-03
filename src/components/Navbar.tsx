@@ -3,8 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { FaHome, FaTachometerAlt, FaCalendarAlt, FaUsers, FaUserTie, FaSignOutAlt, FaUser } from 'react-icons/fa'
-import type { IconType } from 'react-icons'
+import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -15,45 +14,62 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { HomeIcon, LayoutDashboardIcon, CalendarIcon, UsersIcon, UserIcon, LogOutIcon, MenuIcon } from 'lucide-react'
 
 interface NavItemProps {
   href: string
-  icon: IconType
+  icon: React.ElementType
   label: string
   isActive: boolean
 }
 
 const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, isActive }) => (
-  <Link
-    href={href}
-    className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 ease-in-out
-      ${isActive ? 'bg-blue-900 text-white' : 'text-blue-100 hover:bg-blue-800 hover:text-white'}`}
-  >
-    <Icon className="w-5 h-5 mr-2" />
-    <span>{label}</span>
+  <Link href={href} className="relative">
+    <Button
+      variant="ghost"
+      className={`w-full justify-start ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+    >
+      <Icon className="mr-2 h-4 w-4" />
+      {label}
+    </Button>
+    {isActive && (
+      <motion.div
+        className="absolute bottom-0 left-0 h-0.5 w-full bg-primary"
+        layoutId="activeNavItem"
+        initial={false}
+        transition={{
+          type: "spring",
+          stiffness: 380,
+          damping: 30
+        }}
+      />
+    )}
   </Link>
 )
 
-export default function EnhancedNavbar() {
+export default function ModernNavbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
 
   const navItems = [
-    { href: '/', icon: FaHome, label: 'Inicio' },
-    { href: '/dashboard', icon: FaTachometerAlt, label: 'Dashboard' },
-    { href: '/reservas', icon: FaCalendarAlt, label: 'Reservas' },
-    { href: '/clientes', icon: FaUsers, label: 'Clientes' },
-    { href: '/encargados', icon: FaUserTie, label: 'Encargados' },
+    { href: '/', icon: HomeIcon, label: 'Inicio' },
+    { href: '/dashboard', icon: LayoutDashboardIcon, label: 'Dashboard' },
+    { href: '/reservas', icon: CalendarIcon, label: 'Reservas' },
+    { href: '/clientes', icon: UsersIcon, label: 'Clientes' },
+    { href: '/encargados', icon: UserIcon, label: 'Encargados' },
   ]
 
   return (
-    <nav className="bg-blue-950 shadow-md">
+    <nav className="bg-background border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <span className="text-white font-bold text-xl">Matices</span>
-            </div>
+            <Link href="/" className="flex-shrink-0">
+              <span className="text-2xl font-bold bg-gradient-to-r from-primary to-blue-600 text-transparent bg-clip-text">
+                Matices
+              </span>
+            </Link>
             <div className="hidden md:block ml-10">
               <div className="flex space-x-4">
                 {navItems.map((item) => (
@@ -72,7 +88,10 @@ export default function EnhancedNavbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <FaUser className="h-5 w-5 text-blue-100" />
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="/avatars/01.png" alt="@usuario" />
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -85,11 +104,17 @@ export default function EnhancedNavbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Tu Perfil</DropdownMenuItem>
-                <DropdownMenuItem>Configuración</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <UserIcon className="mr-2 h-4 w-4" />
+                  <span>Tu Perfil</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <span>Tus Reservas</span>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <FaSignOutAlt className="mr-2 h-4 w-4" />
+                  <LogOutIcon className="mr-2 h-4 w-4" />
                   <span>Cerrar Sesión</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -98,25 +123,11 @@ export default function EnhancedNavbar() {
           <div className="md:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" className="h-10 w-10 p-0">
-                  <span className="sr-only">Abrir menú</span>
-                  <svg
-                    className="h-6 w-6 text-blue-100"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
+                <Button variant="ghost" size="icon" aria-label="Abrir menú">
+                  <MenuIcon className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-blue-950">
+              <SheetContent side="left" className="w-[300px] sm:w-[400px]">
                 <nav className="flex flex-col space-y-4 mt-4">
                   {navItems.map((item) => (
                     <NavItem
@@ -127,14 +138,32 @@ export default function EnhancedNavbar() {
                       isActive={pathname === item.href}
                     />
                   ))}
-                  <Button variant="ghost" className="justify-start text-blue-100 hover:text-white hover:bg-blue-800">
-                    <FaUser className="mr-2 h-4 w-4" />
-                    Tu Perfil
-                  </Button>
-                  <Button variant="ghost" className="justify-start text-blue-100 hover:text-white hover:bg-blue-800">
-                    <FaSignOutAlt className="mr-2 h-4 w-4" />
-                    Cerrar Sesión
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="w-full justify-start">
+                        <Avatar className="h-6 w-6 mr-2">
+                          <AvatarImage src="/avatars/01.png" alt="@usuario" />
+                          <AvatarFallback>U</AvatarFallback>
+                        </Avatar>
+                        Usuario
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                      <DropdownMenuItem>
+                        <UserIcon className="mr-2 h-4 w-4" />
+                        <span>Tu Perfil</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        <span>Tus Reservas</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <LogOutIcon className="mr-2 h-4 w-4" />
+                        <span>Cerrar Sesión</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </nav>
               </SheetContent>
             </Sheet>
