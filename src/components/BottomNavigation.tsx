@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import React from 'react'
 import Link from 'next/link'
@@ -24,32 +24,35 @@ interface NavItemProps {
 
 const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, isActive }) => {
   return (
-    <Link href={href} className="relative flex flex-col items-center justify-center w-full">
+    <Link href={href} className="relative group">
       <motion.div
         className={cn(
-          "flex items-center justify-center w-12 h-12 rounded-full",
-          isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+          "flex items-center justify-center w-14 h-10 rounded-lg transition-colors duration-300",
+          isActive ? "bg-primary" : "bg-background hover:bg-primary/10"
         )}
-        whileHover={{ scale: 1.1 }}
+        whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        <Icon className="w-6 h-6" />
+        <Icon className={cn(
+          "w-5 h-5 transition-colors duration-300",
+          isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
+        )} />
         {isActive && (
           <motion.div
-            className="absolute inset-0 bg-primary rounded-full z-0"
-            layoutId="activeBackground"
+            className="absolute -bottom-1 left-1/2 w-1 h-1 bg-primary rounded-full"
+            layoutId="activeIndicator"
             initial={false}
             transition={{
               type: "spring",
-              stiffness: 500,
+              stiffness: 300,
               damping: 30
             }}
           />
         )}
       </motion.div>
       <span className={cn(
-        "text-xs mt-1",
-        isActive ? "text-primary font-medium" : "text-muted-foreground"
+        "absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-[10px] font-medium transition-colors duration-300",
+        isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary"
       )}>
         {label}
       </span>
@@ -62,12 +65,12 @@ export default function MobileBottomNav() {
 
   return (
     <motion.nav 
-      className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border"
-      initial={{ y: 100 }}
-      animate={{ y: 0 }}
+      className="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 bg-background/80 backdrop-blur-lg border border-border rounded-2xl shadow-lg"
+      initial={{ y: 100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div className="flex justify-around items-center h-16 px-4 max-w-md mx-auto">
+      <div className="flex justify-around items-center px-3 py-2 w-[calc(100vw-2rem)] max-w-md">
         {navItems.map((item) => (
           <NavItem
             key={item.href}
