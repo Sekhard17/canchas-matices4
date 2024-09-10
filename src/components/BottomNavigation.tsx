@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import React from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { Home, CalendarDays, Users, UserCog, Settings } from 'lucide-react'
-import { cn } from "@/lib/utils"
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { Home, CalendarDays, Users, UserCog, Settings } from 'lucide-react';
+import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: '/', icon: Home, label: 'Inicio' },
@@ -13,13 +13,13 @@ const navItems = [
   { href: '/clientes', icon: Users, label: 'Clientes' },
   { href: '/encargados', icon: UserCog, label: 'Encargados' },
   { href: '/configuracion', icon: Settings, label: 'Config' },
-]
+];
 
 interface NavItemProps {
-  href: string
-  icon: React.ElementType
-  label: string
-  isActive: boolean
+  href: string;
+  icon: React.ElementType;
+  label: string;
+  isActive: boolean;
 }
 
 const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, isActive }) => {
@@ -27,7 +27,7 @@ const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, isActive }) 
     <Link href={href} className="relative group">
       <motion.div
         className={cn(
-          "flex items-center justify-center w-14 h-10 rounded-lg transition-colors duration-300",
+          "flex flex-col items-center justify-center w-14 h-14 rounded-lg transition-colors duration-300",
           isActive ? "bg-primary" : "bg-background hover:bg-primary/10"
         )}
         whileHover={{ scale: 1.05 }}
@@ -57,20 +57,20 @@ const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, isActive }) 
         {label}
       </span>
     </Link>
-  )
-}
+  );
+};
 
 export default function MobileBottomNav() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
-    <motion.nav 
-      className="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 bg-background/80 backdrop-blur-lg border border-border rounded-2xl shadow-lg"
+    <motion.nav
+      className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-background/80 backdrop-blur-lg border border-border rounded-2xl shadow-lg w-[calc(100vw-2rem)] max-w-md"
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div className="flex justify-around items-center px-3 py-2 w-[calc(100vw-2rem)] max-w-md">
+      <div className="flex justify-around items-center px-3 py-2">
         {navItems.map((item) => (
           <NavItem
             key={item.href}
@@ -82,5 +82,5 @@ export default function MobileBottomNav() {
         ))}
       </div>
     </motion.nav>
-  )
+  );
 }
