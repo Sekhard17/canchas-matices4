@@ -1,35 +1,41 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
-import { toast, Toaster } from 'react-hot-toast'
-import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, SunIcon, MoonIcon } from 'lucide-react'
-import { GiSoccerBall } from 'react-icons/gi'
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation'; // Importar useRouter
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { toast, Toaster } from 'react-hot-toast';
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from 'lucide-react';
+import { GiSoccerBall } from 'react-icons/gi';
 
 export default function LoginElegante() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const router = useRouter(); // Inicializar router
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Aquí iría la lógica de autenticación
-    toast.success('¡Bienvenido de vuelta! Prepárate para jugar.')
-  }
+    toast.success('¡Bienvenido de vuelta! Prepárate para jugar.');
+  };
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode)
-    document.documentElement.classList.toggle('dark')
-  }
+    setDarkMode(!darkMode);
+    document.documentElement.classList.toggle('dark');
+  };
+
+  const handleRegister = () => {
+    router.push('/register'); // Redirigir a la página de registro
+  };
 
   return (
     <div className={`min-h-screen flex items-center justify-center p-4 transition-all duration-500 ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-500 to-green-400'}`}>
@@ -137,7 +143,11 @@ export default function LoginElegante() {
             <div className="text-center text-xs">
               ¿Aún no tienes una cuenta? ¡No te pierdas la diversión!
             </div>
-            <Button variant="outline" className="w-full border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300">
+            <Button
+              variant="outline"
+              className="w-full border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300"
+              onClick={handleRegister} // Enlazar con la página de registro
+            >
               Regístrate ahora
             </Button>
             <Button variant="link" className="text-xs text-blue-500 hover:text-blue-600 transition-colors duration-300">
@@ -148,5 +158,5 @@ export default function LoginElegante() {
       </motion.div>
       <Toaster position="bottom-center" />
     </div>
-  )
+  );
 }

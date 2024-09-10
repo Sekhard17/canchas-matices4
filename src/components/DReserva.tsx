@@ -59,6 +59,7 @@ const horariosDisponibles = [
   { hora: '15:00', dia: '2024-08-25', disponible: true, cancha: 'C4F7', precio: 15000 },
 ];
 
+
 const canchas = [
     { id: 'C1F5', name: 'Cancha 1 (5 vs 5)', image: '/images/5v.jpg' },
     { id: 'C2F5', name: 'Cancha 2 (5 vs 5)', image: '/images/5v2.jpg' },
