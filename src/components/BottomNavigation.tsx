@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Home, Search, Heart, Bell, User } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Inicio' },
@@ -26,89 +25,40 @@ const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, isActive }) 
   return (
     <Link href={href} className="relative group">
       <motion.div
-        className={cn(
-          'flex flex-col items-center justify-center w-16 h-16 rounded-2xl transition-all duration-300',
-          isActive ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground hover:bg-primary/10'
-        )}
-        whileHover={{ scale: 1.1, y: -5 }}
+        className={`flex flex-col items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full transition-all duration-300 ${
+          isActive ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-blue-100'
+        }`}
+        whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
         <Icon className="w-6 h-6" />
-        <motion.span
-          className={cn(
-            'text-xs font-medium mt-1 transition-all duration-300',
-            isActive ? 'text-primary-foreground' : 'text-muted-foreground'
-          )}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 10 }}
-        >
-          {label}
-        </motion.span>
+        <span className="text-xs font-medium mt-1">{label}</span>
       </motion.div>
       {isActive && (
         <motion.div
-          className="absolute -bottom-1 left-1/2 w-8 h-1 bg-primary rounded-full transform -translate-x-1/2"
+          className="absolute -bottom-1 left-1/2 w-8 h-1 bg-blue-500 rounded-full transform -translate-x-1/2"
           layoutId="activeIndicator"
-          initial={false}
-          transition={{
-            type: 'spring',
-            stiffness: 300,
-            damping: 30,
-          }}
         />
       )}
     </Link>
   );
 };
 
-export default function EnhancedNavBar() {
+export default function BottomNavBar() {
   const pathname = usePathname();
 
   return (
     <motion.nav
-      className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-background/80 backdrop-blur-lg border border-border rounded-3xl shadow-lg w-full max-w-[90vw] sm:max-w-[50vw] px-4"
+      className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-white backdrop-blur-lg border border-gray-300 rounded-full shadow-lg max-w-[90%] sm:max-w-[80%] w-full px-4 py-2"
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
     >
-      <motion.div
-        className="flex items-center justify-around p-2 space-x-2"
-        initial="closed"
-        animate="open"
-        variants={{
-          open: {
-            transition: { staggerChildren: 0.07, delayChildren: 0.2 },
-          },
-          closed: {
-            transition: { staggerChildren: 0.05, staggerDirection: -1 },
-          },
-        }}
-      >
+      <div className="flex justify-around items-center">
         {navItems.map((item) => (
-          <motion.div
-            key={item.href}
-            variants={{
-              open: {
-                y: 0,
-                opacity: 1,
-                transition: {
-                  y: { stiffness: 1000, velocity: -100 },
-                },
-              },
-              closed: {
-                y: 50,
-                opacity: 0,
-                transition: {
-                  y: { stiffness: 1000 },
-                },
-              },
-            }}
-          >
-            <NavItem href={item.href} icon={item.icon} label={item.label} isActive={pathname === item.href} />
-          </motion.div>
+          <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label} isActive={pathname === item.href} />
         ))}
-      </motion.div>
+      </div>
     </motion.nav>
   );
 }
