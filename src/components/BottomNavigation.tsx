@@ -27,7 +27,7 @@ const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, isActive }) 
     <Link href={href} className="relative group">
       <motion.div
         className={cn(
-          'flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300',
+          'flex flex-col items-center justify-center w-16 h-16 rounded-2xl transition-all duration-300',
           isActive ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground hover:bg-primary/10'
         )}
         whileHover={{ scale: 1.1, y: -5 }}
@@ -67,7 +67,7 @@ export default function EnhancedNavBar() {
 
   return (
     <motion.nav
-      className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-background/80 backdrop-blur-lg border border-border rounded-3xl shadow-lg max-w-[90vw] sm:max-w-[50vw] w-full"
+      className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-background/80 backdrop-blur-lg border border-border rounded-3xl shadow-lg w-full max-w-[90vw] sm:max-w-[50vw] px-4"
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
