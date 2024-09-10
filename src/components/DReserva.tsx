@@ -60,10 +60,10 @@ const horariosDisponibles = [
 ];
 
 const canchas = [
-  { id: 'C1F5', name: 'Cancha 1 (5 vs 5)', image: '/placeholder.svg?height=100&width=150' },
-  { id: 'C2F5', name: 'Cancha 2 (5 vs 5)', image: '/placeholder.svg?height=100&width=150' },
-  { id: 'C3F7', name: 'Cancha 3 (7 vs 7)', image: '/placeholder.svg?height=100&width=150' },
-  { id: 'C4F7', name: 'Cancha 4 (7 vs 7)', image: '/placeholder.svg?height=100&width=150' },
+  { id: 'C1F5', name: 'Cancha 1 (5 vs 5)', image: '/public/images/5v.jpg' },
+  { id: 'C2F5', name: 'Cancha 2 (5 vs 5)', image: '/public/images/5v2.jpg' },
+  { id: 'C3F7', name: 'Cancha 3 (7 vs 7)', image: '/public/images/7v.jpg' },
+  { id: 'C4F7', name: 'Cancha 4 (7 vs 7)', image: '/public/images/7v2.jpg' },
 ];
 
 export default function EnhancedDesktopReserva() {
