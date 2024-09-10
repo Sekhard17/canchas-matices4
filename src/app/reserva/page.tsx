@@ -1,6 +1,7 @@
 'use client';
 
 import Reserva from "@/components/Reserva";
+import DReserva from "@/components/DReserva";
 import Navbar from "@/components/Navbar";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useEffect, useState } from "react";
@@ -19,7 +20,7 @@ export default function ReservaPage() {
     <>
       {isMobile ? <BottomNavigation /> : <Navbar />}
       <div className="container mx-auto p-4">
-        <Reserva />
+        {isMobile ? <Reserva /> : <DReserva />}
       </div>
     </>
   );
