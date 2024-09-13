@@ -10,28 +10,44 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { UserIcon, UsersIcon, CalendarIcon, BellIcon, SettingsIcon, LogOutIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { UserIcon, CalendarIcon, BellIcon, SettingsIcon, LogOutIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, DollarSignIcon, ActivityIcon } from 'lucide-react'
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend)
 
-const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Mi&eacute;rcoles', 'Jueves', 'Viernes', 'S&aacute;bado']
+const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
 const horas = Array.from({ length: 14 }, (_, i) => i + 8) // 8:00 AM a 9:00 PM
 
 const reservasMock = [
-  { id: 1, fecha: new Date(2023, 5, 15, 10, 0), cancha: 'F&uacute;tbol 5', cliente: 'Juan P&eacute;rez' },
-  { id: 2, fecha: new Date(2023, 5, 15, 14, 0), cancha: 'F&uacute;tbol 7', cliente: 'Mar&iacute;a Gonz&aacute;lez' },
-  { id: 3, fecha: new Date(2023, 5, 16, 16, 0), cancha: 'F&uacute;tbol 11', cliente: 'Carlos Rodr&iacute;guez' },
-  { id: 4, fecha: new Date(2023, 5, 17, 18, 0), cancha: 'F&uacute;tbol 5', cliente: 'Ana Mart&iacute;nez' },
-  { id: 5, fecha: new Date(2023, 5, 18, 20, 0), cancha: 'F&uacute;tbol 7', cliente: 'Luis S&aacute;nchez' },
+  { id: 1, fecha: new Date(2023, 5, 15, 10, 0), cancha: 'Fútbol 5', cliente: 'Juan Pérez' },
+  { id: 2, fecha: new Date(2023, 5, 15, 14, 0), cancha: 'Fútbol 7', cliente: 'María González' },
+  { id: 3, fecha: new Date(2023, 5, 16, 16, 0), cancha: 'Fútbol 11', cliente: 'Carlos Rodríguez' },
+  { id: 4, fecha: new Date(2023, 5, 17, 18, 0), cancha: 'Fútbol 5', cliente: 'Ana Martínez' },
+  { id: 5, fecha: new Date(2023, 5, 18, 20, 0), cancha: 'Fútbol 7', cliente: 'Luis Sánchez' },
 ]
+
+type EstadisticasDetalladas = {
+  total: number
+  confirmadas?: number
+  pendientes?: number
+  nuevos?: number
+  recurrentes?: number
+  reservas?: number
+  otros?: number
+  disponibles?: number
+  enMantenimiento?: number
+}
 
 export default function Component() {
   const [darkMode, setDarkMode] = useState(false)
   const [fechaActual, setFechaActual] = useState(new Date())
   const [vistaCalendario, setVistaCalendario] = useState('semana')
+  const [modalAbierto, setModalAbierto] = useState(false)
+  const [estadisticasDetalladas, setEstadisticasDetalladas] = useState<EstadisticasDetalladas | null>(null)
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
@@ -141,14 +157,14 @@ export default function Component() {
   }
 
   const quickAccessData = [
-    { title: "Reservas Hoy", value: "12", icon: <CalendarIcon />, color: "bg-blue-500" },
-    { title: "Usuarios Activos", value: "1,234", icon: <UserIcon />, color: "bg-green-500" },
-    { title: "Ingresos del Mes", value: "$15,678", icon: <UserIcon />, color: "bg-yellow-500" },
-    { title: "Canchas Disponibles", value: "8/10", icon: <UsersIcon />, color: "bg-red-500" },
+    { title: "Reservas Hoy", value: "12", icon: <CalendarIcon />, color: "bg-blue-500", detailedStats: { total: 12, confirmadas: 10, pendientes: 2 } },
+    { title: "Usuarios Activos", value: "1,234", icon: <UserIcon />, color: "bg-green-500", detailedStats: { total: 1234, nuevos: 56, recurrentes: 1178 } },
+    { title: "Ingresos del Mes", value: "$15,678", icon: <DollarSignIcon />, color: "bg-yellow-500", detailedStats: { total: 15678, reservas: 12500, otros: 3178 } },
+    { title: "Canchas Disponibles", value: "8/10", icon: <ActivityIcon />, color: "bg-red-500", detailedStats: { total: 10, disponibles: 8, enMantenimiento: 2 } },
   ]
 
   const barData = {
-    labels: ['Lun', 'Mar', 'Mi&eacute;', 'Jue', 'Vie', 'S&aacute;b', 'Dom'],
+    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
     datasets: [
       {
         label: 'Reservas Diarias',
@@ -203,6 +219,11 @@ export default function Component() {
     },
   }
 
+  const abrirModalEstadisticas = (stats: EstadisticasDetalladas) => {
+    setEstadisticasDetalladas(stats)
+    setModalAbierto(true)
+  }
+
   return (
     <div className={`min-h-screen p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
       <div className="max-w-7xl mx-auto">
@@ -213,7 +234,7 @@ export default function Component() {
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-3xl font-bold">Bienvenido, Administrador</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">&Uacute;ltima conexi&oacute;n: Hoy, 10:30 AM</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Última conexión: Hoy, 10:30 AM</p>
           </motion.div>
           <div className="flex items-center space-x-4">
             <Popover>
@@ -247,11 +268,11 @@ export default function Component() {
                 <div className="grid gap-4">
                   <Button variant="ghost" className="justify-start">
                     <SettingsIcon className="mr-2 h-4 w-4" />
-                    Configuraci&oacute;n
+                    Configuración
                   </Button>
                   <Button variant="ghost" className="justify-start">
                     <LogOutIcon className="mr-2 h-4 w-4" />
-                    Cerrar sesi&oacute;n
+                    Cerrar sesión
                   </Button>
                 </div>
               </PopoverContent>
@@ -276,7 +297,7 @@ export default function Component() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} border-none shadow-lg overflow-hidden`}>
+              <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} border-none shadow-lg overflow-hidden cursor-pointer`} onClick={() => abrirModalEstadisticas(item.detailedStats)}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -363,6 +384,32 @@ export default function Component() {
           </Card>
         </motion.div>
       </div>
+
+      <Dialog open={modalAbierto} onOpenChange={setModalAbierto}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Estadísticas Detalladas</DialogTitle>
+          </DialogHeader>
+          {estadisticasDetalladas && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Métrica</TableHead>
+                  <TableHead>Valor</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Object.entries(estadisticasDetalladas).map(([key, value]) => (
+                  <TableRow key={key}>
+                    <TableCell className="font-medium">{key.charAt(0).toUpperCase() + key.slice(1)}</TableCell>
+                    <TableCell>{value}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
