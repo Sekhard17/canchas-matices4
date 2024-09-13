@@ -19,8 +19,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineEleme
 
 const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-
-const horas = Array.from({ length: 14 }, (_, i) => i + 8) // 8:00 AM a 9:00 PM
+const horas = Array.from({ length: 9 }, (_, i) => i + 16) // 16:00 PM a 0:00 AM
 
 const reservasMock = [
   { id: 1, fecha: new Date(2023, 5, 15, 10, 0), cancha: 'Fútbol 5', cliente: 'Juan Pérez' },
