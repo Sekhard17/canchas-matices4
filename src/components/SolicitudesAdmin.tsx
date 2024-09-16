@@ -3,13 +3,13 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
-import { Clock, CalendarX, CheckCircle, XCircle, ChevronRight, User, Calendar, MapPin, Search, Filter } from 'lucide-react'
+import { Clock, CalendarX, CheckCircle, XCircle, ChevronRight, User, Calendar, MapPin, Search, Filter, AlertCircle } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -21,7 +21,6 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 type SolicitudType = 'cambioHora' | 'anulacion'
 type SolicitudStatus = 'pendiente' | 'aprobada' | 'rechazada'
@@ -73,14 +72,14 @@ const solicitudInfo = {
   cambioHora: {
     titulo: "Cambio de Hora",
     icono: <Clock className="w-5 h-5" />,
-    color: "text-blue-500",
-    bgColor: "bg-blue-100",
+    color: "text-emerald-500",
+    bgColor: "bg-emerald-100",
   },
   anulacion: {
     titulo: "Anulación",
     icono: <CalendarX className="w-5 h-5" />,
-    color: "text-red-500",
-    bgColor: "bg-red-100",
+    color: "text-rose-500",
+    bgColor: "bg-rose-100",
   },
 }
 
@@ -147,67 +146,54 @@ export default function Component() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-primary/10 p-4 sm:p-6 md:p-8 font-sans">
-      <Card className="w-full max-w-7xl mx-auto bg-background/80 backdrop-blur-md shadow-xl rounded-2xl overflow-hidden border border-primary/20">
-        <CardHeader className="bg-gradient-to-r from-primary to-primary-foreground text-primary-foreground p-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <div>
-              <CardTitle className="text-3xl md:text-4xl font-bold mb-2">Módulo Administrativo de Solicitudes</CardTitle>
-              <CardDescription className="text-primary-foreground/80 text-lg">
-                Gestiona las solicitudes de los usuarios de manera eficiente
-              </CardDescription>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-teal-100 to-sky-100 p-4 sm:p-6 md:p-8 font-sans">
+      <Card className="w-full max-w-6xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-3xl overflow-hidden border border-teal-200">
+        <CardHeader className="bg-gradient-to-r from-teal-500 to-sky-500 text-white p-8">
+          <CardTitle className="text-3xl md:text-4xl font-bold mb-2">Módulo Administrativo de Solicitudes</CardTitle>
+          <CardDescription className="text-teal-100 text-lg">
+            Gestiona las solicitudes de los usuarios de manera eficiente
+          </CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <Tabs defaultValue="pendiente" className="w-full">
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
-              <TabsList className="bg-muted p-1 rounded-lg">
-                <TabsTrigger value="pendiente" className="data-[state=active]:bg-background data-[state=active]:text-primary" onClick={() => setFiltro('pendiente')}>
+              <TabsList className="bg-teal-100 p-1 rounded-full">
+                <TabsTrigger value="pendiente" className="rounded-full data-[state=active]:bg-white data-[state=active]:text-teal-600">
                   Pendientes
                 </TabsTrigger>
-                <TabsTrigger value="aprobada" className="data-[state=active]:bg-background data-[state=active]:text-primary" onClick={() => setFiltro('aprobada')}>
+                <TabsTrigger value="aprobada" className="rounded-full data-[state=active]:bg-white data-[state=active]:text-teal-600">
                   Aprobadas
                 </TabsTrigger>
-                <TabsTrigger value="rechazada" className="data-[state=active]:bg-background data-[state=active]:text-primary" onClick={() => setFiltro('rechazada')}>
+                <TabsTrigger value="rechazada" className="rounded-full data-[state=active]:bg-white data-[state=active]:text-teal-600">
                   Rechazadas
                 </TabsTrigger>
               </TabsList>
-              <div className="flex space-x-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder="Buscar..."
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                    className="pl-10 pr-4 py-2 w-64 rounded-full border-primary/20 focus:border-primary focus:ring focus:ring-primary/50"
-                  />
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon">
-                      <Filter className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem>Filtrar por fecha</DropdownMenuItem>
-                    <DropdownMenuItem>Filtrar por tipo</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500" />
+                <Input
+                  type="text"
+                  placeholder="Buscar solicitudes..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full sm:w-64 rounded-full border-teal-200 focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+                />
               </div>
             </div>
             <TabsContent value={filtro}>
               <ScrollArea className="h-[calc(100vh-300px)] pr-4">
                 <AnimatePresence>
-                  {filteredSolicitudes.map((solicitud) => (
-                    <SolicitudCard
-                      key={solicitud.id}
-                      solicitud={solicitud}
-                      onResponder={handleResponder}
-                      onAnular={handleAnularReserva}
-                    />
-                  ))}
+                  {filteredSolicitudes.length > 0 ? (
+                    filteredSolicitudes.map((solicitud) => (
+                      <SolicitudCard
+                        key={solicitud.id}
+                        solicitud={solicitud}
+                        onResponder={handleResponder}
+                        onAnular={handleAnularReserva}
+                      />
+                    ))
+                  ) : (
+                    <NoSolicitudesMessage status={filtro} />
+                  )}
                 </AnimatePresence>
               </ScrollArea>
             </TabsContent>
@@ -243,71 +229,91 @@ function SolicitudCard({ solicitud, onResponder, onAnular }: { solicitud: Solici
       transition={{ duration: 0.3 }}
       className="mb-4"
     >
-      <Card className="bg-card shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-primary/10 hover:border-primary/30">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <div className="flex items-center space-x-2">
-            <div className={`p-2 rounded-full ${solicitudInfo[solicitud.tipo].bgColor} ${solicitudInfo[solicitud.tipo].color}`}>
-              {solicitudInfo[solicitud.tipo].icono}
+      <Card className="bg-white shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-teal-100 hover:border-teal-300">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className={`p-2 rounded-full ${solicitudInfo[solicitud.tipo].bgColor} ${solicitudInfo[solicitud.tipo].color}`}>
+                {solicitudInfo[solicitud.tipo].icono}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800">
+                {solicitudInfo[solicitud.tipo].titulo}
+              </h3>
             </div>
-            <CardTitle className="text-xl font-semibold text-foreground">
-              {solicitudInfo[solicitud.tipo].titulo}
-            </CardTitle>
+            <Badge
+              variant={
+                solicitud.estado === 'pendiente'
+                  ? 'secondary'
+                  : solicitud.estado === 'aprobada'
+                    ? 'default'
+                    : 'destructive'
+              }
+              className="text-sm font-medium px-3 py-1 rounded-full"
+            >
+              {solicitud.estado}
+            </Badge>
           </div>
-          <Badge
-            variant={
-              solicitud.estado === 'pendiente'
-                ? 'secondary'
-                : solicitud.estado === 'aprobada'
-                  ? 'default'
-                  : 'destructive'
-            }
-            className="text-sm font-medium px-3 py-1 rounded-full"
-          >
-            {solicitud.estado}
-          </Badge>
-        </CardHeader>
-        <CardContent className="pt-4">
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="flex items-center space-x-2">
-              <User className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">{solicitud.usuario}</span>
+              <User className="w-4 h-4 text-teal-500" />
+              <span className="text-sm text-gray-600">{solicitud.usuario}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">{solicitud.fechaSolicitud}</span>
+              <Calendar className="w-4 h-4 text-teal-500" />
+              <span className="text-sm text-gray-600">{solicitud.fechaSolicitud}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">{`${solicitud.reserva.fecha} ${solicitud.reserva.hora}`}</span>
+              <Clock className="w-4 h-4 text-teal-500" />
+              <span className="text-sm text-gray-600">{`${solicitud.reserva.fecha} ${solicitud.reserva.hora}`}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <MapPin className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">{solicitud.reserva.cancha}</span>
+              <MapPin className="w-4 h-4 text-teal-500" />
+              <span className="text-sm text-gray-600">{solicitud.reserva.cancha}</span>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{solicitud.motivo}</p>
-        </CardContent>
-        <CardFooter className="flex justify-end space-x-2">
+          <p className="text-sm text-gray-600 bg-teal-50 p-3 rounded-md mb-4">{solicitud.motivo}</p>
           {solicitud.estado === 'pendiente' && (
-            <>
+            <div className="flex justify-end space-x-2">
               <Button
                 variant="outline"
-                className="text-destructive border-destructive hover:bg-destructive/10"
+                className="text-rose-500 border-rose-500 hover:bg-rose-50"
                 onClick={() => onAnular(solicitud.id)}
               >
                 Anular
               </Button>
               <Button
-                className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-300"
+                className="bg-teal-500 hover:bg-teal-600 text-white transition-colors duration-300"
                 onClick={() => onResponder(solicitud)}
               >
                 Responder
                 <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
-            </>
+            </div>
           )}
-        </CardFooter>
+        </CardContent>
       </Card>
+    </motion.div>
+  )
+}
+
+function NoSolicitudesMessage({ status }: { status: SolicitudStatus }) {
+  const messages = {
+    pendiente: "No hay solicitudes pendientes",
+    aprobada: "No hay solicitudes aprobadas",
+    rechazada: "No hay solicitudes rechazadas"
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col items-center justify-center p-8 text-center"
+    >
+      <AlertCircle className="w-16 h-16 text-teal-500 mb-4" />
+      <h3 className="text-xl font-semibold text-gray-800 mb-2">{messages[status]}</h3>
+      <p className="text-gray-600">Las solicitudes aparecerán aquí cuando estén disponibles.</p>
     </motion.div>
   )
 }
@@ -341,27 +347,28 @@ function ResponderDialog({
 }) {
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] bg-white rounded-2xl">
         <DialogHeader>
-          <DialogTitle>Responder a la Solicitud</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-2xl font-bold text-teal-700">Responder a la Solicitud</DialogTitle>
+          <DialogDescription className="text-gray-600">
             Estás respondiendo a la solicitud de {solicitud.usuario}.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="space-y-4 mt-4">
           <div>
-            <Label htmlFor="nueva-fecha">Fecha</Label>
+            <Label htmlFor="nueva-fecha" className="text-teal-700">Fecha</Label>
             <Input
               id="nueva-fecha"
               type="date"
               value={nuevaFecha}
               onChange={(e) => setNuevaFecha(e.target.value)}
+              className="mt-1 border-teal-300 focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
             />
           </div>
           <div>
-            <Label htmlFor="nueva-hora">Hora</Label>
+            <Label htmlFor="nueva-hora" className="text-teal-700">Hora</Label>
             <Select value={nuevaHora} onValueChange={setNuevaHora}>
-              <SelectTrigger id="nueva-hora">
+              <SelectTrigger id="nueva-hora" className="mt-1 border-teal-300 focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50">
                 <SelectValue placeholder="Selecciona una hora" />
               </SelectTrigger>
               <SelectContent>
@@ -374,9 +381,9 @@ function ResponderDialog({
             </Select>
           </div>
           <div>
-            <Label htmlFor="nueva-cancha">Cancha</Label>
+            <Label htmlFor="nueva-cancha" className="text-teal-700">Cancha</Label>
             <Select value={nuevaCancha} onValueChange={setNuevaCancha}>
-              <SelectTrigger id="nueva-cancha">
+              <SelectTrigger id="nueva-cancha" className="mt-1 border-teal-300 focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50">
                 <SelectValue placeholder="Selecciona una cancha" />
               </SelectTrigger>
               <SelectContent>
@@ -389,25 +396,26 @@ function ResponderDialog({
             </Select>
           </div>
           <div>
-            <Label htmlFor="respuesta">Respuesta</Label>
+            <Label htmlFor="respuesta" className="text-teal-700">Respuesta</Label>
             <Textarea
               id="respuesta"
               value={respuesta}
               onChange={(e) => setRespuesta(e.target.value)}
               placeholder="Escribe tu respuesta aquí..."
+              className="mt-1 border-teal-300 focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
             />
           </div>
         </div>
-        <DialogFooter className="sm:justify-between">
-          <Button variant="outline" onClick={onClose}>
+        <DialogFooter className="mt-6">
+          <Button variant="outline" onClick={onClose} className="mr-2">
             Cancelar
           </Button>
-          <div className="flex space-x-2">
-            <Button variant="destructive" onClick={() => onSubmit(false)}>
-              Rechazar
-            </Button>
-            <Button onClick={() => onSubmit(true)}>Aprobar</Button>
-          </div>
+          <Button variant="destructive" onClick={() => onSubmit(false)} className="mr-2">
+            Rechazar
+          </Button>
+          <Button onClick={() => onSubmit(true)} className="bg-teal-500 hover:bg-teal-600 text-white">
+            Aprobar
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
