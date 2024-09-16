@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -268,7 +269,7 @@ export default function Component() {
                                   </DialogDescription>
                                 </DialogHeader>
                                 <div className="flex justify-center py-4">
-                                  <img src={reserva.qrCode} alt="Código QR de la reserva" className="w-48 h-48" />
+                                  <Image src={reserva.qrCode} alt="Código QR de la reserva" className="w-48 h-48" />
                                 </div>
                                 <div className="text-center">
                                   <p className="font-semibold">{reserva.cancha}</p>
