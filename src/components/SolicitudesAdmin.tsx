@@ -9,23 +9,21 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
-import { Clock, CalendarX, UserPlus, MessageSquare, CheckCircle, XCircle, ChevronRight, User, Calendar, MapPin, AlertCircle, Trash2, Search, Filter, MoreVertical, HelpCircle } from 'lucide-react'
+import { Clock, CalendarX, CheckCircle, XCircle, ChevronRight, User, Calendar, MapPin, Search, Filter } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-type SolicitudType = 'cambioHora' | 'anulacion' | 'invitado' | 'otro'
+type SolicitudType = 'cambioHora' | 'anulacion'
 type SolicitudStatus = 'pendiente' | 'aprobada' | 'rechazada'
 
 interface Solicitud {
@@ -62,15 +60,6 @@ const solicitudesEjemplo: Solicitud[] = [
     reserva: { id: '2', fecha: '22-06-23', hora: '15:00', cancha: 'Cancha 2' },
     motivo: 'Me lesioné y no podré jugar.'
   },
-  {
-    id: '3',
-    tipo: 'invitado',
-    fechaSolicitud: '17-06-23 18:45',
-    estado: 'pendiente',
-    usuario: 'Carlos Rodríguez',
-    reserva: { id: '3', fecha: '25-06-23', hora: '18:00', cancha: 'Cancha 3' },
-    motivo: 'Quisiera traer a un amigo que está de visita.'
-  },
 ]
 
 const canchasDisponibles = ['Cancha 1', 'Cancha 2', 'Cancha 3']
@@ -93,21 +82,9 @@ const solicitudInfo = {
     color: "text-red-500",
     bgColor: "bg-red-100",
   },
-  invitado: {
-    titulo: "Invitado Adicional",
-    icono: <UserPlus className="w-5 h-5" />,
-    color: "text-green-500",
-    bgColor: "bg-green-100",
-  },
-  otro: {
-    titulo: "Otra Solicitud",
-    icono: <MessageSquare className="w-5 h-5" />,
-    color: "text-purple-500",
-    bgColor: "bg-purple-100",
-  },
 }
 
-export default function AdminPanel() {
+export default function Component() {
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>(solicitudesEjemplo)
   const [selectedSolicitud, setSelectedSolicitud] = useState<Solicitud | null>(null)
   const [nuevaFecha, setNuevaFecha] = useState<string>('')
@@ -170,13 +147,13 @@ export default function AdminPanel() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-purple-100 p-4 sm:p-6 md:p-8">
-      <Card className="w-full max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-2xl overflow-hidden border border-indigo-200">
-        <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-8">
-          <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-primary/10 p-4 sm:p-6 md:p-8 font-sans">
+      <Card className="w-full max-w-7xl mx-auto bg-background/80 backdrop-blur-md shadow-xl rounded-2xl overflow-hidden border border-primary/20">
+        <CardHeader className="bg-gradient-to-r from-primary to-primary-foreground text-primary-foreground p-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
-              <CardTitle className="text-3xl md:text-4xl font-bold mb-2">Panel de Administración</CardTitle>
-              <CardDescription className="text-indigo-100 text-lg">
+              <CardTitle className="text-3xl md:text-4xl font-bold mb-2">Módulo Administrativo de Solicitudes</CardTitle>
+              <CardDescription className="text-primary-foreground/80 text-lg">
                 Gestiona las solicitudes de los usuarios de manera eficiente
               </CardDescription>
             </div>
@@ -185,28 +162,39 @@ export default function AdminPanel() {
         <CardContent className="p-6">
           <Tabs defaultValue="pendiente" className="w-full">
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
-              <TabsList className="bg-indigo-100 p-1 rounded-lg">
-                <TabsTrigger value="pendiente" className="data-[state=active]:bg-white data-[state=active]:text-indigo-600" onClick={() => setFiltro('pendiente')}>
+              <TabsList className="bg-muted p-1 rounded-lg">
+                <TabsTrigger value="pendiente" className="data-[state=active]:bg-background data-[state=active]:text-primary" onClick={() => setFiltro('pendiente')}>
                   Pendientes
                 </TabsTrigger>
-                <TabsTrigger value="aprobada" className="data-[state=active]:bg-white data-[state=active]:text-indigo-600" onClick={() => setFiltro('aprobada')}>
+                <TabsTrigger value="aprobada" className="data-[state=active]:bg-background data-[state=active]:text-primary" onClick={() => setFiltro('aprobada')}>
                   Aprobadas
                 </TabsTrigger>
-                <TabsTrigger value="rechazada" className="data-[state=active]:bg-white data-[state=active]:text-indigo-600" onClick={() => setFiltro('rechazada')}>
+                <TabsTrigger value="rechazada" className="data-[state=active]:bg-background data-[state=active]:text-primary" onClick={() => setFiltro('rechazada')}>
                   Rechazadas
                 </TabsTrigger>
               </TabsList>
               <div className="flex space-x-2">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
                   <Input
                     type="text"
                     placeholder="Buscar..."
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
-                    className="pl-10 pr-4 py-2 w-64 rounded-full border-indigo-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    className="pl-10 pr-4 py-2 w-64 rounded-full border-primary/20 focus:border-primary focus:ring focus:ring-primary/50"
                   />
                 </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <Filter className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem>Filtrar por fecha</DropdownMenuItem>
+                    <DropdownMenuItem>Filtrar por tipo</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
             <TabsContent value={filtro}>
@@ -255,20 +243,20 @@ function SolicitudCard({ solicitud, onResponder, onAnular }: { solicitud: Solici
       transition={{ duration: 0.3 }}
       className="mb-4"
     >
-      <Card className="bg-white shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+      <Card className="bg-card shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-primary/10 hover:border-primary/30">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div className="flex items-center space-x-2">
             <div className={`p-2 rounded-full ${solicitudInfo[solicitud.tipo].bgColor} ${solicitudInfo[solicitud.tipo].color}`}>
               {solicitudInfo[solicitud.tipo].icono}
             </div>
-            <CardTitle className="text-xl font-semibold text-gray-800">
+            <CardTitle className="text-xl font-semibold text-foreground">
               {solicitudInfo[solicitud.tipo].titulo}
             </CardTitle>
           </div>
           <Badge
             variant={
               solicitud.estado === 'pendiente'
-                ? 'default'
+                ? 'secondary'
                 : solicitud.estado === 'aprobada'
                   ? 'default'
                   : 'destructive'
@@ -281,36 +269,36 @@ function SolicitudCard({ solicitud, onResponder, onAnular }: { solicitud: Solici
         <CardContent className="pt-4">
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="flex items-center space-x-2">
-              <User className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">{solicitud.usuario}</span>
+              <User className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">{solicitud.usuario}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">{solicitud.fechaSolicitud}</span>
+              <Calendar className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">{solicitud.fechaSolicitud}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Clock className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">{`${solicitud.reserva.fecha} ${solicitud.reserva.hora}`}</span>
+              <Clock className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">{`${solicitud.reserva.fecha} ${solicitud.reserva.hora}`}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <MapPin className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">{solicitud.reserva.cancha}</span>
+              <MapPin className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">{solicitud.reserva.cancha}</span>
             </div>
           </div>
-          <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md">{solicitud.motivo}</p>
+          <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{solicitud.motivo}</p>
         </CardContent>
         <CardFooter className="flex justify-end space-x-2">
           {solicitud.estado === 'pendiente' && (
             <>
               <Button
                 variant="outline"
-                className="text-red-500 border-red-500 hover:bg-red-50"
+                className="text-destructive border-destructive hover:bg-destructive/10"
                 onClick={() => onAnular(solicitud.id)}
               >
                 Anular
               </Button>
               <Button
-                className="bg-indigo-500 hover:bg-indigo-600 text-white transition-colors duration-300"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-300"
                 onClick={() => onResponder(solicitud)}
               >
                 Responder
@@ -353,7 +341,7 @@ function ResponderDialog({
 }) {
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Responder a la Solicitud</DialogTitle>
           <DialogDescription>
@@ -362,17 +350,18 @@ function ResponderDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label>Fecha</Label>
+            <Label htmlFor="nueva-fecha">Fecha</Label>
             <Input
+              id="nueva-fecha"
               type="date"
               value={nuevaFecha}
               onChange={(e) => setNuevaFecha(e.target.value)}
             />
           </div>
           <div>
-            <Label>Hora</Label>
+            <Label htmlFor="nueva-hora">Hora</Label>
             <Select value={nuevaHora} onValueChange={setNuevaHora}>
-              <SelectTrigger>
+              <SelectTrigger id="nueva-hora">
                 <SelectValue placeholder="Selecciona una hora" />
               </SelectTrigger>
               <SelectContent>
@@ -385,9 +374,9 @@ function ResponderDialog({
             </Select>
           </div>
           <div>
-            <Label>Cancha</Label>
+            <Label htmlFor="nueva-cancha">Cancha</Label>
             <Select value={nuevaCancha} onValueChange={setNuevaCancha}>
-              <SelectTrigger>
+              <SelectTrigger id="nueva-cancha">
                 <SelectValue placeholder="Selecciona una cancha" />
               </SelectTrigger>
               <SelectContent>
@@ -400,21 +389,25 @@ function ResponderDialog({
             </Select>
           </div>
           <div>
-            <Label>Respuesta</Label>
+            <Label htmlFor="respuesta">Respuesta</Label>
             <Textarea
+              id="respuesta"
               value={respuesta}
               onChange={(e) => setRespuesta(e.target.value)}
+              placeholder="Escribe tu respuesta aquí..."
             />
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="sm:justify-between">
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button onClick={() => onSubmit(true)}>Aprobar</Button>
-          <Button variant="destructive" onClick={() => onSubmit(false)}>
-            Rechazar
-          </Button>
+          <div className="flex space-x-2">
+            <Button variant="destructive" onClick={() => onSubmit(false)}>
+              Rechazar
+            </Button>
+            <Button onClick={() => onSubmit(true)}>Aprobar</Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
