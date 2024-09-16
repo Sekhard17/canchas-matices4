@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
@@ -116,7 +116,7 @@ export default function AdminPanel() {
   const [respuesta, setRespuesta] = useState<string>('')
   const [filtro, setFiltro] = useState<SolicitudStatus>('pendiente')
   const [busqueda, setBusqueda] = useState<string>('')
-  const [isHelpOpen, setIsHelpOpen] = useState(false)
+
   const { toast } = useToast()
 
   const handleResponder = (solicitud: Solicitud) => {
@@ -129,9 +129,9 @@ export default function AdminPanel() {
 
   const handleSubmitRespuesta = (aprobada: boolean) => {
     if (selectedSolicitud) {
-      const updatedSolicitudes = solicitudes.map(s => 
-        s.id === selectedSolicitud.id 
-          ? {...s, estado: aprobada ? 'aprobada' : 'rechazada'} 
+      const updatedSolicitudes = solicitudes.map(s =>
+        s.id === selectedSolicitud.id
+          ? { ...s, estado: (aprobada ? 'aprobada' : 'rechazada') as SolicitudStatus }
           : s
       )
       setSolicitudes(updatedSolicitudes)
@@ -147,9 +147,9 @@ export default function AdminPanel() {
   const handleAnularReserva = (solicitudId: string) => {
     const solicitudToAnular = solicitudes.find(s => s.id === solicitudId)
     if (solicitudToAnular) {
-      const updatedSolicitudes = solicitudes.map(s => 
-        s.id === solicitudId 
-          ? {...s, estado: 'rechazada'} 
+      const updatedSolicitudes = solicitudes.map(s =>
+        s.id === solicitudId
+          ? { ...s, estado: 'rechazada' as SolicitudStatus }
           : s
       )
       setSolicitudes(updatedSolicitudes)
@@ -162,11 +162,11 @@ export default function AdminPanel() {
     }
   }
 
-  const filteredSolicitudes = solicitudes.filter(s => 
-    s.estado === filtro && 
-    (s.usuario.toLowerCase().includes(busqueda.toLowerCase()) || 
-     s.reserva.fecha.includes(busqueda) || 
-     s.reserva.hora.includes(busqueda))
+  const filteredSolicitudes = solicitudes.filter(s =>
+    s.estado === filtro &&
+    (s.usuario.toLowerCase().includes(busqueda.toLowerCase()) ||
+      s.reserva.fecha.includes(busqueda) ||
+      s.reserva.hora.includes(busqueda))
   )
 
   return (
@@ -180,32 +180,21 @@ export default function AdminPanel() {
                 Gestiona las solicitudes de los usuarios de manera eficiente
               </CardDescription>
             </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="bg-white/20 hover:bg-white/30 text-white border-white/40"
-                    onClick={() => setIsHelpOpen(true)}
-                  >
-                    <HelpCircle className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Ayuda e instrucciones</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </div>
         </CardHeader>
         <CardContent className="p-6">
           <Tabs defaultValue="pendiente" className="w-full">
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
               <TabsList className="bg-indigo-100 p-1 rounded-lg">
-                <TabsTrigger value="pendiente" className="data-[state=active]:bg-white data-[state=active]:text-indigo-600">Pendientes</TabsTrigger>
-                <TabsTrigger value="aprobada" className="data-[state=active]:bg-white data-[state=active]:text-indigo-600">Aprobadas</TabsTrigger>
-                <TabsTrigger value="rechazada" className="data-[state=active]:bg-white data-[state=active]:text-indigo-600">Rechazadas</TabsTrigger>
+                <TabsTrigger value="pendiente" className="data-[state=active]:bg-white data-[state=active]:text-indigo-600" onClick={() => setFiltro('pendiente')}>
+                  Pendientes
+                </TabsTrigger>
+                <TabsTrigger value="aprobada" className="data-[state=active]:bg-white data-[state=active]:text-indigo-600" onClick={() => setFiltro('aprobada')}>
+                  Aprobadas
+                </TabsTrigger>
+                <TabsTrigger value="rechazada" className="data-[state=active]:bg-white data-[state=active]:text-indigo-600" onClick={() => setFiltro('rechazada')}>
+                  Rechazadas
+                </TabsTrigger>
               </TabsList>
               <div className="flex space-x-2">
                 <div className="relative">
@@ -218,50 +207,12 @@ export default function AdminPanel() {
                     className="pl-10 pr-4 py-2 w-64 rounded-full border-indigo-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                   />
                 </div>
-                <Select value={filtro} onValueChange={(value) => setFiltro(value as SolicitudStatus)}>
-                  <SelectTrigger className="w-[180px] rounded-full border-indigo-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    <SelectValue placeholder="Filtrar por estado" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pendiente">Pendientes</SelectItem>
-                    <SelectItem value="aprobada">Aprobadas</SelectItem>
-                    <SelectItem value="rechazada">Rechazadas</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
-            <TabsContent value="pendiente">
+            <TabsContent value={filtro}>
               <ScrollArea className="h-[calc(100vh-300px)] pr-4">
                 <AnimatePresence>
                   {filteredSolicitudes.map((solicitud) => (
-                    <SolicitudCard
-                      key={solicitud.id}
-                      solicitud={solicitud}
-                      onResponder={handleResponder}
-                      onAnular={handleAnularReserva}
-                    />
-                  ))}
-                </AnimatePresence>
-              </ScrollArea>
-            </TabsContent>
-            <TabsContent value="aprobada">
-              <ScrollArea className="h-[calc(100vh-300px)] pr-4">
-                <AnimatePresence>
-                  {solicitudes.filter(s => s.estado === 'aprobada').map((solicitud) => (
-                    <SolicitudCard
-                      key={solicitud.id}
-                      solicitud={solicitud}
-                      onResponder={handleResponder}
-                      onAnular={handleAnularReserva}
-                    />
-                  ))}
-                </AnimatePresence>
-              </ScrollArea>
-            </TabsContent>
-            <TabsContent value="rechazada">
-              <ScrollArea className="h-[calc(100vh-300px)] pr-4">
-                <AnimatePresence>
-                  {solicitudes.filter(s => s.estado === 'rechazada').map((solicitud) => (
                     <SolicitudCard
                       key={solicitud.id}
                       solicitud={solicitud}
@@ -291,13 +242,11 @@ export default function AdminPanel() {
           onClose={() => setSelectedSolicitud(null)}
         />
       )}
-      <HelpDialog isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </div>
   )
 }
 
-function SolicitudCard({ solicitud, onResponder, onAnular }: { solicitud: Solicitud, onResponder: (s: Solicitud)
- => void, onAnular: (id: string) => void }) {
+function SolicitudCard({ solicitud, onResponder, onAnular }: { solicitud: Solicitud, onResponder: (s: Solicitud) => void, onAnular: (id: string) => void }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -317,8 +266,13 @@ function SolicitudCard({ solicitud, onResponder, onAnular }: { solicitud: Solici
             </CardTitle>
           </div>
           <Badge
-            variant={solicitud.estado === 'pendiente' ? 'default' : 
-                     solicitud.estado === 'aprobada' ? 'success' : 'destructive'}
+            variant={
+              solicitud.estado === 'pendiente'
+                ? 'default'
+                : solicitud.estado === 'aprobada'
+                  ? 'default'
+                  : 'destructive'
+            }
             className="text-sm font-medium px-3 py-1 rounded-full"
           >
             {solicitud.estado}
@@ -370,188 +324,97 @@ function SolicitudCard({ solicitud, onResponder, onAnular }: { solicitud: Solici
   )
 }
 
-function ResponderDialog({ 
-  solicitud, 
-  nuevaFecha, 
-  setNuevaFecha, 
-  nuevaHora, 
-  setNuevaHora, 
-  nuevaCancha, 
-  setNuevaCancha, 
-  respuesta, 
-  setRespuesta, 
-  onSubmit, 
+function ResponderDialog({
+  solicitud,
+  nuevaFecha,
+  setNuevaFecha,
+  nuevaHora,
+  setNuevaHora,
+  nuevaCancha,
+  setNuevaCancha,
+  respuesta,
+  setRespuesta,
+  onSubmit,
   onAnular,
   onClose
-}: { 
-  solicitud: Solicitud, 
-  nuevaFecha: string, 
-  setNuevaFecha: (s: string) => void, 
-  nuevaHora: string, 
-  setNuevaHora: (s: string) => void, 
-  nuevaCancha: string, 
-  setNuevaCancha: (s: string) => void, 
-  respuesta: string, 
-  setRespuesta: (s: string) => void, 
-  onSubmit: (aprobada: boolean) => void, 
+}: {
+  solicitud: Solicitud,
+  nuevaFecha: string,
+  setNuevaFecha: React.Dispatch<React.SetStateAction<string>>,
+  nuevaHora: string,
+  setNuevaHora: React.Dispatch<React.SetStateAction<string>>,
+  nuevaCancha: string,
+  setNuevaCancha: React.Dispatch<React.SetStateAction<string>>,
+  respuesta: string,
+  setRespuesta: React.Dispatch<React.SetStateAction<string>>,
+  onSubmit: (aprobada: boolean) => void,
   onAnular: (id: string) => void,
   onClose: () => void
 }) {
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-800 flex items-center space-x-2">
-            <div className={`p-2 rounded-full ${solicitudInfo[solicitud.tipo].bgColor} ${solicitudInfo[solicitud.tipo].color}`}>
-              {solicitudInfo[solicitud.tipo].icono}
-            </div>
-            <span>{solicitudInfo[solicitud.tipo].titulo}</span>
-          </DialogTitle>
-          <DialogDescription className="text-gray-600">
-            Responde a la solicitud de {solicitud.usuario}
+          <DialogTitle>Responder a la Solicitud</DialogTitle>
+          <DialogDescription>
+            Estás respondiendo a la solicitud de {solicitud.usuario}.
           </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          {(solicitud.tipo === 'cambioHora' || solicitud.tipo === 'anulacion') && (
-            <>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="nuevaFecha" className="text-right text-gray-700">
-                  Nueva Fecha
-                </Label>
-                <Input
-                  id="nuevaFecha"
-                  type="date"
-                  value={nuevaFecha}
-                  onChange={(e) => setNuevaFecha(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="nuevaHora" className="text-right text-gray-700">
-                  Nueva Hora
-                </Label>
-                <Select value={nuevaHora} onValueChange={setNuevaHora}>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Selecciona una hora" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {horasDisponibles.map((hora) => (
-                      <SelectItem key={hora} value={hora}>
-                        {hora}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="nuevaCancha" className="text-right text-gray-700">
-                  Nueva Cancha
-                </Label>
-                <Select value={nuevaCancha} onValueChange={setNuevaCancha}>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Selecciona una cancha" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {canchasDisponibles.map((cancha) => (
-                      <SelectItem key={cancha} value={cancha}>
-                        {cancha}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
-          )}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="respuesta" className="text-right text-gray-700">
-              Respuesta
-            </Label>
-            <Textarea
-              id="respuesta"
-              value={respuesta}
-              onChange={(e) => setRespuesta(e.target.value)}
-              placeholder="Escribe tu respuesta aquí..."
-              className="col-span-3"
-              rows={4}
-            />
-          </div>
-        </div>
-        <DialogFooter className="space-x-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            className="bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-300"
-          >
-            Cancelar
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={() => {
-              onAnular(solicitud.id)
-              onClose()
-            }}
-            className="bg-red-500 text-white hover:bg-red-600"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Anular Reserva
-          </Button>
-          <Button
-            type="button"
-            onClick={() => {
-              onSubmit(true)
-              onClose()
-            }}
-            className="bg-green-500 text-white hover:bg-green-600"
-          >
-            <CheckCircle className="w-4 h-4 mr-2" />
-            Aprobar
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-function HelpDialog({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-800 flex items-center space-x-2">
-            <HelpCircle className="w-6 h-6 text-indigo-500" />
-            <span>Ayuda e Instrucciones</span>
-          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <h3 className="font-semibold text-lg mb-2">Gestión de Solicitudes</h3>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>Use las pestañas para filtrar solicitudes por estado: Pendientes, Aprobadas, o Rechazadas.</li>
-              <li>Utilice la barra de búsqueda para encontrar solicitudes específicas por usuario, fecha o hora.</li>
-              <li>Haga clic en "Responder" para aprobar, rechazar o anular una solicitud.</li>
-            </ul>
+            <Label>Fecha</Label>
+            <Input
+              type="date"
+              value={nuevaFecha}
+              onChange={(e) => setNuevaFecha(e.target.value)}
+            />
           </div>
           <div>
-            <h3 className="font-semibold text-lg mb-2">Responder a una Solicitud</h3>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>En el diálogo de respuesta, puede modificar la fecha, hora y cancha si es necesario.</li>
-              <li>Escriba una respuesta personalizada en el campo de texto.</li>
-              <li>Elija "Aprobar" para aceptar la solicitud o "Anular Reserva" para rechazarla y cancelar la reserva.</li>
-            </ul>
+            <Label>Hora</Label>
+            <Select value={nuevaHora} onValueChange={setNuevaHora}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona una hora" />
+              </SelectTrigger>
+              <SelectContent>
+                {horasDisponibles.map((hora) => (
+                  <SelectItem key={hora} value={hora}>
+                    {hora}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
-            <h3 className="font-semibold text-lg mb-2">Consejos Adicionales</h3>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>Las solicitudes están codificadas por colores según su tipo para una fácil identificación.</li>
-              <li>Puede cerrar cualquier diálogo sin tomar acción haciendo clic fuera de él o en el botón "Cancelar".</li>
-              <li>Asegúrese de revisar cuidadosamente los detalles antes de aprobar o anular una solicitud.</li>
-            </ul>
+            <Label>Cancha</Label>
+            <Select value={nuevaCancha} onValueChange={setNuevaCancha}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona una cancha" />
+              </SelectTrigger>
+              <SelectContent>
+                {canchasDisponibles.map((cancha) => (
+                  <SelectItem key={cancha} value={cancha}>
+                    {cancha}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Respuesta</Label>
+            <Textarea
+              value={respuesta}
+              onChange={(e) => setRespuesta(e.target.value)}
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={onClose}>Entendido</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button onClick={() => onSubmit(true)}>Aprobar</Button>
+          <Button variant="destructive" onClick={() => onSubmit(false)}>
+            Rechazar
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
