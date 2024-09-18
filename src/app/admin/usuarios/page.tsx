@@ -5,9 +5,7 @@ export default function ClienteDash() {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto p-4">
         <AdminCliente />
-      </div>
     </>
   );
 }
