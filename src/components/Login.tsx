@@ -22,10 +22,30 @@ export default function LoginElegante() {
   const [darkMode, setDarkMode] = useState(false);
   const router = useRouter(); // Inicializar router
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí iría la lógica de autenticación
-    toast.success('¡Bienvenido de vuelta! Prepárate para jugar.');
+    try {
+      const response = await fetch('https://canchas-back-4.onrender.com/api/usuarios/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Guardar el token en localStorage
+        localStorage.setItem('token', data.token);
+        toast.success('¡Bienvenido de vuelta! Prepárate para jugar.');
+        // Redirigir al dashboard o página principal
+        router.push('/dashboard');
+      } else {
+        toast.error('Correo o contraseña incorrectos.');
+      }
+    } catch (error) {
+      toast.error('Error al iniciar sesión. Inténtalo de nuevo más tarde.');
+    }
   };
 
   const toggleDarkMode = () => {
