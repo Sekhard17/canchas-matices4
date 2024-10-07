@@ -1,34 +1,25 @@
 'use client'
-import React, { useState } from 'react'
+
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import {jwtDecode} from 'jwt-decode'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Calendar } from "@/components/ui/calendar"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Search, Menu, X, Activity, QrCode, PlusCircle, Sun, Moon, ChevronRight, BarChart, PieChart, TrendingUp, Users } from 'lucide-react'
+import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, QrCode, PlusCircle, Sun, Moon, BarChart, PieChart, TrendingUp } from 'lucide-react'
 import { es } from 'date-fns/locale'
-import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2'
+import { Line, Bar, Pie } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
-import {jwtDecode} from 'jwt-decode'
-import { useRouter } from 'next/router'
-import { useEffect } from 'react'
 
-// Definir la interfaz personalizada del token
-interface CustomJwtPayload {
-  id: string;
-  rol: string;
-  nombre: string;
-  apellido: string;
-}
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, ChartTooltip, Legend)
 
 const reservas = [
   { id: 1, fecha: '2024-08-20', cancha: 'Cancha Principal', hora: '10:00 AM', estado: 'Confirmada', qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Reserva1' },
@@ -92,47 +83,50 @@ const pieChartData = {
   ],
 }
 
-export default function ClienteDashboard() {
+export default function Component() {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [darkMode, setDarkMode] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [userData, setUserData] = useState<CustomJwtPayload | null>(null);
-  const router = useRouter();
+  const [user, setUser] = useState<any>(null)
+  const router = useRouter()
 
   useEffect(() => {
-    // Obtener el token de localStorage y decodificarlo
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     if (token) {
       try {
-        const decoded = jwtDecode<CustomJwtPayload>(token);
-        setUserData(decoded);
+        const decoded: any = jwtDecode(token)
+        setUser(decoded)
       } catch (error) {
-        console.error("Error al decodificar el token:", error);
+        console.error('Error decoding token:', error)
       }
     } else {
-      // Si no hay token, redirigir al login
-      router.push('/login');
+      router.push('/')
     }
-  }, [router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    router.push('/login');
-  };
+  }, [router])
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-  };
+    setDarkMode(!darkMode)
+    if (darkMode) {
+      document.documentElement.classList.remove('dark')
+    } else {
+      document.documentElement.classList.add('dark')
+    }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    setUser(null)
+    router.push('/')
+  }
 
   const mapEstadoToVariant = (estado: string) => {
     switch (estado) {
       case 'Confirmada':
-        return 'default';
+        return 'default'
       case 'Pendiente':
-        return 'secondary';
+        return 'secondary'
       default:
-        return 'outline';
+        return 'outline'
     }
   }
 
@@ -185,29 +179,41 @@ export default function ClienteDashboard() {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder.svg?height=32&width=32" alt={userData ? `${userData.nombre} ${userData.apellido}` : 'Usuario'} />
-                <AvatarFallback>{userData ? userData.nombre.charAt(0) + userData.apellido.charAt(0) : 'JD'}</AvatarFallback>
-              </Avatar>
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Cerrar Sesión
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="/placeholder.svg?height=32&width=32" alt={user ? user.nombre : '@username'} />
+                    <AvatarFallback>{user ? user.nombre.charAt(0) : 'JD'}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Perfil</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Configuración</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Cerrar Sesión</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {userData && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-              Bienvenido, {userData.nombre} {userData.apellido}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">Rol: {userData.rol}</p>
-          </div>
-        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {[
             { title: "Reservas Activas", value: "3", icon: <CalendarIcon className="h-8 w-8 text-indigo-500" />, color: "bg-indigo-100 dark:bg-indigo-800/30" },
