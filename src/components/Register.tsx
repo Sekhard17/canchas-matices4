@@ -15,6 +15,7 @@ import { GiSoccerBall } from 'react-icons/gi'
 
 export default function RegisterElegante() {
   const [name, setName] = useState('')
+  const [apellido, setApellido] = useState('')
   const [email, setEmail] = useState('')
   const [rut, setRut] = useState('')
   const [password, setPassword] = useState('')
@@ -38,6 +39,7 @@ export default function RegisterElegante() {
         },
         body: JSON.stringify({
           nombre: name,
+          apellido: apellido,
           correo: email,
           rut: rut,
           contraseña: password,
@@ -127,14 +129,29 @@ export default function RegisterElegante() {
             </Alert>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div className="space-y-1">
-                <Label htmlFor="name">Nombre completo</Label>
+                <Label htmlFor="name">Nombre</Label>
                 <div className="relative">
                   <Input
                     id="name"
                     type="text"
-                    placeholder="Juan Pérez"
+                    placeholder="Juan"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    className="pl-10 bg-transparent border-2 border-gray-300 focus:border-blue-500 transition-all duration-300"
+                    required
+                  />
+                  <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="apellido">Apellido</Label>
+                <div className="relative">
+                  <Input
+                    id="apellido"
+                    type="text"
+                    placeholder="Pérez"
+                    value={apellido}
+                    onChange={(e) => setApellido(e.target.value)}
                     className="pl-10 bg-transparent border-2 border-gray-300 focus:border-blue-500 transition-all duration-300"
                     required
                   />
