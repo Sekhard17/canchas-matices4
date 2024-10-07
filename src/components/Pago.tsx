@@ -168,58 +168,45 @@ export default function PagoReservaEstilizado() {
                         <TabsTrigger value="transbank">Transbank</TabsTrigger>
                       </TabsList>
                       <TabsContent value="tarjeta">
-                        <form onSubmit={handlePago} className="space-y-4">
+                      <form onSubmit={handlePago} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="numeroTarjeta">Número de tarjeta</Label>
+                          <Input
+                            id="numeroTarjeta"
+                            placeholder="1234 5678 9012 3456"
+                            value={numeroTarjeta}
+                            onChange={(e) => setNumeroTarjeta(e.target.value)}
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="numeroTarjeta">
-                              Número de tarjeta
-                            </Label>
+                            <Label htmlFor="fechaVencimiento">Fecha de vencimiento</Label>
                             <Input
-                              id="numeroTarjeta"
-                              placeholder="1234 5678 9012 3456"
-                              value={numeroTarjeta}
-                              onChange={(e) => {
-                                setNumeroTarjeta(e.target.value);
-                                setPagoCompletado(false);
-                              }}
+                              id="fechaVencimiento"
+                              placeholder="MM/AA"
+                              value={fechaVencimiento}
+                              onChange={(e) => setFechaVencimiento(e.target.value)}
                             />
                           </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="fechaVencimiento">
-                                Fecha de vencimiento
-                              </Label>
-                              <Input
-                                id="fechaVencimiento"
-                                placeholder="MM/AA"
-                                value={fechaVencimiento}
-                                onChange={(e) => {
-                                  setFechaVencimiento(e.target.value);
-                                  setPagoCompletado(false);
-                                }}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="cvv">CVV</Label>
-                              <Input
-                                id="cvv"
-                                placeholder="123"
-                                value={cvv}
-                                onChange={(e) => {
-                                  setCvv(e.target.value);
-                                  setPagoCompletado(false);
-                                }}
-                              />
-                            </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="cvv">CVV</Label>
+                            <Input
+                              id="cvv"
+                              placeholder="123"
+                              value={cvv}
+                              onChange={(e) => setCvv(e.target.value)}
+                            />
                           </div>
-                          <Button
-                            type="submit"
-                            className="w-full bg-green-600 hover:bg-green-700"
-                          >
-                            <Lock className="mr-2 h-4 w-4" />
-                            Pagar Ahora
-                          </Button>
-                        </form>
-                      </TabsContent>
+                        </div>
+                        <Button
+                          type="submit"
+                          className="w-full bg-green-600 hover:bg-green-700"
+                        >
+                          <Lock className="mr-2 h-4 w-4" />
+                          Pagar Ahora
+                        </Button>
+                      </form>
+                    </TabsContent>
                       <TabsContent value="flow">
                         <div className="text-center p-4">
                           <Image
