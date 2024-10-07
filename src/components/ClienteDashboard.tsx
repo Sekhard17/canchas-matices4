@@ -184,20 +184,21 @@ export default function Component() {
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder.svg?height=32&width=32" alt={user ? user.nombre : '@username'} />
-                    <AvatarFallback>{user && user.nombre ? user.nombre.charAt(0) : 'JD'}</AvatarFallback>
+                    <AvatarFallback>{user && user.nombre ? user.nombre.charAt(0) : 'U'}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+                <DropdownMenuLabel>Usuario</DropdownMenuLabel>
+                <p className="px-4 py-2 text-sm text-gray-500">{user ? user.correo : 'usuario@ejemplo.com'}</p>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <User className="mr-2 h-4 w-4" />
-                  <span>Perfil</span>
+                  <span>Tu Perfil</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Configuración</span>
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <span>Tus Reservas</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
