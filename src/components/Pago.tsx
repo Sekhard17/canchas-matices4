@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import Image from "next/image";
@@ -15,19 +15,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from "@/components/ui/radio-group";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  CalendarIcon,
-  CreditCard,
-  DollarSign,
-  Lock,
-  CheckCircle2,
-} from "lucide-react";
+import { CalendarIcon, CreditCard, DollarSign, Lock, CheckCircle2 } from "lucide-react";
 
 interface ReservaData {
   reservaId: string;
@@ -70,6 +59,11 @@ export default function PagoReservaEstilizado() {
   const [fechaVencimiento, setFechaVencimiento] = useState<string>("");
   const [cvv, setCvv] = useState<string>("");
   const [pagoCompletado, setPagoCompletado] = useState<boolean>(false);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const total = reservaData.reserva.horas.reduce(
     (acc, curr) => acc + curr.precio,
@@ -84,16 +78,14 @@ export default function PagoReservaEstilizado() {
     }, 2000);
   };
 
-  const MotionCard = motion(Card);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-400 to-blue-500 p-4 sm:p-6 md:p-8 flex items-center justify-center">
-      <MotionCard
-        className="w-full max-w-3xl bg-white/90 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={isMounted ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen bg-gradient-to-br from-green-400 to-blue-500 p-4 sm:p-6 md:p-8 flex items-center justify-center"
+    >
+      <Card className="w-full max-w-3xl bg-white/90 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-green-500 to-blue-600 text-white p-6">
           <CardTitle className="text-3xl font-bold text-center">
             Pago de Reserva
@@ -252,7 +244,9 @@ export default function PagoReservaEstilizado() {
               <h2 className="text-2xl font-bold text-green-600 mb-2">
                 ¡Pago Exitoso!
               </h2>
-              <p className="text-gray-600 mb-6">Tu reserva ha sido confirmada.</p>
+              <p className="text-gray-600 mb-6">
+                Tu reserva ha sido confirmada.
+              </p>
               <Button className="bg-blue-600 hover:bg-blue-700">
                 Ver Detalles de la Reserva
               </Button>
@@ -265,7 +259,7 @@ export default function PagoReservaEstilizado() {
             Todos los pagos son procesados de forma segura
           </p>
         </CardFooter>
-      </MotionCard>
-    </div>
+      </Card>
+    </motion.div>
   );
-}  
+}
