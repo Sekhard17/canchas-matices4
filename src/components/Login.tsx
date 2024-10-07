@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation'; // Importar useRouter
+import { jwtDecode } from 'jwt-decode' // Importación corregida
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,14 @@ export default function LoginElegante() {
   const [darkMode, setDarkMode] = useState(false);
   const router = useRouter(); // Inicializar router
 
+  interface CustomJwtPayload {
+    id: string;
+    rol: string;
+    nombre: string;
+    apellido: string;
+  }
+  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -34,21 +43,39 @@ export default function LoginElegante() {
           correo: email,
           contraseña: password,
         }),
-      })
-    
+      });
+  
       if (response.ok) {
-        const data = await response.json()
-        toast.success('¡Inicio de sesión exitoso!')
-        // Aquí puedes guardar el token, redirigir, etc.
+        const data = await response.json();
+        toast.success('¡Inicio de sesión exitoso!');
+  
+        // Guardar token en localStorage
+        localStorage.setItem('token', data.token);
+  
+        // Decodificar el token usando la interfaz personalizada
+        const decodedToken = jwtDecode<CustomJwtPayload>(data.token);
+  
+        // Redirigir según el rol del usuario
+        switch (decodedToken.rol) {
+          case 'Administrador':
+            router.push('/admin/dashboard');
+            break;
+          case 'Encargado':
+            router.push('/encargado/dashboard');
+            break;
+          case 'Usuario':
+          default:
+            router.push('/cliente');
+            break;
+        }
       } else {
-        const errorData = await response.json()
-        toast.error(`Error al iniciar sesión: ${errorData.error}`)
+        const errorData = await response.json();
+        toast.error(`Error al iniciar sesión: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Error al iniciar sesión:', error)
-      toast.error('Error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.')
+      console.error('Error al iniciar sesión:', error);
+      toast.error('Error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.');
     }
-    
   };
 
   const toggleDarkMode = () => {
