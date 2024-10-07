@@ -23,14 +23,37 @@ export default function RegisterElegante() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (password !== confirmPassword) {
       toast.error('Las contraseñas no coinciden')
       return
     }
-    // Aquí iría la lógica de registro
-    toast.success('¡Registro exitoso! Bienvenido a Matices Fútbol.')
+    
+    try {
+      const response = await fetch('https://canchas-back-4.onrender.com/api/usuarios', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nombre: name,
+          correo: email,
+          RUT: rut,
+          contraseña: password,
+        }),
+      })
+
+      if (response.status === 201) {
+        toast.success('¡Registro exitoso! Bienvenido a Matices Fútbol.')
+      } else {
+        const errorData = await response.json()
+        toast.error(`Error al registrar: ${errorData.error}`)
+      }
+    } catch (error) {
+      console.error('Error al registrar:', error)
+      toast.error('Error al registrar. Por favor, inténtalo de nuevo más tarde.')
+    }
   }
 
   const toggleDarkMode = () => {
