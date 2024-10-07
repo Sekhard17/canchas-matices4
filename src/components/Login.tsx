@@ -1,29 +1,64 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation'; // Importar useRouter
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { toast, Toaster } from 'react-hot-toast';
-import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from 'lucide-react';
-import { GiSoccerBall } from 'react-icons/gi';
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
+import { jwtDecode } from 'jwt-decode' // Importación corregida
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Switch } from "@/components/ui/switch"
+import { Separator } from "@/components/ui/separator"
+import { toast, Toaster } from 'react-hot-toast'
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from 'lucide-react'
+import { GiSoccerBall } from 'react-icons/gi'
+
+interface DecodedToken {
+  id: string
+  rol: string
+  exp: number
+}
 
 export default function LoginElegante() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-  const router = useRouter(); // Inicializar router
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
+  const [darkMode, setDarkMode] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      const decoded: DecodedToken = jwtDecode(token)
+      if (decoded.exp * 1000 > Date.now()) {
+        redirigirDashboard(decoded.rol)
+      } else {
+        localStorage.removeItem('token')
+      }
+    }
+  }, [])
+
+  const redirigirDashboard = (rol: string) => {
+    switch (rol) {
+      case 'admin':
+        router.push('/admin/dashboard')
+        break
+      case 'cliente':
+        router.push('/cliente')
+        break
+      case 'encargado':
+        router.push('/encargado/dashboard')
+        break
+      default:
+        toast.error('Rol de usuario no reconocido')
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
       const response = await fetch('https://canchas-back-4.onrender.com/api/usuarios/login', {
         method: 'POST',
@@ -35,11 +70,16 @@ export default function LoginElegante() {
           contraseña: password,
         }),
       })
-    
+
       if (response.ok) {
         const data = await response.json()
+        const token = data.token
+
+        localStorage.setItem('token', token)
+
+        const decoded: DecodedToken = jwtDecode(token)
+        redirigirDashboard(decoded.rol)
         toast.success('¡Inicio de sesión exitoso!')
-        // Aquí puedes guardar el token, redirigir, etc.
       } else {
         const errorData = await response.json()
         toast.error(`Error al iniciar sesión: ${errorData.error}`)
@@ -48,23 +88,25 @@ export default function LoginElegante() {
       console.error('Error al iniciar sesión:', error)
       toast.error('Error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.')
     }
-    
-  };
+  }
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-  };
+    setDarkMode(!darkMode)
+    document.documentElement.classList.toggle('dark')
+  }
 
   const handleRegister = () => {
-    router.push('/register'); // Redirigir a la página de registro
-  };
+    router.push('/register')
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    toast.success('¡Sesión cerrada exitosamente!')
+    router.push('/')
+  }
 
   return (
     <div className={`min-h-screen flex items-center justify-center p-4 transition-all duration-500 ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-500 to-green-400'}`}>
-      <div className="absolute inset-0 overflow-hidden">
-        
-      </div>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -101,9 +143,6 @@ export default function LoginElegante() {
                 <GiSoccerBall className="w-16 h-16 text-blue-500" />
               </motion.div>
             </div>
-            <div className="text-center text-sm font-medium text-blue-600 dark:text-blue-400">
-              ¡Sabia decisión! Estás a un paso de disfrutar del mejor fútbol en Osorno.
-            </div>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div className="space-y-1">
                 <Label htmlFor="email">Correo electrónico</Label>
@@ -114,7 +153,6 @@ export default function LoginElegante() {
                     placeholder="tu@ejemplo.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-transparent border-2 border-gray-300 focus:border-blue-500 transition-all duration-300"
                     required
                   />
                   <MailIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -128,7 +166,6 @@ export default function LoginElegante() {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 bg-transparent border-2 border-gray-300 focus:border-blue-500 transition-all duration-300"
                     required
                   />
                   <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -143,43 +180,21 @@ export default function LoginElegante() {
                   </Button>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="remember"
-                  checked={rememberMe}
-                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                />
-                <label
-                  htmlFor="remember"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Recordarme
-                </label>
-              </div>
-              <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500 text-white font-bold transition-all duration-300">
+              <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-green-400 text-white font-bold">
                 Iniciar sesión
               </Button>
             </form>
-          </CardContent>
-          <Separator className={`my-2 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
-          <CardFooter className="flex flex-col space-y-2 pt-2 pb-6">
-            <div className="text-center text-xs">
-              ¿Aún no tienes una cuenta? ¡No te pierdas la diversión!
-            </div>
             <Button
               variant="outline"
-              className="w-full border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300"
-              onClick={handleRegister} // Enlazar con la página de registro
+              className="w-full mt-4 border-2 border-red-500 text-red-500"
+              onClick={handleLogout}
             >
-              Regístrate ahora
+              Cerrar sesión
             </Button>
-            <Button variant="link" className="text-xs text-blue-500 hover:text-blue-600 transition-colors duration-300">
-              ¿Olvidaste tu contraseña?
-            </Button>
-          </CardFooter>
+          </CardContent>
         </Card>
       </motion.div>
       <Toaster position="bottom-center" />
     </div>
-  );
+  )
 }
