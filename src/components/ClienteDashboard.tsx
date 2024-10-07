@@ -98,6 +98,8 @@ export default function Component() {
         setUser(decoded)
       } catch (error) {
         console.error('Error decoding token:', error)
+        localStorage.removeItem('token')
+        router.push('/');
       }
     } else {
       router.push('/')
@@ -114,10 +116,11 @@ export default function Component() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    setUser(null)
-    router.push('/')
-  }
+    localStorage.removeItem('token');
+    setUser(null);
+    router.push('/');
+  };
+
 
   const mapEstadoToVariant = (estado: string) => {
     switch (estado) {
