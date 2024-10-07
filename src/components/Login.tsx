@@ -30,22 +30,25 @@ export default function LoginElegante() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
-      });
-
+        body: JSON.stringify({
+          correo: email,
+          contraseña: password,
+        }),
+      })
+    
       if (response.ok) {
-        const data = await response.json();
-        // Guardar el token en localStorage
-        localStorage.setItem('token', data.token);
-        toast.success('¡Bienvenido de vuelta! Prepárate para jugar.');
-        // Redirigir al dashboard o página principal
-        router.push('/dashboard');
+        const data = await response.json()
+        toast.success('¡Inicio de sesión exitoso!')
+        // Aquí puedes guardar el token, redirigir, etc.
       } else {
-        toast.error('Correo o contraseña incorrectos.');
+        const errorData = await response.json()
+        toast.error(`Error al iniciar sesión: ${errorData.error}`)
       }
     } catch (error) {
-      toast.error('Error al iniciar sesión. Inténtalo de nuevo más tarde.');
+      console.error('Error al iniciar sesión:', error)
+      toast.error('Error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.')
     }
+    
   };
 
   const toggleDarkMode = () => {
