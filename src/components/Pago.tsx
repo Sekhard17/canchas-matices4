@@ -177,9 +177,10 @@ export default function PagoReservaEstilizado() {
                               id="numeroTarjeta"
                               placeholder="1234 5678 9012 3456"
                               value={numeroTarjeta}
-                              onChange={(e) =>
-                                setNumeroTarjeta(e.target.value)
-                              }
+                              onChange={(e) => {
+                                setNumeroTarjeta(e.target.value);
+                                setPagoCompletado(false);
+                              }}
                             />
                           </div>
                           <div className="grid grid-cols-2 gap-4">
@@ -191,9 +192,10 @@ export default function PagoReservaEstilizado() {
                                 id="fechaVencimiento"
                                 placeholder="MM/AA"
                                 value={fechaVencimiento}
-                                onChange={(e) =>
-                                  setFechaVencimiento(e.target.value)
-                                }
+                                onChange={(e) => {
+                                  setFechaVencimiento(e.target.value);
+                                  setPagoCompletado(false);
+                                }}
                               />
                             </div>
                             <div className="space-y-2">
@@ -202,7 +204,10 @@ export default function PagoReservaEstilizado() {
                                 id="cvv"
                                 placeholder="123"
                                 value={cvv}
-                                onChange={(e) => setCvv(e.target.value)}
+                                onChange={(e) => {
+                                  setCvv(e.target.value);
+                                  setPagoCompletado(false);
+                                }}
                               />
                             </div>
                           </div>
