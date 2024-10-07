@@ -82,7 +82,7 @@ export default function RegisterElegante() {
   return (
     <div className={`min-h-screen flex items-center justify-center p-4 transition-all duration-500 ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-500 to-green-400'}`}>
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/placeholder.svg?height=1080&width=1920')", filter: 'blur(8px)', opacity: 0.2 }}></div>
+        
       </div>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
