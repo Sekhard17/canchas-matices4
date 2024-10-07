@@ -100,174 +100,164 @@ export default function PagoReservaEstilizado() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
-          <AnimatePresence mode="wait">
-            {!pagoCompletado ? (
-              <motion.div
-                key="payment-form"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-6">
+          {!pagoCompletado ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Detalles de la Reserva
+                  </h3>
+                  <div className="bg-gray-100 rounded-lg p-4 space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <CalendarIcon className="w-5 h-5 text-blue-500" />
+                      <span>
+                        {format(reservaData.reserva.fecha, "dd MMMM yyyy", {
+                          locale: es,
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-semibold">Cancha:</span>
+                      <span>{reservaData.reserva.cancha}</span>
+                    </div>
                     <div>
-                      <h3 className="text-lg font-semibold mb-2">
-                        Detalles de la Reserva
-                      </h3>
-                      <div className="bg-gray-100 rounded-lg p-4 space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <CalendarIcon className="w-5 h-5 text-blue-500" />
-                          <span>
-                            {format(reservaData.reserva.fecha, "dd MMMM yyyy", {
-                              locale: es,
-                            })}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="font-semibold">Cancha:</span>
-                          <span>{reservaData.reserva.cancha}</span>
-                        </div>
-                        <div>
-                          <span className="font-semibold">Horas:</span>
-                          <ul className="list-disc list-inside">
-                            {reservaData.reserva.horas.map((h, index) => (
-                              <li key={index}>
-                                {h.hora} - ${h.precio.toLocaleString()}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="font-semibold">Balón:</span>
-                          <span>
-                            {reservaData.reserva.tieneBalon
-                              ? "Incluido"
-                              : "No incluido"}
-                          </span>
-                        </div>
-                      </div>
+                      <span className="font-semibold">Horas:</span>
+                      <ul className="list-disc list-inside">
+                        {reservaData.reserva.horas.map((h, index) => (
+                          <li key={index}>
+                            {h.hora} - ${h.precio.toLocaleString()}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="flex justify-between items-center text-lg font-semibold">
-                        <span>Total a pagar:</span>
-                        <span className="text-2xl text-blue-600">
-                          ${total.toLocaleString()}
-                        </span>
-                      </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-semibold">Balón:</span>
+                      <span>
+                        {reservaData.reserva.tieneBalon
+                          ? "Incluido"
+                          : "No incluido"}
+                      </span>
                     </div>
-                  </div>
-                  <div className="space-y-6">
-                    <Tabs
-                      value={metodoPago}
-                      onValueChange={(value) => setMetodoPago(value)}
-                    >
-                      <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="tarjeta">Tarjeta</TabsTrigger>
-                        <TabsTrigger value="flow">Flow</TabsTrigger>
-                        <TabsTrigger value="transbank">Transbank</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="tarjeta">
-                      <form onSubmit={handlePago} className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="numeroTarjeta">Número de tarjeta</Label>
-                          <Input
-                            id="numeroTarjeta"
-                            placeholder="1234 5678 9012 3456"
-                            value={numeroTarjeta}
-                            onChange={(e) => setNumeroTarjeta(e.target.value)}
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="fechaVencimiento">Fecha de vencimiento</Label>
-                            <Input
-                              id="fechaVencimiento"
-                              placeholder="MM/AA"
-                              value={fechaVencimiento}
-                              onChange={(e) => setFechaVencimiento(e.target.value)}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="cvv">CVV</Label>
-                            <Input
-                              id="cvv"
-                              placeholder="123"
-                              value={cvv}
-                              onChange={(e) => setCvv(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                        <Button
-                          type="submit"
-                          className="w-full bg-green-600 hover:bg-green-700"
-                        >
-                          <Lock className="mr-2 h-4 w-4" />
-                          Pagar Ahora
-                        </Button>
-                      </form>
-                    </TabsContent>
-                      <TabsContent value="flow">
-                        <div className="text-center p-4">
-                          <Image
-                            src="/placeholder.svg"
-                            alt="Flow logo"
-                            width={120}
-                            height={60}
-                            className="mx-auto mb-4"
-                          />
-                          <Button
-                            onClick={handlePago}
-                            className="w-full bg-blue-600 hover:bg-blue-700"
-                          >
-                            <DollarSign className="mr-2 h-4 w-4" />
-                            Pagar con Flow
-                          </Button>
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="transbank">
-                        <div className="text-center p-4">
-                          <Image
-                            src="/placeholder.svg"
-                            alt="Transbank logo"
-                            width={120}
-                            height={60}
-                            className="mx-auto mb-4"
-                          />
-                          <Button
-                            onClick={handlePago}
-                            className="w-full bg-red-600 hover:bg-red-700"
-                          >
-                            <CreditCard className="mr-2 h-4 w-4" />
-                            Pagar con Transbank
-                          </Button>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
                   </div>
                 </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="payment-success"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="text-center py-10"
-              >
-                <CheckCircle2 className="w-20 h-20 text-green-500 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-green-600 mb-2">
-                  ¡Pago Exitoso!
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  Tu reserva ha sido confirmada.
-                </p>
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  Ver Detalles de la Reserva
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex justify-between items-center text-lg font-semibold">
+                    <span>Total a pagar:</span>
+                    <span className="text-2xl text-blue-600">
+                      ${total.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-6">
+                <Tabs
+                  value={metodoPago}
+                  onValueChange={(value) => setMetodoPago(value)}
+                >
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="tarjeta">Tarjeta</TabsTrigger>
+                    <TabsTrigger value="flow">Flow</TabsTrigger>
+                    <TabsTrigger value="transbank">Transbank</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="tarjeta">
+                    <form onSubmit={handlePago} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="numeroTarjeta">Número de tarjeta</Label>
+                        <Input
+                          id="numeroTarjeta"
+                          placeholder="1234 5678 9012 3456"
+                          value={numeroTarjeta}
+                          onChange={(e) => setNumeroTarjeta(e.target.value)}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="fechaVencimiento">
+                            Fecha de vencimiento
+                          </Label>
+                          <Input
+                            id="fechaVencimiento"
+                            placeholder="MM/AA"
+                            value={fechaVencimiento}
+                            onChange={(e) => setFechaVencimiento(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cvv">CVV</Label>
+                          <Input
+                            id="cvv"
+                            placeholder="123"
+                            value={cvv}
+                            onChange={(e) => setCvv(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        type="submit"
+                        className="w-full bg-green-600 hover:bg-green-700"
+                      >
+                        <Lock className="mr-2 h-4 w-4" />
+                        Pagar Ahora
+                      </Button>
+                    </form>
+                  </TabsContent>
+                  <TabsContent value="flow">
+                    <div className="text-center p-4">
+                      <Image
+                        src="/placeholder.svg"
+                        alt="Flow logo"
+                        width={120}
+                        height={60}
+                        className="mx-auto mb-4"
+                      />
+                      <Button
+                        onClick={handlePago}
+                        className="w-full bg-blue-600 hover:bg-blue-700"
+                      >
+                        <DollarSign className="mr-2 h-4 w-4" />
+                        Pagar con Flow
+                      </Button>
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="transbank">
+                    <div className="text-center p-4">
+                      <Image
+                        src="/placeholder.svg"
+                        alt="Transbank logo"
+                        width={120}
+                        height={60}
+                        className="mx-auto mb-4"
+                      />
+                      <Button
+                        onClick={handlePago}
+                        className="w-full bg-red-600 hover:bg-red-700"
+                      >
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Pagar con Transbank
+                      </Button>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
+          ) : (
+            <motion.div
+              key="payment-success"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="text-center py-10"
+            >
+              <CheckCircle2 className="w-20 h-20 text-green-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-green-600 mb-2">
+                ¡Pago Exitoso!
+              </h2>
+              <p className="text-gray-600 mb-6">Tu reserva ha sido confirmada.</p>
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                Ver Detalles de la Reserva
+              </Button>
+            </motion.div>
+          )}
         </CardContent>
         <CardFooter className="bg-gray-50 p-4 text-center text-sm text-gray-500">
           <p className="flex items-center justify-center">
@@ -278,4 +268,4 @@ export default function PagoReservaEstilizado() {
       </MotionCard>
     </div>
   );
-}
+}  
