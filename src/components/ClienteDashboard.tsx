@@ -192,24 +192,24 @@ export default function Component() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>Usuario</DropdownMenuLabel>
-          <p className="px-4 py-2 text-sm text-gray-500">{user ? `${user.nombre} ${user.apellido}` : 'Usuario Anónimo'}</p>
-          <p className="px-4 py-2 text-sm text-gray-500">{user ? user.correo : 'usuario@ejemplo.com'}</p>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <User className="mr-2 h-4 w-4" />
-            <span>Tu Perfil</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            <span>Tus Reservas</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Cerrar Sesión</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
+        <DropdownMenuLabel>{user ? `${user.nombre} ${user.apellido}` : 'Usuario Anónimo'}</DropdownMenuLabel>
+        <p className="px-4 py-2 text-sm text-gray-500">{user ? user.correo : 'usuario@ejemplo.com'}</p>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>
+          <User className="mr-2 h-4 w-4" />
+          <span>Tu Perfil</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          <span>Tus Reservas</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Cerrar Sesión</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+
       </DropdownMenu>
       <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
         {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
