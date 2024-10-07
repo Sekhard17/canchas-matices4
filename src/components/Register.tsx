@@ -39,9 +39,9 @@ export default function RegisterElegante() {
         body: JSON.stringify({
           nombre: name,
           correo: email,
-          RUT: rut,
+          rut: rut,
           contraseña: password,
-        }),
+        }),        
       })
 
       if (response.status === 201) {
