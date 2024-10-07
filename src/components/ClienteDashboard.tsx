@@ -1,22 +1,23 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import {jwtDecode} from 'jwt-decode'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Calendar } from "@/components/ui/calendar"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, QrCode, PlusCircle, Sun, Moon, BarChart, PieChart, TrendingUp } from 'lucide-react'
+import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Search, Menu, X, Activity, QrCode, PlusCircle, Sun, Moon, ChevronRight, BarChart, PieChart, TrendingUp, Users } from 'lucide-react'
 import { es } from 'date-fns/locale'
-import { Line, Bar, Pie } from 'react-chartjs-2'
+import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, ChartTooltip, Legend)
@@ -87,22 +88,6 @@ export default function Component() {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [darkMode, setDarkMode] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
-  const router = useRouter()
-
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      try {
-        const decoded: any = jwtDecode(token)
-        setUser(decoded)
-      } catch (error) {
-        console.error('Error decoding token:', error)
-      }
-    } else {
-      router.push('/')
-    }
-  }, [router])
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
@@ -111,12 +96,6 @@ export default function Component() {
     } else {
       document.documentElement.classList.add('dark')
     }
-  }
-
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    setUser(null)
-    router.push('/')
   }
 
   const mapEstadoToVariant = (estado: string) => {
@@ -129,7 +108,7 @@ export default function Component() {
         return 'outline'
     }
   }
-
+  
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -183,8 +162,8 @@ export default function Component() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder.svg?height=32&width=32" alt={user ? user.nombre : '@username'} />
-                    <AvatarFallback>{user ? user.nombre.charAt(0) : 'JD'}</AvatarFallback>
+                    <AvatarImage src="/placeholder.svg?height=32&width=32" alt="@username" />
+                    <AvatarFallback>JD</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -200,7 +179,7 @@ export default function Component() {
                   <span>Configuración</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar Sesión</span>
                 </DropdownMenuItem>
