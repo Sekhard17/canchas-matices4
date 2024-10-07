@@ -159,7 +159,7 @@ export default function PagoReservaEstilizado() {
                   </div>
                   <div className="space-y-6">
                     <Tabs
-                      defaultValue="tarjeta"
+                      value={metodoPago}
                       onValueChange={(value) => setMetodoPago(value)}
                     >
                       <TabsList className="grid w-full grid-cols-3">
