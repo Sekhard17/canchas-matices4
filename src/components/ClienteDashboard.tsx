@@ -94,8 +94,8 @@ export default function Component() {
     const token = localStorage.getItem('token')
     if (token) {
       try {
-        const decoded: any = jwtDecode(token)
-        setUser(decoded)
+        const decoded: any = jwtDecode(token);
+        setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo })
       } catch (error) {
         console.error('Error decoding token:', error)
         localStorage.removeItem('token')
