@@ -184,7 +184,7 @@ export default function Component() {
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder.svg?height=32&width=32" alt={user ? user.nombre : '@username'} />
-                    <AvatarFallback>{user ? user.nombre.charAt(0) : 'JD'}</AvatarFallback>
+                    <AvatarFallback>{user && user.nombre ? user.nombre.charAt(0) : 'JD'}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
