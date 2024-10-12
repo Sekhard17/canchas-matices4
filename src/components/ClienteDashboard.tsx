@@ -13,12 +13,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, BarChart, TrendingUp, Bell, QrCode, PlusCircle, DollarSign, Sun, Moon, Home, MessageCircle, Calendar as CalendarIcon2, ChevronDown } from 'lucide-react'
+import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, BarChart, TrendingUp, Bell, QrCode, PlusCircle, DollarSign, Sun, Moon, Home, MessageCircle, Calendar as CalendarIcon2, ChevronDown, FileText, Inbox } from 'lucide-react'
 import { Line, Bar } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
 import { es } from 'date-fns/locale'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ChartTooltip, Legend)
+import Image from 'next/image'
 
 const reservas = [
   { id: 1, fecha: '15:00 20-08-2024', cancha: 'C1F5', estado: 'Confirmada', qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Reserva1' },
@@ -131,7 +132,12 @@ export default function Dashboard() {
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-md fixed top-0 left-0 right-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white font-sans">Dashboard</h1>
+          <div className="flex items-center">
+            <Button variant="ghost" size="icon" className="mr-4 md:hidden" onClick={() => setSidebarOpen(!sidebarOpen)}>
+              {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white font-sans">Dashboard</h1>
+          </div>
           <div className="flex items-center space-x-4">
             <TooltipProvider>
               <Tooltip>
@@ -156,7 +162,7 @@ export default function Dashboard() {
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80">
+              <DropdownMenuContent align="end" className="w-80 md:w-96">
                 <DropdownMenuLabel className="flex justify-between items-center">
                   <span>Notificaciones</span>
                   <Button variant="ghost" size="sm" onClick={marcarNotificacionesComoLeidas}>
@@ -194,9 +200,9 @@ export default function Dashboard() {
                 <DropdownMenuLabel>{user ? `${user.nombre} ${user.apellido}` : 'Usuario Anónimo'}</DropdownMenuLabel>
                 <p className="px-2 py-1 text-sm text-gray-500">{user ? user.correo : 'usuario@ejemplo.com'}</p>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/mi-perfil')}>
                   <User className="mr-2 h-4 w-4" />
-                  <span>Tu Perfil</span>
+                  <span>Mi Perfil</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
@@ -209,10 +215,6 @@ export default function Dashboard() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setSidebarOpen(!sidebarOpen)}>
-              {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
           </div>
         </div>
       </header>
@@ -222,7 +224,7 @@ export default function Dashboard() {
         <div className="h-full px-3 py-4 overflow-y-auto">
           <div className="flex items-center mb-5 font-semibold text-xl text-blue-600 dark:text-blue-400">
             <Activity className="mr-2 h-6 w-6" />
-            <span>SportApp</span>
+            <span>Matices</span>
           </div>
           <nav className="space-y-1">
             <div className="pb-2">
@@ -246,7 +248,7 @@ export default function Dashboard() {
               <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Aplicaciones</h2>
               <div className="space-y-1">
                 <Button variant="ghost" className="w-full justify-start">
-                  <MessageCircle className="mr-2 h-4 w-4" />
+                  <MessageCircle className="mr-2  h-4 w-4" />
                   Chat
                 </Button>
                 <Button variant="ghost" className="w-full justify-start">
@@ -258,6 +260,10 @@ export default function Dashboard() {
             <div className="py-2">
               <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Otros</h2>
               <div className="space-y-1">
+                <Button variant="ghost" className="w-full justify-start">
+                  <Inbox className="mr-2 h-4 w-4" />
+                  Módulo de Solicitudes
+                </Button>
                 <Button variant="ghost" className="w-full justify-start">
                   <Settings className="mr-2 h-4 w-4" />
                   Configuración
@@ -296,14 +302,14 @@ export default function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className={`${item.color} text-white border-none overflow-hidden`}>
-                <CardContent className="p-4 flex items-center justify-between">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <CardContent className="p-6 flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium opacity-75">{item.title}</p>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{item.title}</p>
                     <p className="text-2xl font-bold mt-1">{item.value}</p>
                   </div>
-                  <div className={`p-3 rounded-full bg-white bg-opacity-30`}>
-                    <item.icon className="h-6 w-6" />
+                  <div className={`p-3 rounded-full ${item.color} bg-opacity-10`}>
+                    <item.icon className={`h-6 w-6 ${item.color.replace('bg-', 'text-')}`} />
                   </div>
                 </CardContent>
               </Card>
@@ -312,9 +318,12 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <Card className="lg:col-span-2">
+          <Card className="lg:col-span-2 order-2 lg:order-1">
             <CardHeader>
-              <CardTitle className="text-xl font-bold">Días Preferidos del Mes</CardTitle>
+              <CardTitle className="text-xl font-bold flex items-center">
+                <BarChart className="mr-2 h-5 w-5" />
+                Días Preferidos del Mes
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-[300px]">
@@ -323,13 +332,15 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="order-1 lg:order-2">
             <CardHeader>
               <CardTitle className="text-xl font-bold flex items-center justify-between">
-                Mis Reservas
-                <Button variant="outline" size="sm">
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  Nueva
+                <div className="flex items-center">
+                  <CalendarIcon className="mr-2 h-5 w-5" />
+                  Mis Reservas
+                </div>
+                <Button variant="outline" size="sm" onClick={() => router.push('/reservar')}>
+                  Ir a Reservar
                 </Button>
               </CardTitle>
             </CardHeader>
@@ -343,37 +354,46 @@ export default function Dashboard() {
                     transition={{ delay: index * 0.1 }}
                     className="mb-4 last:mb-0"
                   >
-                    <div className="flex items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-semibold">{reserva.cancha}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{reserva.fecha}</p>
-                      </div>
-                      <Badge variant={reserva.estado === 'Confirmada' ? 'default' : reserva.estado === 'Realizada' ? 'secondary' : 'destructive'}>
-                        {reserva.estado}
-                      </Badge>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="ghost" size="sm" className="ml-2">
-                            <QrCode className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-md">
-                          <DialogHeader>
-                            <DialogTitle>Código QR de Reserva</DialogTitle>
-                            <DialogDescription>
-                              Muestra este código al llegar al complejo deportivo.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="flex justify-center py-4">
-                            <img src={reserva.qrCode} alt="Código QR de la reserva" className="w-48 h-48" />
-                          </div>
-                          <div className="text-center">
-                            <p className="font-semibold">{reserva.cancha}</p>
-                            <p>{reserva.fecha}</p>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
+                    <Card>
+                      <CardContent className="p-4 flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold">{reserva.cancha}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{reserva.fecha}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                        <Badge variant={
+                                        reserva.estado === 'Confirmada' ? 'default' :
+                                        reserva.estado === 'Realizada' ? 'secondary' :
+                                        'destructive'
+                                      }>
+                                        {reserva.estado}
+                                      </Badge>
+
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <QrCode className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                              <DialogHeader>
+                                <DialogTitle>Código QR de Reserva</DialogTitle>
+                                <DialogDescription>
+                                  Muestra este código al llegar al complejo deportivo.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="flex justify-center py-4">
+                                <Image src={reserva.qrCode} alt="Código QR de la reserva" className="w-48 h-48" />
+                              </div>
+                              <div className="text-center">
+                                <p className="font-semibold">{reserva.cancha}</p>
+                                <p>{reserva.fecha}</p>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </motion.div>
                 ))}
               </ScrollArea>
@@ -385,7 +405,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <BarChart className="mr-2 h-5 w-5" />
+                <Clock className="mr-2 h-5 w-5" />
                 Horarios Favoritos
               </CardTitle>
             </CardHeader>
