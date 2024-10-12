@@ -14,7 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, QrCode, PlusCircle, Sun, Moon, BarChart, PieChart, TrendingUp, Bell, ChevronRight } from 'lucide-react'
+import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, QrCode, PlusCircle, Sun, Moon, BarChart, TrendingUp, Bell, ChevronRight } from 'lucide-react'
 import { es } from 'date-fns/locale'
 import { Line, Bar } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
@@ -60,7 +60,7 @@ const notificaciones = [
   { id: 3, mensaje: 'Recordatorio: Tu partido es en 1 hora', leida: true },
 ]
 
-export default function Component() {
+export default function ClienteDashboard() {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [darkMode, setDarkMode] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -72,12 +72,12 @@ export default function Component() {
     const token = localStorage.getItem('token')
     if (token) {
       try {
-        const decoded: any = jwtDecode(token);
+        const decoded: any = jwtDecode(token)
         setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo })
       } catch (error) {
         console.error('Error decoding token:', error)
         localStorage.removeItem('token')
-        router.push('/');
+        router.push('/error-404')
       }
     } else {
       router.push('/error-404')
@@ -94,26 +94,25 @@ export default function Component() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    router.push('/');
-  };
+    localStorage.removeItem('token')
+    setUser(null)
+    router.push('/')
+  }
 
   const mapEstadoToVariant = (estado: string) => {
     switch (estado) {
       case 'Confirmada':
-        return 'default';
+        return 'default'
       case 'Pendiente':
-        return 'secondary';
+        return 'secondary'
       case 'Realizada':
-        return 'outline'; // Cambiar de 'success' a 'outline'
+        return 'outline'
       case 'Anulada':
-        return 'destructive';
+        return 'destructive'
       default:
-        return 'outline';
+        return 'outline'
     }
   }
-  
 
   const chartOptions = {
     responsive: true,
