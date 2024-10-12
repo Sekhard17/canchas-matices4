@@ -13,7 +13,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, BarChart, TrendingUp, Bell, QrCode, PlusCircle, DollarSign, Sun, Moon, Home, MessageCircle, Calendar as CalendarIcon2, ChevronDown, Inbox, Search } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, BarChart, TrendingUp, Bell, QrCode, PlusCircle, DollarSign, Sun, Moon, Home, MessageCircle, Calendar as CalendarIcon2, ChevronDown, Inbox, Search, Check } from 'lucide-react'
 import { Line, Bar } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
 import { es } from 'date-fns/locale'
@@ -28,9 +29,9 @@ const reservas = [
 ]
 
 const notificaciones = [
-  { id: 1, mensaje: 'Tu reserva para hoy ha sido confirmada', leida: false, fecha: '2024-08-20 10:30' },
-  { id: 2, mensaje: 'Nuevo horario disponible para reservas', leida: false, fecha: '2024-08-19 15:45' },
-  { id: 3, mensaje: 'Recordatorio: Tu partido es en 1 hora', leida: true, fecha: '2024-08-18 18:00' },
+  { id: 1, mensaje: 'Tu reserva para hoy ha sido confirmada', leida: false, fecha: '2024-08-20 10:30', icono: Check },
+  { id: 2, mensaje: 'Nuevo horario disponible para reservas', leida: false, fecha: '2024-08-19 15:45', icono: Clock },
+  { id: 3, mensaje: 'Recordatorio: Tu partido es en 1 hora', leida: true, fecha: '2024-08-18 18:00', icono: Bell },
 ]
 
 const lineChartData = {
@@ -153,7 +154,6 @@ export default function Dashboard() {
                   className="pl-10 pr-4 py-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <Button variant="outline">Crear Reserva</Button>
             </div>
             <div className="flex items-center space-x-4">
               <TooltipProvider>
@@ -189,14 +189,17 @@ export default function Dashboard() {
                   <DropdownMenuSeparator />
                   <ScrollArea className="h-[300px]">
                     {notificaciones.map((notificacion) => (
-                      <DropdownMenuItem key={notificacion.id} className="flex flex-col items-start py-2">
-                        <div className="flex items-start w-full">
-                          <div className={`w-2 h-2 rounded-full mt-1 mr-2 ${notificacion.leida ? 'bg-gray-300' : 'bg-blue-500'}`} />
-                          <div className="flex-1">
-                            <p className="text-sm">{notificacion.mensaje}</p>
-                            <p className="text-xs text-gray-500 mt-1">{notificacion.fecha}</p>
-                          </div>
+                      <DropdownMenuItem key={notificacion.id} className="flex items-start py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <div className={`mr-3 mt-1 p-2 rounded-full ${notificacion.leida ? 'bg-gray-200 dark:bg-gray-600' : 'bg-blue-100 dark:bg-blue-900'}`}>
+                          <notificacion.icono className="h-4 w-4 text-blue-500 dark:text-blue-300" />
                         </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{notificacion.mensaje}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{notificacion.fecha}</p>
+                        </div>
+                        {!notificacion.leida && (
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
+                        )}
                       </DropdownMenuItem>
                     ))}
                   </ScrollArea>
@@ -238,7 +241,7 @@ export default function Dashboard() {
       </header>
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700`}>
+      <aside className={`fixed left-0  top-0 z-40 h-screen w-64 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700`}>
         <div className="h-full px-3 py-4 overflow-y-auto">
           <div className="flex items-center mb-5 font-semibold text-xl text-blue-600 dark:text-blue-400">
             <Activity className="mr-2 h-6 w-6" />
@@ -319,14 +322,17 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
+              className="w-full"
             >
               <Card className={`${item.color} text-white overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-105`}>
-                <CardContent className="p-6 flex flex-col items-center justify-center h-full">
-                  <div className={`p-3 rounded-full bg-white bg-opacity-30 mb-4`}>
-                    <item.icon className="h-8 w-8" />
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium opacity-75">{item.title}</p>
+                    <p className="text-2xl font-bold mt-1">{item.value}</p>
                   </div>
-                  <p className="text-lg font-semibold text-center">{item.title}</p>
-                  <p className="text-3xl font-bold mt-2">{item.value}</p>
+                  <div className={`p-3 rounded-full bg-white bg-opacity-30`}>
+                    <item.icon className="h-6 w-6" />
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -355,21 +361,24 @@ export default function Dashboard() {
                   <CalendarIcon className="mr-2 h-5 w-5" />
                   Mis Reservas
                 </div>
-                <Button variant="outline" size="sm" onClick={() => router.push('/reservar')}>
-                  Ir a Reservar
-                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      {date?.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="mb-4">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  className="rounded-md border"
-                  locale={es}
-                />
-              </div>
               <ScrollArea className="h-[300px] w-full pr-4">
                 {filteredReservas.length > 0 ? (
                   <AnimatePresence>
@@ -392,13 +401,14 @@ export default function Dashboard() {
                               </div>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <Badge variant={
-                              reserva.estado === 'Confirmada' ? 'default' :
-                              reserva.estado === 'Realizada' ? 'secondary' :
-                              'destructive'
-                            }>
-                              {reserva.estado}
-                            </Badge>
+                            <Badge variant={
+                                  reserva.estado === 'Confirmada' ? 'default' :
+                                  reserva.estado === 'Realizada' ? 'secondary' :
+                                  'destructive'
+                                }>
+                                  {reserva.estado}
+                                </Badge>
+
                               <Dialog>
                                 <DialogTrigger asChild>
                                   <Button variant="outline" size="sm">
