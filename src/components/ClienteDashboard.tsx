@@ -21,64 +21,17 @@ import { es } from 'date-fns/locale'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ChartTooltip, Legend)
 
-const reservas = [
-  { id: 1, fecha: '2024-08-20', hora: '15:00', cancha: 'C1F5', estado: 'Confirmada', qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Reserva1' },
-  { id: 2, fecha: '2024-08-22', hora: '18:30', cancha: 'C2F5', estado: 'Realizada', qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Reserva2' },
-  { id: 3, fecha: '2024-08-25', hora: '20:00', cancha: 'C3F7', estado: 'Anulada', qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Reserva3' },
-  { id: 4, fecha: '2024-08-28', hora: '16:45', cancha: 'C3F7', estado: 'Confirmada', qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Reserva4' },
-]
-
-const notificaciones = [
-  { id: 1, mensaje: 'Tu reserva para hoy ha sido confirmada', leida: false, fecha: '2024-08-20 10:30', icono: Check },
-  { id: 2, mensaje: 'Nuevo horario disponible para reservas', leida: false, fecha: '2024-08-19 15:45', icono: Clock },
-  { id: 3, mensaje: 'Recordatorio: Tu partido es en 1 hora', leida: true, fecha: '2024-08-18 18:00', icono: Bell },
-]
-
-const lineChartData = {
-  labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-  datasets: [
-    {
-      label: 'Reservas por Mes',
-      data: [12, 19, 3, 5, 2, 3],
-      borderColor: 'rgb(99, 102, 241)',
-      backgroundColor: 'rgba(99, 102, 241, 0.5)',
-      tension: 0.3
-    }
-  ]
-}
-
-const barChartData = {
-  labels: ['6-8', '8-10', '10-12', '12-14', '14-16', '16-18', '18-20', '20-22'],
-  datasets: [
-    {
-      label: 'Reservas por Horario',
-      data: [4, 6, 8, 5, 7, 9, 10, 3],
-      backgroundColor: 'rgba(52, 211, 153, 0.6)',
-      borderColor: 'rgb(52, 211, 153)',
-      borderWidth: 1
-    }
-  ]
-}
-
-const daysChartData = {
-  labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-  datasets: [
-    {
-      label: 'Días Preferidos del Mes',
-      data: [8, 12, 6, 9, 15, 20, 10],
-      backgroundColor: 'rgba(251, 146, 60, 0.6)',
-      borderColor: 'rgb(251, 146, 60)',
-      borderWidth: 1
-    }
-  ]
-}
-
 export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [reservas, setReservas] = useState<any[]>([])
+  const [notificaciones, setNotificaciones] = useState<any[]>([])
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false)
+  const [lineChartData, setLineChartData] = useState<any>(null)
+  const [barChartData, setBarChartData] = useState<any>(null)
+  const [daysChartData, setDaysChartData] = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -87,6 +40,11 @@ export default function Dashboard() {
       try {
         const decoded: any = jwtDecode(token)
         setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo })
+        
+        // Llamar a las APIs para obtener reservas y notificaciones
+        obtenerReservas(token)
+        obtenerNotificaciones(token)
+
       } catch (error) {
         console.error('Error decoding token:', error)
         localStorage.removeItem('token')
@@ -96,6 +54,116 @@ export default function Dashboard() {
       router.replace('/error-404')
     }
   }, [router])
+
+  useEffect(() => {
+    if (reservas.length > 0) {
+      procesarDatosGraficos(reservas)
+    }
+  }, [reservas])
+
+  const obtenerReservas = async (token: string) => {
+    try {
+      const response = await fetch('https://canchas-back-4.onrender.com/reservas', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setReservas(data)
+      } else {
+        console.error('Error al obtener las reservas:', response.statusText)
+      }
+    } catch (error) {
+      console.error('Error de red al obtener las reservas:', error)
+    }
+  }
+
+  const obtenerNotificaciones = async (token: string) => {
+    try {
+      const response = await fetch('https://canchas-back-4.onrender.com/notificaciones', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setNotificaciones(data)
+      } else {
+        console.error('Error al obtener las notificaciones:', response.statusText)
+      }
+    } catch (error) {
+      console.error('Error de red al obtener las notificaciones:', error)
+    }
+  }
+
+  const procesarDatosGraficos = (reservas: any[]) => {
+    // Procesar datos para el gráfico de reservas por mes
+    const reservasPorMes = Array(12).fill(0)
+    reservas.forEach((reserva) => {
+      const mes = new Date(reserva.Fecha).getMonth()
+      reservasPorMes[mes]++
+    })
+    setLineChartData({
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+      datasets: [
+        {
+          label: 'Reservas por Mes',
+          data: reservasPorMes,
+          borderColor: 'rgb(99, 102, 241)',
+          backgroundColor: 'rgba(99, 102, 241, 0.5)',
+          tension: 0.3
+        }
+      ]
+    })
+
+    // Procesar datos para el gráfico de reservas por horario
+    const reservasPorHorario = Array(8).fill(0)
+    const horarios = ['6-8', '8-10', '10-12', '12-14', '14-16', '16-18', '18-20', '20-22']
+    reservas.forEach((reserva) => {
+      const horaInicio = parseInt(reserva.Hora_inicio.split(':')[0])
+      const index = Math.floor((horaInicio - 6) / 2)
+      if (index >= 0 && index < reservasPorHorario.length) {
+        reservasPorHorario[index]++
+      }
+    })
+    setBarChartData({
+      labels: horarios,
+      datasets: [
+        {
+          label: 'Reservas por Horario',
+          data: reservasPorHorario,
+          backgroundColor: 'rgba(52, 211, 153, 0.6)',
+          borderColor: 'rgb(52, 211, 153)',
+          borderWidth: 1
+        }
+      ]
+    })
+
+    // Procesar datos para el gráfico de días preferidos del mes
+    const reservasPorDia = Array(7).fill(0)
+    const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+    reservas.forEach((reserva) => {
+      const dia = new Date(reserva.Fecha).getDay()
+      reservasPorDia[(dia + 6) % 7]++ // Ajustar para que el lunes sea el primer día
+    })
+    setDaysChartData({
+      labels: dias,
+      datasets: [
+        {
+          label: 'Días Preferidos del Mes',
+          data: reservasPorDia,
+          backgroundColor: 'rgba(251, 146, 60, 0.6)',
+          borderColor: 'rgb(251, 146, 60)',
+          borderWidth: 1
+        }
+      ]
+    })
+  }
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
@@ -129,7 +197,7 @@ export default function Dashboard() {
 
   const filteredReservas = reservas.filter(reserva => {
     if (!date) return true
-    const reservaDate = new Date(reserva.fecha)
+    const reservaDate = new Date(reserva.Fecha)
     return reservaDate.toDateString() === date.toDateString()
   })
 
