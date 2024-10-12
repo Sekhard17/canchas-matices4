@@ -41,6 +41,10 @@ export default function Dashboard() {
     labels: [],
     datasets: []
   })
+  const [totalReservas, setTotalReservas] = useState(0)
+  const [saldoGastado, setSaldoGastado] = useState(0)
+  const [canchaFavorita, setCanchaFavorita] = useState('')
+  const [horarioFavorito, setHorarioFavorito] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -67,6 +71,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (reservas.length > 0) {
       procesarDatosGraficos(reservas)
+      procesarDatosResumen(reservas)
     }
   }, [reservas])
 
@@ -174,6 +179,36 @@ export default function Dashboard() {
     })
   }
 
+  const procesarDatosResumen = (reservas: any[]) => {
+    setTotalReservas(reservas.length)
+    const saldo = reservas.reduce((total, reserva) => total + reserva.Monto, 0)
+    setSaldoGastado(saldo)
+
+    const canchaCount: { [key: string]: number } = {}
+    const horarioCount: { [key: string]: number } = {}
+
+    reservas.forEach((reserva) => {
+      if (canchaCount[reserva.Cancha]) {
+        canchaCount[reserva.Cancha]++
+      } else {
+        canchaCount[reserva.Cancha] = 1
+      }
+
+      const horario = `${reserva.Hora_inicio} - ${reserva.Hora_fin}`
+      if (horarioCount[horario]) {
+        horarioCount[horario]++
+      } else {
+        horarioCount[horario] = 1
+      }
+    })
+
+    const canchaFavorita = Object.keys(canchaCount).reduce((a, b) => canchaCount[a] > canchaCount[b] ? a : b, '')
+    setCanchaFavorita(canchaFavorita)
+
+    const horarioFavorito = Object.keys(horarioCount).reduce((a, b) => horarioCount[a] > horarioCount[b] ? a : b, '')
+    setHorarioFavorito(horarioFavorito)
+  }
+
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
     if (darkMode) {
@@ -197,9 +232,28 @@ export default function Dashboard() {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    layout: {
+      padding: {
+        top: 20,
+        bottom: 20,
+      },
+    },
     plugins: {
       legend: {
-        position: 'top' as const,
+        display: true,
+      },
+      tooltip: {
+        enabled: true,
+      },
+      title: {
+        display: true,
+        text: 'No hay datos, realiza una reserva para empezar a tener datos',
+        color: '#666',
+        font: {
+          size: 16,
+          weight: 'normal' as 'normal' | 'bold' | 'bolder' | 'lighter',
+          family: 'Arial',
+        },
       },
     },
   }
