@@ -77,10 +77,10 @@ export default function ClienteDashboard() {
       } catch (error) {
         console.error('Error decoding token:', error)
         localStorage.removeItem('token')
-        router.push('/error-404')
+        router.replace('/error-404')
       }
     } else {
-      router.push('/error-404')
+      router.replace('/error-404')
     }
   }, [router])
 
