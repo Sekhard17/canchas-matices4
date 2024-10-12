@@ -6,6 +6,17 @@ import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { User, Mail, Lock, Calendar, Clock, History, Pencil, Save, UserCircle, FileText, Key } from "lucide-react"
 
+type Usuario = {
+  rut: string
+  nombre: string
+  apellido: string
+  email: string
+  password: string
+  creado: string
+  ultimoLogin: string
+  reservas: { fecha: string, cancha: string }[]
+}
+
 const formatRut = (rut: string) => {
   const cleanRut = rut.replace(/[^0-9kK]/g, '')
   const lastDigit = cleanRut.slice(-1)
@@ -15,8 +26,8 @@ const formatRut = (rut: string) => {
 }
 
 export default function PerfilUsuario() {
-  const [editingField, setEditingField] = useState<string | null>(null)
-  const [usuario, setUsuario] = useState({
+  const [editingField, setEditingField] = useState<keyof Usuario | null>(null)
+  const [usuario, setUsuario] = useState<Usuario>({
     rut: '196776168',
     nombre: 'Juan',
     apellido: 'Pérez',
@@ -28,20 +39,20 @@ export default function PerfilUsuario() {
       { fecha: '2023-06-01', cancha: 'Cancha 1' },
       { fecha: '2023-05-15', cancha: 'Cancha 2' },
       { fecha: '2023-05-01', cancha: 'Cancha 1' },
-      { fecha: '2023-04-20', cancha: 'Cancha 3' },
+      { fecha: '2023-04-20', cancha: 'Cancha 3' }
     ]
   })
 
-  const handleEdit = (field: string) => {
+  const handleEdit = (field: keyof Usuario) => {
     setEditingField(field)
   }
 
-  const handleSave = (field: string) => {
+  const handleSave = (field: keyof Usuario) => {
     setEditingField(null)
     // Aquí iría la lógica para guardar los cambios en el backend
   }
 
-  const renderEditableField = (field: string, icon: React.ReactNode, label: string) => (
+  const renderEditableField = (field: keyof Usuario, icon: React.ReactNode, label: string) => (
     <div className="flex flex-col space-y-1">
       <Label htmlFor={field} className="text-sm font-medium text-gray-700 flex items-center space-x-2">
         {icon}
@@ -50,15 +61,20 @@ export default function PerfilUsuario() {
       <div className="flex items-center space-x-2">
         <Input
           id={field}
-          value={usuario[field]}
+          value={usuario[field] as string}
           readOnly={editingField !== field}
           className="flex-grow"
-          onChange={(e) => setUsuario({...usuario, [field]: e.target.value})}
+          onChange={(e) =>
+            setUsuario((prev) => ({
+              ...prev,
+              [field]: e.target.value
+            }))
+          }
         />
         <Button
           size="icon"
           variant="outline"
-          onClick={() => editingField === field ? handleSave(field) : handleEdit(field)}
+          onClick={() => (editingField === field ? handleSave(field) : handleEdit(field))}
         >
           {editingField === field ? <Save className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
         </Button>
@@ -88,7 +104,7 @@ export default function PerfilUsuario() {
               Ver detalles
             </Button>
           </div>
-          
+
           <div className="flex flex-col space-y-1">
             <Label htmlFor="rut" className="text-sm font-medium text-gray-700 flex items-center space-x-2">
               <FileText className="w-5 h-5 text-primary" />
@@ -101,7 +117,7 @@ export default function PerfilUsuario() {
           {renderEditableField('email', <Mail className="w-5 h-5 text-primary" />, 'Email')}
           {renderEditableField('password', <Key className="w-5 h-5 text-primary" />, 'Contraseña')}
         </div>
-        
+
         <div className="mt-8 space-y-4">
           <h3 className="text-xl font-semibold flex items-center space-x-2 text-primary">
             <History className="w-6 h-6" />
