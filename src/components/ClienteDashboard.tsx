@@ -442,34 +442,34 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="md:ml-64 pt-20 px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[
-            { title: "Total de Reservas", value: "24", icon: CalendarIcon, color: "bg-blue-500" },
-            { title: "Saldo Gastado", value: "$480", icon: DollarSign, color: "bg-green-500" },
-            { title: "Cancha Favorita", value: "C3F7", icon: MapPin, color: "bg-yellow-500" },
-            { title: "Horario Preferido", value: "18:00", icon: Clock, color: "bg-pink-500" },
-          ].map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="w-full"
-            >
-              <Card className={`${item.color} text-white overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-105`}>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium opacity-75">{item.title}</p>
-                    <p className="text-2xl font-bold mt-1">{item.value}</p>
-                  </div>
-                  <div className={`p-3 rounded-full bg-white bg-opacity-30`}>
-                    <item.icon className="h-6 w-6" />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                {[
+                  { title: "Total de Reservas", value: totalReservas, icon: CalendarIcon, color: "bg-blue-500" },
+                  { title: "Saldo Gastado", value: `$${saldoGastado}`, icon: DollarSign, color: "bg-green-500" },
+                  { title: "Cancha Favorita", value: canchaFavorita, icon: MapPin, color: "bg-yellow-500" },
+                  { title: "Horario Preferido", value: horarioFavorito, icon: Clock, color: "bg-pink-500" },
+                ].map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="w-full"
+                  >
+                    <Card className={`${item.color} text-white overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-105`}>
+                      <CardContent className="p-4 flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium opacity-75">{item.title}</p>
+                          <p className="text-2xl font-bold mt-1">{item.value}</p>
+                        </div>
+                        <div className={`p-3 rounded-full bg-white bg-opacity-30`}>
+                          <item.icon className="h-6 w-6" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <Card className="lg:col-span-2 order-2 lg:order-1">
