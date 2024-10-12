@@ -86,6 +86,7 @@ export default function Dashboard() {
       })
       if (response.ok) {
         const data = await response.json()
+        console.log(data); // Verifica los datos aquí
         setReservas(data)
       } else {
         console.error('Error al obtener las reservas:', response.statusText)
@@ -94,6 +95,7 @@ export default function Dashboard() {
       console.error('Error de red al obtener las reservas:', error)
     }
   }
+  
 
   const obtenerNotificaciones = async (token: string) => {
     try {
