@@ -77,7 +77,7 @@ export default function Dashboard() {
 
   const obtenerReservas = async (token: string) => {
     try {
-      const response = await fetch('https://canchas-back-4.onrender.com/reservas', {
+      const response = await fetch('https://canchas-back-4.onrender.com/api/reservas', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -97,7 +97,7 @@ export default function Dashboard() {
 
   const obtenerNotificaciones = async (token: string) => {
     try {
-      const response = await fetch('https://canchas-back-4.onrender.com/notificaciones', {
+      const response = await fetch('https://canchas-back-4.onrender.com/api/notificaciones', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
