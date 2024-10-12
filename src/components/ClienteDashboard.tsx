@@ -14,7 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, QrCode, PlusCircle, Sun, Moon, BarChart, TrendingUp, Bell, ChevronRight } from 'lucide-react'
+import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, QrCode, PlusCircle, Sun, Moon, BarChart, TrendingUp, Bell, ChevronRight, DollarSign } from 'lucide-react'
 import { es } from 'date-fns/locale'
 import { Line, Bar } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
@@ -145,12 +145,30 @@ export default function ClienteDashboard() {
     },
   }
 
+  const marcarNotificacionesComoLeidas = () => {
+    // Lógica para marcar notificaciones como leídas
+    console.log('Notificaciones marcadas como leídas')
+  }
+
+  const daysChartData = {
+    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+    datasets: [
+      {
+        label: 'Días Preferidos del Mes',
+        data: [8, 12, 6, 9, 15, 20, 10],
+        backgroundColor: 'rgba(251, 146, 60, 0.6)',
+        borderColor: 'rgb(251, 146, 60)',
+        borderWidth: 1
+      }
+    ]
+  }
+
   return (
     <div className={`min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-md fixed top-0 left-0 right-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white font-sans">Dashboard de Cliente</h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white font-sans">Dashboard</h1>
           <div className="flex items-center space-x-4">
             <TooltipProvider>
               <Tooltip>
@@ -166,7 +184,7 @@ export default function ClienteDashboard() {
             </TooltipProvider>
             
             {/* Notificaciones */}
-            <DropdownMenu>
+            <DropdownMenu open={notificacionesAbiertas} onOpenChange={setNotificacionesAbiertas}>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon" className="relative">
                   <Bell className="h-[1.2rem] w-[1.2rem]" />
@@ -176,14 +194,26 @@ export default function ClienteDashboard() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
+                <DropdownMenuLabel className="flex justify-between items-center">
+                  <span>Notificaciones</span>
+                  <Button variant="ghost" size="sm" onClick={marcarNotificacionesComoLeidas}>
+                    Marcar como leídas
+                  </Button>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {notificaciones.map((notificacion) => (
-                  <DropdownMenuItem key={notificacion.id} className="flex items-start py-2">
-                    <div className={`w-2 h-2 rounded-full mt-1 mr-2 ${notificacion.leida ? 'bg-gray-300' : 'bg-blue-500'}`} />
-                    <span>{notificacion.mensaje}</span>
-                  </DropdownMenuItem>
-                ))}
+                <ScrollArea className="h-[300px]">
+                  {notificaciones.map((notificacion) => (
+                    <DropdownMenuItem key={notificacion.id} className="flex flex-col items-start py-2">
+                      <div className="flex items-start w-full">
+                        <div className={`w-2 h-2 rounded-full mt-1 mr-2 ${notificacion.leida ? 'bg-gray-300' : 'bg-blue-500'}`} />
+                        <div className="flex-1">
+                          <p className="text-sm">{notificacion.mensaje}</p>
+                          {/* La propiedad 'fecha' no existe en las notificaciones, por lo que se eliminará */}
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                </ScrollArea>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -225,33 +255,23 @@ export default function ClienteDashboard() {
       </header>
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700`}>
+      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 bg-gray-800 text-white`}>
         <div className="h-full px-3 py-4 overflow-y-auto">
           <ul className="space-y-2 font-medium">
-            <li>
-              <a href="#" className="flex items-center p-2 text-gray-900 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <BarChart className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                <span className="ml-3">Dashboard</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" className="flex items-center p-2 text-gray-900 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <CalendarIcon className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                <span className="ml-3">Mis Reservas</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" className="flex items-center p-2 text-gray-900 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <MapPin className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                <span className="ml-3">Canchas</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" className="flex items-center p-2 text-gray-900 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <Activity className="w-5 h-5 text-gray-500 dark:text-gray-400  group-hover:text-gray-900 dark:group-hover:text-white" />
-                <span className="ml-3">Estadísticas</span>
-              </a>
-            </li>
+            {[
+              { icon: BarChart, label: "Dashboard", color: "bg-blue-500" },
+              { icon: CalendarIcon, label: "Mis Reservas", color: "bg-green-500" },
+              { icon: MapPin, label: "Canchas", color: "bg-yellow-500" },
+              { icon: Activity, label: "Estadísticas", color: "bg-pink-500" },
+              { icon: PlusCircle, label: "Nueva Reserva", color: "bg-purple-500" },
+            ].map((item, index) => (
+              <li key={index}>
+                <a href="#" className={`flex items-center p-2 rounded-lg ${item.color} hover:bg-opacity-80 transition-all duration-200`}>
+                  <item.icon className="w-6 h-6" />
+                  <span className="ml-3">{item.label}</span>
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       </aside>
@@ -260,24 +280,25 @@ export default function ClienteDashboard() {
       <main className="md:ml-64 pt-20 px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {[
-            { title: "Reservas Activas", value: "3", icon: <CalendarIcon className="h-8 w-8 text-indigo-500" />, color: "bg-indigo-100 dark:bg-indigo-800/30" },
-            { title: "Horas Jugadas", value: "12", icon: <Clock className="h-8 w-8 text-emerald-500" />, color: "bg-emerald-100 dark:bg-emerald-800/30" },
-            { title: "Canchas Favoritas", value: "2", icon: <MapPin className="h-8 w-8 text-amber-500" />, color: "bg-amber-100 dark:bg-amber-800/30" },
-            { title: "Puntos de Fidelidad", value: "150", icon: <Activity className="h-8 w-8 text-pink-500" />, color: "bg-pink-100 dark:bg-pink-800/30" },
+            { title: "Total de Reservas Realizadas", value: "24", icon: CalendarIcon, color: "bg-blue-500" },
+            { title: "Saldo Total Gastado", value: "$480", icon: DollarSign, color: "bg-green-500" },
+            { title: "Cancha Favorita", value: "C3F7", icon: MapPin, color: "bg-yellow-500" },
+            { title: "Horario Preferido", value: "18:00 - 20:00", icon: Clock, color: "bg-pink-500" },
           ].map((item, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
+            
             >
-              <Card className={`${item.color} border-none`}>
+              <Card className={`${item.color} text-white border-none`}>
                 <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                  <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-200">{item.title}</CardTitle>
-                  {item.icon}
+                  <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
+                  <item.icon className="h-8 w-8" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-gray-800 dark:text-white">{item.value}</div>
+                  <div className="text-2xl font-bold">{item.value}</div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -287,16 +308,19 @@ export default function ClienteDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle className="text-xl font-bold flex items-center justify-between">
-                Mis Reservas
-                <Button variant="outline" size="sm">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Nueva Reserva
-                </Button>
-              </CardTitle>
+              <CardTitle className="text-xl font-bold">Mis Reservas</CardTitle>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[400px] w-full pr-4">
+              <div className="mb-4">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  className="rounded-md border"
+                  locale={es}
+                />
+              </div>
+              <ScrollArea className="h-[300px] w-full pr-4">
                 <AnimatePresence>
                   {reservas.map((reserva, index) => (
                     <motion.div
@@ -310,14 +334,14 @@ export default function ClienteDashboard() {
                       <Card>
                         <CardContent className="p-4 flex items-center justify-between">
                           <div>
-                            <h3 className="font-semibold text-lg text-gray-800 dark:text-white">{reserva.cancha}</h3>
+                            <h3 className="font-semibold text-lg">{reserva.cancha}</h3>
                             <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 mt-1">
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {reserva.fecha} - {reserva.hora}
+                              {reserva.fecha}
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Badge variant={mapEstadoToVariant(reserva.estado)}>
+                            <Badge variant={reserva.estado === 'Confirmada' ? 'default' : reserva.estado === 'Realizada' ? 'secondary' : 'destructive'}>
                               {reserva.estado}
                             </Badge>
                             <Dialog>
@@ -334,11 +358,11 @@ export default function ClienteDashboard() {
                                   </DialogDescription>
                                 </DialogHeader>
                                 <div className="flex justify-center py-4">
-                                  <Image src={reserva.qrCode} alt="Código QR de la reserva" width={150} height={150} />
+                                  <Image src={reserva.qrCode} alt="Código QR de la reserva" className="w-48 h-48" />
                                 </div>
                                 <div className="text-center">
                                   <p className="font-semibold">{reserva.cancha}</p>
-                                  <p>{reserva.fecha} - {reserva.hora}</p>
+                                  <p>{reserva.fecha}</p>
                                 </div>
                               </DialogContent>
                             </Dialog>
@@ -354,16 +378,12 @@ export default function ClienteDashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Calendario</CardTitle>
+              <CardTitle className="text-xl font-bold">Días Preferidos del Mes</CardTitle>
             </CardHeader>
             <CardContent>
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                className="rounded-md border"
-                locale={es}
-              />
+              <div className="h-[300px]">
+                <Bar data={daysChartData} options={chartOptions} />
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -373,7 +393,7 @@ export default function ClienteDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <BarChart className="mr-2 h-5 w-5" />
-                Horario Favorito
+                Horarios Favoritos
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -396,36 +416,6 @@ export default function ClienteDashboard() {
             </CardContent>
           </Card>
         </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span className="flex items-center">
-                <Activity className="mr-2 h-5 w-5" />
-                Accesos Directos
-              </span>
-              <Button variant="link" size="sm">
-                Ver todos
-                <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { title: "Reservar Ahora", icon: <PlusCircle className="h-6 w-6" />, color: "bg-blue-100 text-blue-600" },
-                { title: "Mis Estadísticas", icon: <BarChart className="h-6 w-6" />, color: "bg-green-100 text-green-600" },
-                { title: "Invitar Amigos", icon: <User className="h-6 w-6" />, color: "bg-yellow-100 text-yellow-600" },
-                { title: "Soporte", icon: <Settings className="h-6 w-6" />, color: "bg-purple-100 text-purple-600" },
-              ].map((item, index) => (
-                <Button key={index} variant="outline" className={`h-24 flex flex-col items-center justify-center ${item.color}`}>
-                  {item.icon}
-                  <span className="mt-2 text-sm font-medium">{item.title}</span>
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       </main>
     </div>
   )
