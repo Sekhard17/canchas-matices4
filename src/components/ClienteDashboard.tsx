@@ -29,9 +29,18 @@ export default function Dashboard() {
   const [notificaciones, setNotificaciones] = useState<any[]>([])
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false)
-  const [lineChartData, setLineChartData] = useState<any>(null)
-  const [barChartData, setBarChartData] = useState<any>(null)
-  const [daysChartData, setDaysChartData] = useState<any>(null)
+  const [lineChartData, setLineChartData] = useState<any>({
+    labels: [],
+    datasets: []
+  })
+  const [barChartData, setBarChartData] = useState<any>({
+    labels: [],
+    datasets: []
+  })
+  const [daysChartData, setDaysChartData] = useState<any>({
+    labels: [],
+    datasets: []
+  })
   const router = useRouter()
 
   useEffect(() => {
@@ -200,6 +209,7 @@ export default function Dashboard() {
     const reservaDate = new Date(reserva.Fecha)
     return reservaDate.toDateString() === date.toDateString()
   })
+
 
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
