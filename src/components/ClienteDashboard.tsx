@@ -80,7 +80,7 @@ export default function Component() {
         router.push('/');
       }
     } else {
-      router.push('/')
+      router.push('/error-404')
     }
   }, [router])
 
@@ -96,7 +96,7 @@ export default function Component() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUser(null);
-    router.push('/404');
+    router.push('/');
   };
 
   const mapEstadoToVariant = (estado: string) => {
