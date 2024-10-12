@@ -83,18 +83,18 @@ export default function Dashboard() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
-      })
+      });
       if (response.ok) {
-        const data = await response.json()
-        console.log(data); // Verifica los datos aquí
-        setReservas(data)
+        const data = await response.json();
+        setReservas(data);  // Aquí se filtran las reservas del usuario logueado
       } else {
-        console.error('Error al obtener las reservas:', response.statusText)
+        console.error('Error al obtener las reservas:', response.statusText);
       }
     } catch (error) {
-      console.error('Error de red al obtener las reservas:', error)
+      console.error('Error de red al obtener las reservas:', error);
     }
-  }
+  };
+  
   
 
   const obtenerNotificaciones = async (token: string) => {
