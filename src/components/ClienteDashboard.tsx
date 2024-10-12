@@ -96,7 +96,7 @@ export default function Component() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUser(null);
-    router.push('/');
+    router.push('/404');
   };
 
   const mapEstadoToVariant = (estado: string) => {
