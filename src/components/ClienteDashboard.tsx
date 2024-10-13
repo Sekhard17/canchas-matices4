@@ -86,7 +86,8 @@ export default function Dashboard() {
       });
       if (response.ok) {
         const data = await response.json();
-        setReservas(data);  // Aquí se filtran las reservas del usuario logueado
+        console.log('Reservas obtenidas:', data);  // Verifica si las reservas están correctas
+        setReservas(data);  
       } else {
         console.error('Error al obtener las reservas:', response.statusText);
       }
@@ -94,6 +95,7 @@ export default function Dashboard() {
       console.error('Error de red al obtener las reservas:', error);
     }
   };
+  
   
   
 
