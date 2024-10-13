@@ -27,7 +27,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<any>(null)
   const [reservas, setReservas] = useState<any[]>([])
   const [notificaciones, setNotificaciones] = useState<any[]>([])
-  const [date, setDate] = useState<Date | undefined>(new Date())
+  const [date, setDate] = useState<Date | undefined>()  // Inicializado como `undefined`
   const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false)
   const [lineChartData, setLineChartData] = useState<any>({
     labels: [],
@@ -46,6 +46,11 @@ export default function Dashboard() {
   const [canchaFavorita, setCanchaFavorita] = useState('')
   const [horarioFavorito, setHorarioFavorito] = useState('')
   const router = useRouter()
+
+  useEffect(() => {
+    // Mover la creación de la fecha aquí para evitar desajuste en el renderizado del lado del servidor
+    setDate(new Date());
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -96,9 +101,6 @@ export default function Dashboard() {
     }
   };
   
-  
-  
-
   const obtenerNotificaciones = async (token: string) => {
     try {
       const response = await fetch('https://canchas-back-4.onrender.com/api/notificaciones', {
@@ -143,12 +145,11 @@ export default function Dashboard() {
     const reservasPorHorario = Array(8).fill(0)
     const horarios = ['6-8', '8-10', '10-12', '12-14', '14-16', '16-18', '18-20', '20-22']
     reservas.forEach((reserva) => {
-      // Asegúrate de que hora_inicio es una cadena válida
       if (reserva.hora_inicio && typeof reserva.hora_inicio === 'string') {
         const horaInicio = parseInt(reserva.hora_inicio.split(':')[0]);  // Solo obtenemos la hora
         const index = Math.floor((horaInicio - 6) / 2);  // Calcula el índice para el gráfico
         if (index >= 0 && index < reservasPorHorario.length) {
-          reservasPorHorario[index]++;
+          reservasPorHorario[index]++
         }
       } else {
         console.error('hora_inicio inválida o indefinida en la reserva:', reserva);
@@ -235,7 +236,6 @@ export default function Dashboard() {
   }
 
   const marcarNotificacionesComoLeidas = () => {
-    // Lógica para marcar notificaciones como leídas
     console.log('Notificaciones marcadas como leídas')
   }
 
@@ -273,7 +273,6 @@ export default function Dashboard() {
     const reservaDate = new Date(reserva.Fecha)
     return reservaDate.toDateString() === date.toDateString()
   })
-
 
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
