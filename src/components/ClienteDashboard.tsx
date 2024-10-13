@@ -191,34 +191,41 @@ export default function Dashboard() {
 
   const procesarDatosResumen = (reservas: any[]) => {
     setTotalReservas(reservas.length)
-    const saldo = reservas.reduce((total, reserva) => total + (reserva.Monto || 0), 0)
+  
+    // Asegúrate de que 'Monto' existe en las reservas
+    const saldo = reservas.reduce((total, reserva) => total + (reserva.monto || 0), 0)
     setSaldoGastado(saldo)
-
+  
     const canchaCount: { [key: string]: number } = {}
     const horarioCount: { [key: string]: number } = {}
-
+  
     reservas.forEach((reserva) => {
-      if (canchaCount[reserva.ID_Cancha]) {
-        canchaCount[reserva.ID_Cancha]++
+      // Contar las canchas
+      if (canchaCount[reserva.id_cancha]) {
+        canchaCount[reserva.id_cancha]++
       } else {
-        canchaCount[reserva.ID_Cancha] = 1
+        canchaCount[reserva.id_cancha] = 1
       }
-
-      const horario = `${reserva.Hora_inicio} - ${reserva.Hora_fin}`
+  
+      // Contar los horarios
+      const horario = `${reserva.hora_inicio} - ${reserva.hora_fin}`
       if (horarioCount[horario]) {
         horarioCount[horario]++
       } else {
         horarioCount[horario] = 1
       }
     })
-
+  
+    // Obtener la cancha favorita
     const canchaFavoritaId = Object.keys(canchaCount).reduce((a, b) => canchaCount[a] > canchaCount[b] ? a : b, '')
-    const canchaFavoritaNombre = reservas.find(reserva => reserva.ID_Cancha === parseInt(canchaFavoritaId))?.NombreCancha || ''
+    const canchaFavoritaNombre = reservas.find(reserva => reserva.id_cancha === parseInt(canchaFavoritaId))?.nombre_cancha || 'Ninguna'
     setCanchaFavorita(canchaFavoritaNombre)
-
+  
+    // Obtener el horario favorito
     const horarioFavorito = Object.keys(horarioCount).reduce((a, b) => horarioCount[a] > horarioCount[b] ? a : b, '')
-    setHorarioFavorito(horarioFavorito)
+    setHorarioFavorito(horarioFavorito || 'No definido')
   }
+  
 
   const chartOptions = {
     responsive: true,
@@ -237,7 +244,7 @@ export default function Dashboard() {
         enabled: true,
       },
       title: {
-        display: true,
+        display: reservas.length === 0,  // Mostrar el mensaje solo si no hay reservas
         text: 'No hay datos, realiza una reserva para empezar a tener datos',
         color: '#666',
         font: {
@@ -248,6 +255,7 @@ export default function Dashboard() {
       },
     },
   }
+  
 
   const filteredReservas = reservas.filter(reserva => {
     if (!date) return true
