@@ -48,19 +48,18 @@ export default function Dashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    // Mover la creación de la fecha aquí para evitar desajuste en el renderizado del lado del servidor
-    setDate(new Date());
-  }, []);
+    setDate(new Date())
+  }, [])
 
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (token) {
       try {
         const decoded: any = jwtDecode(token)
-        setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo })
-        
+        setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo, RUT: decoded.RUT })
+
         // Llamar a las APIs para obtener reservas y notificaciones
-        obtenerReservas(token)
+        obtenerReservas(token, decoded.RUT)
         obtenerNotificaciones(token)
 
       } catch (error) {
@@ -80,7 +79,7 @@ export default function Dashboard() {
     }
   }, [reservas])
 
-  const obtenerReservas = async (token: string) => {
+  const obtenerReservas = async (token: string, rut: string) => {
     try {
       const response = await fetch('https://canchas-matices.fly.dev/api/reservas', {
         method: 'GET',
@@ -88,19 +87,19 @@ export default function Dashboard() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
-      });
+      })
       if (response.ok) {
-        const data = await response.json();
-        console.log('Reservas obtenidas:', data);  // Verifica si las reservas están correctas
-        setReservas(data);  
+        const data = await response.json()
+        const reservasFiltradas = data.filter((reserva: any) => reserva.Rut_usuario === rut)
+        setReservas(reservasFiltradas)  
       } else {
-        console.error('Error al obtener las reservas:', response.statusText);
+        console.error('Error al obtener las reservas:', response.statusText)
       }
     } catch (error) {
-      console.error('Error de red al obtener las reservas:', error);
+      console.error('Error de red al obtener las reservas:', error)
     }
-  };
-  
+  }
+
   const obtenerNotificaciones = async (token: string) => {
     try {
       const response = await fetch('https://canchas-matices.fly.dev/api/notificaciones', {
@@ -122,7 +121,6 @@ export default function Dashboard() {
   }
 
   const procesarDatosGraficos = (reservas: any[]) => {
-    // Procesar datos para el gráfico de reservas por mes
     const reservasPorMes = Array(12).fill(0)
     reservas.forEach((reserva) => {
       const mes = new Date(reserva.Fecha).getMonth()
@@ -141,20 +139,15 @@ export default function Dashboard() {
       ]
     })
 
-    // Procesar datos para el gráfico de reservas por horario
     const reservasPorHorario = Array(8).fill(0)
     const horarios = ['6-8', '8-10', '10-12', '12-14', '14-16', '16-18', '18-20', '20-22']
     reservas.forEach((reserva) => {
-      if (reserva.hora_inicio && typeof reserva.hora_inicio === 'string') {
-        const horaInicio = parseInt(reserva.hora_inicio.split(':')[0]);  // Solo obtenemos la hora
-        const index = Math.floor((horaInicio - 6) / 2);  // Calcula el índice para el gráfico
-        if (index >= 0 && index < reservasPorHorario.length) {
-          reservasPorHorario[index]++
-        }
-      } else {
-        console.error('hora_inicio inválida o indefinida en la reserva:', reserva);
+      const horaInicio = parseInt(reserva.Hora_inicio.split(':')[0])
+      const index = Math.floor((horaInicio - 6) / 2)
+      if (index >= 0 && index < reservasPorHorario.length) {
+        reservasPorHorario[index]++
       }
-    });
+    })
     
     setBarChartData({
       labels: horarios,
@@ -169,12 +162,11 @@ export default function Dashboard() {
       ]
     })
 
-    // Procesar datos para el gráfico de días preferidos del mes
     const reservasPorDia = Array(7).fill(0)
     const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
     reservas.forEach((reserva) => {
       const dia = new Date(reserva.Fecha).getDay()
-      reservasPorDia[(dia + 6) % 7]++ // Ajustar para que el lunes sea el primer día
+      reservasPorDia[(dia + 6) % 7]++
     })
     setDaysChartData({
       labels: dias,
@@ -192,17 +184,17 @@ export default function Dashboard() {
 
   const procesarDatosResumen = (reservas: any[]) => {
     setTotalReservas(reservas.length)
-    const saldo = reservas.reduce((total, reserva) => total + reserva.Monto, 0)
+    const saldo = reservas.reduce((total, reserva) => total + (reserva.Monto || 0), 0)
     setSaldoGastado(saldo)
 
     const canchaCount: { [key: string]: number } = {}
     const horarioCount: { [key: string]: number } = {}
 
     reservas.forEach((reserva) => {
-      if (canchaCount[reserva.Cancha]) {
-        canchaCount[reserva.Cancha]++
+      if (canchaCount[reserva.ID_Cancha]) {
+        canchaCount[reserva.ID_Cancha]++
       } else {
-        canchaCount[reserva.Cancha] = 1
+        canchaCount[reserva.ID_Cancha] = 1
       }
 
       const horario = `${reserva.Hora_inicio} - ${reserva.Hora_fin}`
@@ -213,16 +205,13 @@ export default function Dashboard() {
       }
     })
 
-    const canchaFavorita = Object.keys(canchaCount).reduce((a, b) => canchaCount[a] > canchaCount[b] ? a : b, '')
-    setCanchaFavorita(canchaFavorita)
+    const canchaFavoritaId = Object.keys(canchaCount).reduce((a, b) => canchaCount[a] > canchaCount[b] ? a : b, '')
+    const canchaFavoritaNombre = reservas.find(reserva => reserva.ID_Cancha === parseInt(canchaFavoritaId))?.NombreCancha || ''
+    setCanchaFavorita(canchaFavoritaNombre)
 
     const horarioFavorito = Object.keys(horarioCount).reduce((a, b) => horarioCount[a] > horarioCount[b] ? a : b, '')
     setHorarioFavorito(horarioFavorito)
   }
-
-
-
-
 
   const chartOptions = {
     responsive: true,
@@ -252,8 +241,6 @@ export default function Dashboard() {
       },
     },
   }
-
-  
 
   const filteredReservas = reservas.filter(reserva => {
     if (!date) return true
