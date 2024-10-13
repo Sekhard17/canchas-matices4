@@ -32,7 +32,7 @@ export default function RegisterElegante() {
     }
     
     try {
-      const response = await fetch('https://canchas-back-4.onrender.com/api/usuarios', {
+      const response = await fetch('https://canchas-matices.fly.dev/api/usuarios', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
