@@ -2,22 +2,17 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { jwtDecode } from 'jwt-decode'
+import {jwtDecode} from 'jwt-decode'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Calendar } from "@/components/ui/calendar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, BarChart, TrendingUp, Bell, QrCode, PlusCircle, DollarSign, Sun, Moon, Home, MessageCircle, Calendar as CalendarIcon2, ChevronDown, Inbox, Search, Check } from 'lucide-react'
 import { Line, Bar } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
-import { es } from 'date-fns/locale'
+import { CalendarIcon, Clock, MapPin, DollarSign, X, BarChart, TrendingUp, Menu } from 'lucide-react'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ChartTooltip, Legend)
 
@@ -27,7 +22,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<any>(null)
   const [reservas, setReservas] = useState<any[]>([])
   const [notificaciones, setNotificaciones] = useState<any[]>([])
-  const [date, setDate] = useState<Date | undefined>()  // Inicializado como `undefined`
+  const [date, setDate] = useState<Date | undefined>(new Date())
   const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false)
   const [lineChartData, setLineChartData] = useState<any>({
     labels: [],
@@ -46,11 +41,6 @@ export default function Dashboard() {
   const [canchaFavorita, setCanchaFavorita] = useState('')
   const [horarioFavorito, setHorarioFavorito] = useState('')
   const router = useRouter()
-
-  useEffect(() => {
-    // Mover la creación de la fecha aquí para evitar desajuste en el renderizado del lado del servidor
-    setDate(new Date());
-  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -91,7 +81,7 @@ export default function Dashboard() {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log('Reservas obtenidas:', data);  // Verifica si las reservas están correctas
+        console.log('Reservas obtenidas:', data);
         setReservas(data);  
       } else {
         console.error('Error al obtener las reservas:', response.statusText);
@@ -122,7 +112,6 @@ export default function Dashboard() {
   }
 
   const procesarDatosGraficos = (reservas: any[]) => {
-    // Procesar datos para el gráfico de reservas por mes
     const reservasPorMes = Array(12).fill(0)
     reservas.forEach((reserva) => {
       const mes = new Date(reserva.Fecha).getMonth()
@@ -141,13 +130,12 @@ export default function Dashboard() {
       ]
     })
 
-    // Procesar datos para el gráfico de reservas por horario
     const reservasPorHorario = Array(8).fill(0)
     const horarios = ['6-8', '8-10', '10-12', '12-14', '14-16', '16-18', '18-20', '20-22']
     reservas.forEach((reserva) => {
       if (reserva.hora_inicio && typeof reserva.hora_inicio === 'string') {
-        const horaInicio = parseInt(reserva.hora_inicio.split(':')[0]);  // Solo obtenemos la hora
-        const index = Math.floor((horaInicio - 6) / 2);  // Calcula el índice para el gráfico
+        const horaInicio = parseInt(reserva.hora_inicio.split(':')[0]);  
+        const index = Math.floor((horaInicio - 6) / 2);
         if (index >= 0 && index < reservasPorHorario.length) {
           reservasPorHorario[index]++
         }
@@ -169,12 +157,11 @@ export default function Dashboard() {
       ]
     })
 
-    // Procesar datos para el gráfico de días preferidos del mes
     const reservasPorDia = Array(7).fill(0)
     const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
     reservas.forEach((reserva) => {
       const dia = new Date(reserva.Fecha).getDay()
-      reservasPorDia[(dia + 6) % 7]++ // Ajustar para que el lunes sea el primer día
+      reservasPorDia[(dia + 6) % 7]++
     })
     setDaysChartData({
       labels: dias,
@@ -199,10 +186,10 @@ export default function Dashboard() {
     const horarioCount: { [key: string]: number } = {}
 
     reservas.forEach((reserva) => {
-      if (canchaCount[reserva.Cancha]) {
-        canchaCount[reserva.Cancha]++
+      if (canchaCount[reserva.ID_Cancha]) {
+        canchaCount[reserva.ID_Cancha]++
       } else {
-        canchaCount[reserva.Cancha] = 1
+        canchaCount[reserva.ID_Cancha] = 1
       }
 
       const horario = `${reserva.Hora_inicio} - ${reserva.Hora_fin}`
@@ -213,30 +200,23 @@ export default function Dashboard() {
       }
     })
 
-    const canchaFavorita = Object.keys(canchaCount).reduce((a, b) => canchaCount[a] > canchaCount[b] ? a : b, '')
-    setCanchaFavorita(canchaFavorita)
+    const canchaFavoritaID = Object.keys(canchaCount).reduce((a, b) => canchaCount[a] > canchaCount[b] ? a : b, '')
+    
+    // Obtener el nombre de la cancha favorita
+    const obtenerCanchaFavorita = async (id: string) => {
+      try {
+        const response = await fetch(`https://canchas-back-4.onrender.com/api/canchas/${id}`);
+        const cancha = await response.json();
+        setCanchaFavorita(cancha.Nombre);
+      } catch (error) {
+        console.error('Error al obtener la cancha favorita:', error);
+        setCanchaFavorita('Desconocida');
+      }
+    }
+    obtenerCanchaFavorita(canchaFavoritaID);
 
     const horarioFavorito = Object.keys(horarioCount).reduce((a, b) => horarioCount[a] > horarioCount[b] ? a : b, '')
     setHorarioFavorito(horarioFavorito)
-  }
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode)
-    if (darkMode) {
-      document.documentElement.classList.remove('dark')
-    } else {
-      document.documentElement.classList.add('dark')
-    }
-  }
-
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    setUser(null)
-    router.push('/')
-  }
-
-  const marcarNotificacionesComoLeidas = () => {
-    console.log('Notificaciones marcadas como leídas')
   }
 
   const chartOptions = {
@@ -261,18 +241,34 @@ export default function Dashboard() {
         color: '#666',
         font: {
           size: 16,
-          weight: 'normal' as 'normal' | 'bold' | 'bolder' | 'lighter',
+          weight: 'normal' as const,
           family: 'Arial',
         },
       },
     },
   }
+  
 
   const filteredReservas = reservas.filter(reserva => {
     if (!date) return true
     const reservaDate = new Date(reserva.Fecha)
     return reservaDate.toDateString() === date.toDateString()
   })
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode)
+    if (darkMode) {
+      document.documentElement.classList.remove('dark')
+    } else {
+      document.documentElement.classList.add('dark')
+    }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    setUser(null)
+    router.push('/')
+  }
 
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
@@ -286,199 +282,40 @@ export default function Dashboard() {
               </Button>
               <h1 className="text-2xl font-bold text-gray-800 dark:text-white font-sans">Dashboard</h1>
             </div>
-            <div className="hidden md:flex items-center space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar..."
-                  className="pl-10 pr-4 py-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" onClick={toggleDarkMode}>
-                      {darkMode ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{darkMode ? 'Activar modo claro' : 'Activar modo oscuro'}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              {/* Notificaciones */}
-              <DropdownMenu open={notificacionesAbiertas} onOpenChange={setNotificacionesAbiertas}>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="relative">
-                    <Bell className="h-[1.2rem] w-[1.2rem]" />
-                    {notificaciones.some(n => !n.leida) && (
-                      <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full" />
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80 md:w-96">
-                  <DropdownMenuLabel className="flex justify-between items-center">
-                    <span>Notificaciones</span>
-                    <Button variant="ghost" size="sm" onClick={marcarNotificacionesComoLeidas}>
-                      Marcar como leídas
-                    </Button>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <ScrollArea className="h-[300px]">
-                    {notificaciones.map((notificacion) => (
-                      <DropdownMenuItem key={notificacion.id} className="flex items-start py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <div className={`mr-3 mt-1 p-2 rounded-full ${notificacion.leida ? 'bg-gray-200 dark:bg-gray-600' : 'bg-blue-100 dark:bg-blue-900'}`}>
-                          <notificacion.icono className="h-4 w-4 text-blue-500 dark:text-blue-300" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{notificacion.mensaje}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{notificacion.fecha}</p>
-                        </div>
-                        {!notificacion.leida && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
-                        )}
-                      </DropdownMenuItem>
-                    ))}
-                  </ScrollArea>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Usuario */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="https://avatar.iran.liara.run/public/18" alt={user ? `${user.nombre} ${user.apellido}` : '@username'} />
-                      <AvatarFallback>{user && user.nombre ? user.nombre.charAt(0) : 'U'}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>{user ? `${user.nombre} ${user.apellido}` : 'Usuario Anónimo'}</DropdownMenuLabel>
-                  <p className="px-2 py-1 text-sm text-gray-500">{user ? user.correo : 'usuario@ejemplo.com'}</p>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push('/mi-perfil')}>
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Mi Perfil</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Configuración</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Cerrar Sesión</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
           </div>
         </div>
       </header>
 
-      {/* Sidebar */}
-      <aside className={`fixed left-0  top-0 z-40 h-screen w-64 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700`}>
-        <div className="h-full px-3 py-4 overflow-y-auto">
-          <div className="flex items-center mb-5 font-semibold text-xl text-blue-600 dark:text-blue-400">
-            <Activity className="mr-2 h-6 w-6" />
-            <span>Matices</span>
-          </div>
-          <nav className="space-y-1">
-            <div className="pb-2">
-              <h2 className="mb-2 px-4  text-lg font-semibold tracking-tight">Principal</h2>
-              <div className="space-y-1">
-                <Button variant="ghost" className="w-full justify-start">
-                  <Home className="mr-2 h-4 w-4" />
-                  Inicio
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  Mis Reservas
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <MapPin className="mr-2 h-4 w-4" />
-                  Canchas
-                </Button>
-              </div>
-            </div>
-            <div className="py-2">
-              <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Aplicaciones</h2>
-              <div className="space-y-1">
-                <Button variant="ghost" className="w-full justify-start">
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  Chat
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <CalendarIcon2 className="mr-2 h-4 w-4" />
-                  Calendario
-                </Button>
-              </div>
-            </div>
-            <div className="py-2">
-              <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Otros</h2>
-              <div className="space-y-1">
-                <Button variant="ghost" className="w-full justify-start">
-                  <Inbox className="mr-2 h-4 w-4" />
-                  Módulo de Solicitudes
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Configuración
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="w-full justify-start">
-                      <ChevronDown className="mr-2 h-4 w-4" />
-                      Más opciones
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
-                    <DropdownMenuItem>Opción 1</DropdownMenuItem>
-                    <DropdownMenuItem>Opción 2</DropdownMenuItem>
-                    <DropdownMenuItem>Opción 3</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          </nav>
-        </div>
-      </aside>
-
       {/* Main Content */}
       <main className="md:ml-64 pt-20 px-4 sm:px-6 lg:px-8 py-8">
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                {[
-                  { title: "Total de Reservas", value: totalReservas, icon: CalendarIcon, color: "bg-blue-500" },
-                  { title: "Saldo Gastado", value: `$${saldoGastado}`, icon: DollarSign, color: "bg-green-500" },
-                  { title: "Cancha Favorita", value: canchaFavorita, icon: MapPin, color: "bg-yellow-500" },
-                  { title: "Horario Preferido", value: horarioFavorito, icon: Clock, color: "bg-pink-500" },
-                ].map((item, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="w-full"
-                  >
-                    <Card className={`${item.color} text-white overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-105`}>
-                      <CardContent className="p-4 flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium opacity-75">{item.title}</p>
-                          <p className="text-2xl font-bold mt-1">{item.value}</p>
-                        </div>
-                        <div className={`p-3 rounded-full bg-white bg-opacity-30`}>
-                          <item.icon className="h-6 w-6" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[
+            { title: "Total de Reservas", value: totalReservas, icon: CalendarIcon, color: "bg-blue-500" },
+            { title: "Saldo Gastado", value: `$${saldoGastado}`, icon: DollarSign, color: "bg-green-500" },
+            { title: "Cancha Favorita", value: canchaFavorita, icon: MapPin, color: "bg-yellow-500" },
+            { title: "Horario Preferido", value: horarioFavorito, icon: Clock, color: "bg-pink-500" },
+          ].map((item, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="w-full"
+            >
+              <Card className={`${item.color} text-white overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-105`}>
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium opacity-75">{item.title}</p>
+                    <p className="text-2xl font-bold mt-1">{item.value}</p>
+                  </div>
+                  <div className={`p-3 rounded-full bg-white bg-opacity-30`}>
+                    <item.icon className="h-6 w-6" />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <Card className="lg:col-span-2 order-2 lg:order-1">
@@ -508,14 +345,6 @@ export default function Dashboard() {
                       {date?.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
                 </Popover>
               </CardTitle>
             </CardHeader>
@@ -540,38 +369,6 @@ export default function Dashboard() {
                                 <CalendarIcon className="mr-2 h-4 w-4" />
                                 {reserva.fecha} - {reserva.hora}
                               </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                            <Badge variant={
-                                  reserva.estado === 'Confirmada' ? 'default' :
-                                  reserva.estado === 'Realizada' ? 'secondary' :
-                                  'destructive'
-                                }>
-                                  {reserva.estado}
-                                </Badge>
-
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button variant="outline" size="sm">
-                                    <QrCode className="h-4 w-4" />
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-md">
-                                  <DialogHeader>
-                                    <DialogTitle>Código QR de Reserva</DialogTitle>
-                                    <DialogDescription>
-                                      Muestra este código al llegar al complejo deportivo.
-                                    </DialogDescription>
-                                  </DialogHeader>
-                                  <div className="flex justify-center py-4">
-                                    <img src={reserva.qrCode} alt="Código QR de la reserva" className="w-48 h-48" />
-                                  </div>
-                                  <div className="text-center">
-                                    <p className="font-semibold">{reserva.cancha}</p>
-                                    <p>{reserva.fecha} - {reserva.hora}</p>
-                                  </div>
-                                </DialogContent>
-                              </Dialog>
                             </div>
                           </CardContent>
                         </Card>
