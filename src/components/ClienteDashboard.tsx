@@ -26,6 +26,7 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [reservas, setReservas] = useState<any[]>([])
+  const [pagos, setPagos] = useState<any[]>([])  // Para almacenar los pagos
   const [notificaciones, setNotificaciones] = useState<any[]>([])
   const [date, setDate] = useState<Date | undefined>()  // Inicializado como `undefined`
   const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false)
@@ -48,20 +49,39 @@ export default function Dashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    setDate(new Date())
-  }, [])
-
-  useEffect(() => {
+    const obtenerPagos = async (token: string, rut: string) => {
+      try {
+        const response = await fetch('https://canchas-matices.fly.dev/api/pagos', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        if (response.ok) {
+          const data = await response.json()
+          const pagosFiltrados = data.filter((pago: any) => pago.rut_usuario === rut)
+          setPagos(pagosFiltrados)
+          procesarSaldoGastado(pagosFiltrados)
+        } else {
+          console.error('Error al obtener los pagos:', response.statusText)
+        }
+      } catch (error) {
+        console.error('Error de red al obtener los pagos:', error)
+      }
+    }
+  
     const token = localStorage.getItem('token')
     if (token) {
       try {
         const decoded: any = jwtDecode(token)
         setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo, RUT: decoded.RUT })
-
-        // Llamar a las APIs para obtener reservas y notificaciones
+  
+        // Llamar a las APIs para obtener reservas, pagos y notificaciones
         obtenerReservas(token, decoded.RUT)
+        obtenerPagos(token, decoded.RUT)
         obtenerNotificaciones(token)
-
+  
       } catch (error) {
         console.error('Error decoding token:', error)
         localStorage.removeItem('token')
@@ -71,6 +91,7 @@ export default function Dashboard() {
       router.replace('/error-404')
     }
   }, [router])
+  
 
   useEffect(() => {
     if (reservas.length > 0) {
@@ -79,6 +100,7 @@ export default function Dashboard() {
     }
   }, [reservas])
 
+  // Obtener reservas
   const obtenerReservas = async (token: string, rut: string) => {
     try {
       const response = await fetch('https://canchas-matices.fly.dev/api/reservas', {
@@ -90,7 +112,7 @@ export default function Dashboard() {
       })
       if (response.ok) {
         const data = await response.json()
-        const reservasFiltradas = data.filter((reserva: any) => reserva.Rut_usuario === rut)
+        const reservasFiltradas = data.filter((reserva: any) => reserva.rut_usuario === rut)
         setReservas(reservasFiltradas)  
       } else {
         console.error('Error al obtener las reservas:', response.statusText)
@@ -100,6 +122,35 @@ export default function Dashboard() {
     }
   }
 
+  // Obtener pagos
+  const obtenerPagos = async (token: string, rut: string) => {
+    try {
+      const response = await fetch('https://canchas-matices.fly.dev/api/pagos', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        const pagosFiltrados = data.filter((pago: any) => pago.rut_usuario === rut)
+        setPagos(pagosFiltrados)
+        procesarSaldoGastado(pagosFiltrados)
+      } else {
+        console.error('Error al obtener los pagos:', response.statusText)
+      }
+    } catch (error) {
+      console.error('Error de red al obtener los pagos:', error)
+    }
+  }
+
+  const procesarSaldoGastado = (pagos: any[]) => {
+    const saldo = pagos.reduce((total, pago) => total + (pago.monto || 0), 0)
+    setSaldoGastado(saldo)
+  }
+
+  // Obtener notificaciones
   const obtenerNotificaciones = async (token: string) => {
     try {
       const response = await fetch('https://canchas-matices.fly.dev/api/notificaciones', {
@@ -120,6 +171,7 @@ export default function Dashboard() {
     }
   }
 
+  // Gráficos
   const procesarDatosGraficos = (reservas: any[]) => {
     const reservasPorMes = Array(12).fill(0)
     reservas.forEach((reserva) => {
@@ -144,9 +196,9 @@ export default function Dashboard() {
     const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00']
     
     reservas.forEach((reserva) => {
-      if (reserva.hora_inicio && typeof reserva.hora_inicio === 'string') {  // Verifica que hora_inicio sea válida
-        const horaInicio = parseInt(reserva.hora_inicio.split(':')[0])  // Obtenemos solo la hora
-        const index = horaInicio - 16  // Calcula el índice para las horas (16:00 se convierte en 0, 17:00 en 1, etc.)
+      if (reserva.hora_inicio && typeof reserva.hora_inicio === 'string') {
+        const horaInicio = parseInt(reserva.hora_inicio.split(':')[0])
+        const index = horaInicio - 16
         if (index >= 0 && index < reservasPorHorario.length) {
           reservasPorHorario[index]++
         }
@@ -187,14 +239,10 @@ export default function Dashboard() {
       ]
     })
   }
-  
 
+  // Resumen
   const procesarDatosResumen = (reservas: any[]) => {
     setTotalReservas(reservas.length)
-  
-    // Asegúrate de que 'Monto' existe en las reservas
-    const saldo = reservas.reduce((total, reserva) => total + (reserva.monto || 0), 0)
-    setSaldoGastado(saldo)
   
     const canchaCount: { [key: string]: number } = {}
     const horarioCount: { [key: string]: number } = {}
@@ -225,8 +273,8 @@ export default function Dashboard() {
     const horarioFavorito = Object.keys(horarioCount).reduce((a, b) => horarioCount[a] > horarioCount[b] ? a : b, '')
     setHorarioFavorito(horarioFavorito || 'No definido')
   }
-  
 
+  // Opciones de gráficos con ajuste de medidores
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -244,7 +292,7 @@ export default function Dashboard() {
         enabled: true,
       },
       title: {
-        display: reservas.length === 0,  // Mostrar el mensaje solo si no hay reservas
+        display: reservas.length === 0,
         text: 'No hay datos, realiza una reserva para empezar a tener datos',
         color: '#666',
         font: {
@@ -254,12 +302,22 @@ export default function Dashboard() {
         },
       },
     },
+    scales: {
+      y: {
+        ticks: {
+          stepSize: 2,  // Ajuste de intervalos de medición
+          callback: (value: any) => {
+            if ([1, 3, 5, 7, 10, 13, 15, 20].includes(value)) return value
+            return ''
+          }
+        }
+      }
+    }
   }
-  
 
   const filteredReservas = reservas.filter(reserva => {
     if (!date) return true
-    const reservaDate = new Date(reserva.Fecha)
+    const reservaDate = new Date(reserva.fecha)
     return reservaDate.toDateString() === date.toDateString()
   })
 
