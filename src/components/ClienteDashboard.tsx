@@ -123,7 +123,7 @@ export default function Dashboard() {
   const procesarDatosGraficos = (reservas: any[]) => {
     const reservasPorMes = Array(12).fill(0)
     reservas.forEach((reserva) => {
-      const mes = new Date(reserva.Fecha).getMonth()
+      const mes = new Date(reserva.fecha).getMonth()
       reservasPorMes[mes]++
     })
     setLineChartData({
@@ -138,14 +138,20 @@ export default function Dashboard() {
         }
       ]
     })
-
-    const reservasPorHorario = Array(8).fill(0)
-    const horarios = ['6-8', '8-10', '10-12', '12-14', '14-16', '16-18', '18-20', '20-22']
+  
+    // Horarios de 16:00 a 0:00 con intervalos de 1 hora
+    const reservasPorHorario = Array(9).fill(0)
+    const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00']
+    
     reservas.forEach((reserva) => {
-      const horaInicio = parseInt(reserva.Hora_inicio.split(':')[0])
-      const index = Math.floor((horaInicio - 6) / 2)
-      if (index >= 0 && index < reservasPorHorario.length) {
-        reservasPorHorario[index]++
+      if (reserva.hora_inicio && typeof reserva.hora_inicio === 'string') {  // Verifica que hora_inicio sea válida
+        const horaInicio = parseInt(reserva.hora_inicio.split(':')[0])  // Obtenemos solo la hora
+        const index = horaInicio - 16  // Calcula el índice para las horas (16:00 se convierte en 0, 17:00 en 1, etc.)
+        if (index >= 0 && index < reservasPorHorario.length) {
+          reservasPorHorario[index]++
+        }
+      } else {
+        console.error('hora_inicio inválida o indefinida en la reserva:', reserva)
       }
     })
     
@@ -161,11 +167,11 @@ export default function Dashboard() {
         }
       ]
     })
-
+  
     const reservasPorDia = Array(7).fill(0)
     const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
     reservas.forEach((reserva) => {
-      const dia = new Date(reserva.Fecha).getDay()
+      const dia = new Date(reserva.fecha).getDay()
       reservasPorDia[(dia + 6) % 7]++
     })
     setDaysChartData({
@@ -181,6 +187,7 @@ export default function Dashboard() {
       ]
     })
   }
+  
 
   const procesarDatosResumen = (reservas: any[]) => {
     setTotalReservas(reservas.length)
