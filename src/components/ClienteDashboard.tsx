@@ -91,7 +91,6 @@ export default function Dashboard() {
       router.replace('/error-404')
     }
   }, [router])
-  
 
   useEffect(() => {
     if (reservas.length > 0) {
@@ -113,7 +112,7 @@ export default function Dashboard() {
       if (response.ok) {
         const data = await response.json()
         const reservasFiltradas = data.filter((reserva: any) => reserva.rut_usuario === rut)
-        setReservas(reservasFiltradas)  
+        setReservas(reservasFiltradas)
       } else {
         console.error('Error al obtener las reservas:', response.statusText)
       }
@@ -315,7 +314,7 @@ export default function Dashboard() {
     }
   }
 
-  const filteredReservas = reservas.filter(reserva => {
+  const filteredReservas = reservas.filter((reserva: any) => {
     if (!date) return true
     const reservaDate = new Date(reserva.fecha)
     return reservaDate.toDateString() === date.toDateString()
