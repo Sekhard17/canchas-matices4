@@ -143,12 +143,18 @@ export default function Dashboard() {
     const reservasPorHorario = Array(8).fill(0)
     const horarios = ['6-8', '8-10', '10-12', '12-14', '14-16', '16-18', '18-20', '20-22']
     reservas.forEach((reserva) => {
-      const horaInicio = parseInt(reserva.Hora_inicio.split(':')[0])
-      const index = Math.floor((horaInicio - 6) / 2)
-      if (index >= 0 && index < reservasPorHorario.length) {
-        reservasPorHorario[index]++
+      // Asegúrate de que hora_inicio es una cadena válida
+      if (reserva.hora_inicio && typeof reserva.hora_inicio === 'string') {
+        const horaInicio = parseInt(reserva.hora_inicio.split(':')[0]);  // Solo obtenemos la hora
+        const index = Math.floor((horaInicio - 6) / 2);  // Calcula el índice para el gráfico
+        if (index >= 0 && index < reservasPorHorario.length) {
+          reservasPorHorario[index]++;
+        }
+      } else {
+        console.error('hora_inicio inválida o indefinida en la reserva:', reserva);
       }
-    })
+    });
+    
     setBarChartData({
       labels: horarios,
       datasets: [
