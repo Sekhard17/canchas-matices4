@@ -55,16 +55,19 @@ const chartOptions = {
   },
   scales: {
     y: {
+      min: 0, // Establece un mínimo
+      max: 10, // Establece un máximo mayor para tener más espacio
       ticks: {
         stepSize: 2,
         callback: (value: any) => {
-          if ([1, 3, 5, 7, 10, 13, 15, 20].includes(value)) return value;
+          if ([0, 2, 4, 6, 8, 10].includes(value)) return value;
           return '';
-        }
-      }
-    }
-  }
-}
+        },
+      },
+    },
+  },
+};
+
 
 export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(false)
@@ -96,86 +99,103 @@ export default function Dashboard() {
   useEffect(() => {
     const obtenerDatosDashboard = async (RUT: string) => {
       try {
-        // Obtener todas las reservas del usuario logueado
+        // Intentar cargar los datos desde el localStorage
+        const cachedData = localStorage.getItem('dashboardData');
+        if (cachedData) {
+          const parsedData = JSON.parse(cachedData);
+          setReservas(parsedData.reservas);
+          setTotalReservas(parsedData.totalReservas);
+          setSaldoGastado(parsedData.saldoGastado);
+          setCanchaFavorita(parsedData.canchaFavorita);
+          setHorarioFavorito(parsedData.horarioFavorito);
+          procesarDatosGraficos(parsedData.reservas);
+          return; // Terminar la función si ya tenemos datos cacheados
+        }
+  
+        // Si no hay datos en el cache, obtenerlos desde Supabase
         const { data: reservas, error: errorReservas } = await supabase
           .from('reservas')
           .select('*')
           .eq('rut_usuario', RUT);
-    
+  
         if (errorReservas) throw errorReservas;
-    
+  
         setReservas(reservas);
         setTotalReservas(reservas.length);
-    
-        // Obtener todos los pagos del usuario logueado
+  
         const { data: pagos, error: errorPagos } = await supabase
           .from('pagos')
           .select('monto')
           .eq('rut_usuario', RUT);
-    
+  
         if (errorPagos) throw errorPagos;
-    
-        // Sumar el monto total gastado
+  
         const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0);
         setSaldoGastado(saldoTotal);
-    
-        // Calcular la cancha favorita (la más utilizada por el usuario)
+  
         const canchaFrecuencia = reservas.reduce((acc: any, reserva: any) => {
           acc[reserva.id_cancha] = (acc[reserva.id_cancha] || 0) + 1;
           return acc;
         }, {});
-    
-        // Obtener la cancha más utilizada
+  
         const canchaFavoritaId = Object.keys(canchaFrecuencia).reduce((a, b) => canchaFrecuencia[a] > canchaFrecuencia[b] ? a : b);
-        
+  
         const { data: canchaFavoritaData, error: errorCancha } = await supabase
           .from('canchas')
           .select('nombre')
           .eq('id_cancha', canchaFavoritaId)
           .single();
-    
+  
         if (errorCancha) throw errorCancha;
-    
+  
         setCanchaFavorita(canchaFavoritaData.nombre || 'Desconocida');
-    
-        // Calcular el horario favorito (la hora_inicio más frecuente)
+  
         const horarioFrecuencia = reservas.reduce((acc: any, reserva: any) => {
           acc[reserva.hora_inicio] = (acc[reserva.hora_inicio] || 0) + 1;
           return acc;
         }, {});
-    
+  
         const horarioFavorito = Object.keys(horarioFrecuencia).reduce((a, b) => horarioFrecuencia[a] > horarioFrecuencia[b] ? a : b);
-    
+  
         setHorarioFavorito(horarioFavorito || 'No definido');
-    
-        // Procesar los datos para los gráficos
+  
+        // Guardar los datos en localStorage para futuras consultas
+        const dashboardData = {
+          reservas,
+          totalReservas: reservas.length,
+          saldoGastado: saldoTotal,
+          canchaFavorita: canchaFavoritaData.nombre,
+          horarioFavorito,
+        };
+        localStorage.setItem('dashboardData', JSON.stringify(dashboardData));
+  
         procesarDatosGraficos(reservas);
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error);
       }
-    }
-    
+    };
   
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decoded: any = jwtDecode(token)
-        if (decoded && decoded.id) {  // Usar el campo "id" como RUT
-          setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo, RUT: decoded.id })
-          obtenerDatosDashboard(decoded.id)  // Pasar el "id" como RUT
+        const decoded: any = jwtDecode(token);
+        if (decoded && decoded.id) { 
+          setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo, RUT: decoded.id });
+          obtenerDatosDashboard(decoded.id);  
         } else {
-          console.error('RUT no está presente en el token')
-          router.replace('/error-404')
+          console.error('RUT no está presente en el token');
+          router.replace('/error-404');
         }
       } catch (error) {
-        console.error('Error decoding token:', error)
-        localStorage.removeItem('token')
-        router.replace('/error-404')
+        console.error('Error decoding token:', error);
+        localStorage.removeItem('token');
+        router.replace('/error-404');
       }
     } else {
-      router.replace('/error-404')
+      router.replace('/error-404');
     }
-  }, [router])
+  }, [router]);
+  
   
   
 
