@@ -97,9 +97,9 @@ export default function Dashboard() {
     const obtenerDatosDashboard = async (RUT: string) => {
       try {
         const { data: reservas, error: errorReservas } = await supabase
-          .from('Reservas')
+          .from('reservas')
           .select('*')
-          .eq('Rut_usuario', RUT)
+          .eq('rut_usuario', RUT)
 
         if (errorReservas) throw errorReservas
 
@@ -107,13 +107,13 @@ export default function Dashboard() {
         setTotalReservas(reservas.length)
 
         const { data: pagos, error: errorPagos } = await supabase
-          .from('Pagos')
-          .select('Monto')
-          .eq('Rut_usuario', RUT)
+          .from('pagos')
+          .select('monto')
+          .eq('rut_usuario', RUT)
 
         if (errorPagos) throw errorPagos
 
-        const saldoTotal = pagos.reduce((acc: number, pago: { Monto: number }) => acc + pago.Monto, 0)
+        const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0)
         setSaldoGastado(saldoTotal)
 
         const { data: canchaFavoritaData } = await supabase
