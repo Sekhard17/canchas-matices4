@@ -96,48 +96,65 @@ export default function Dashboard() {
   useEffect(() => {
     const obtenerDatosDashboard = async (RUT: string) => {
       try {
-        // Obtener reservas del usuario junto con el nombre de la cancha
+        // Obtener todas las reservas del usuario logueado
         const { data: reservas, error: errorReservas } = await supabase
           .from('reservas')
-          .select('id_cancha, canchas(nombre)')
-          .eq('rut_usuario', RUT)
-  
-        if (errorReservas) throw errorReservas
-  
-        setReservas(reservas)
-        setTotalReservas(reservas.length)
-  
-        // Obtener pagos del usuario
+          .select('*')
+          .eq('rut_usuario', RUT);
+    
+        if (errorReservas) throw errorReservas;
+    
+        setReservas(reservas);
+        setTotalReservas(reservas.length);
+    
+        // Obtener todos los pagos del usuario logueado
         const { data: pagos, error: errorPagos } = await supabase
           .from('pagos')
           .select('monto')
-          .eq('rut_usuario', RUT)
-  
-        if (errorPagos) throw errorPagos
-  
-        const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0)
-        setSaldoGastado(saldoTotal)
-  
-        // Procesar los datos para encontrar la cancha favorita en el frontend
-        const canchaCount: Record<string, number> = {}
-        reservas.forEach((reserva) => {
-          const canchaNombre = reserva.canchas?.[0]?.nombre || 'Desconocida'
-          if (canchaCount[canchaNombre]) {
-            canchaCount[canchaNombre] += 1
-          } else {
-            canchaCount[canchaNombre] = 1
-          }
-        })
-  
-        const canchaFavorita = Object.keys(canchaCount).reduce((a, b) => canchaCount[a] > canchaCount[b] ? a : b, 'Desconocida')
-        setCanchaFavorita(canchaFavorita)
-  
-        // Procesar datos para los gráficos
-        procesarDatosGraficos(reservas)
+          .eq('rut_usuario', RUT);
+    
+        if (errorPagos) throw errorPagos;
+    
+        // Sumar el monto total gastado
+        const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0);
+        setSaldoGastado(saldoTotal);
+    
+        // Calcular la cancha favorita (la más utilizada por el usuario)
+        const canchaFrecuencia = reservas.reduce((acc: any, reserva: any) => {
+          acc[reserva.id_cancha] = (acc[reserva.id_cancha] || 0) + 1;
+          return acc;
+        }, {});
+    
+        // Obtener la cancha más utilizada
+        const canchaFavoritaId = Object.keys(canchaFrecuencia).reduce((a, b) => canchaFrecuencia[a] > canchaFrecuencia[b] ? a : b);
+        
+        const { data: canchaFavoritaData, error: errorCancha } = await supabase
+          .from('canchas')
+          .select('nombre')
+          .eq('id_cancha', canchaFavoritaId)
+          .single();
+    
+        if (errorCancha) throw errorCancha;
+    
+        setCanchaFavorita(canchaFavoritaData.nombre || 'Desconocida');
+    
+        // Calcular el horario favorito (la hora_inicio más frecuente)
+        const horarioFrecuencia = reservas.reduce((acc: any, reserva: any) => {
+          acc[reserva.hora_inicio] = (acc[reserva.hora_inicio] || 0) + 1;
+          return acc;
+        }, {});
+    
+        const horarioFavorito = Object.keys(horarioFrecuencia).reduce((a, b) => horarioFrecuencia[a] > horarioFrecuencia[b] ? a : b);
+    
+        setHorarioFavorito(horarioFavorito || 'No definido');
+    
+        // Procesar los datos para los gráficos
+        procesarDatosGraficos(reservas);
       } catch (error) {
-        console.error('Error obteniendo datos del dashboard:', error)
+        console.error('Error obteniendo datos del dashboard:', error);
       }
     }
+    
   
     const token = localStorage.getItem('token')
     if (token) {
@@ -198,14 +215,14 @@ export default function Dashboard() {
     })
 
     setBarChartData({
-      labels: horarios,
-      datasets: [
-        {
-          label: 'Reservas por Horario',
-          data: reservasPorHorario,
-          backgroundColor: 'rgba(52, 211, 153, 0.6)',
-          borderColor: 'rgb(52, 211, 153)',
-          borderWidth: 1
+    labels: horarios,
+    datasets: [
+      {
+        label: 'Reservas por Horario',
+        data: reservasPorHorario,
+        backgroundColor: 'rgba(52, 211, 153, 0.6)',
+        borderColor: 'rgb(52, 211, 153)',
+        borderWidth: 1
         }
       ]
     })
