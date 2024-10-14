@@ -180,15 +180,20 @@ export default function Dashboard() {
         }
       ]
     })
-
+  
     const reservasPorHorario = Array(9).fill(0)
     const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00']
-
+  
     reservas.forEach((reserva) => {
-      const horaInicio = parseInt(reserva.hora_inicio.split(':')[0])
-      const index = horaInicio - 16
-      if (index >= 0 && index < reservasPorHorario.length) {
-        reservasPorHorario[index]++
+      // Verificamos si 'hora_inicio' está definida y es una cadena válida
+      if (reserva.hora_inicio && typeof reserva.hora_inicio === 'string') {
+        const horaInicio = parseInt(reserva.hora_inicio.split(':')[0])
+        const index = horaInicio - 16
+        if (index >= 0 && index < reservasPorHorario.length) {
+          reservasPorHorario[index]++
+        }
+      } else {
+        console.warn('hora_inicio inválida o indefinida en la reserva:', reserva)
       }
     })
 
