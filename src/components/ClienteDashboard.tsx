@@ -189,17 +189,17 @@ export default function Dashboard() {
     const reservasPorCancha: { [key: string]: number } = {};
     const reservasPorHorario = Array(9).fill(0);
     const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00'];
-
+  
     reservas.forEach((reserva) => {
       // Procesar las reservas por mes
       const mes = new Date(reserva.fecha).getMonth();
       reservasPorMes[mes]++;
-
-      // Procesar las reservas por cancha
-      const cancha = reserva.cancha;
+  
+      // Procesar las reservas por cancha usando id_cancha
+      const cancha = reserva.id_cancha;
       if (!reservasPorCancha[cancha]) reservasPorCancha[cancha] = 0;
       reservasPorCancha[cancha]++;
-
+  
       // Procesar las reservas por horario
       const horaInicio = parseInt(reserva.hora_inicio.split(':')[0]);
       const index = horaInicio - 16;
@@ -207,15 +207,15 @@ export default function Dashboard() {
         reservasPorHorario[index]++;
       }
     });
-
-    // Calcular cancha favorita
+  
+    // Calcular cancha favorita usando id_cancha
     const canchaFavorita = Object.keys(reservasPorCancha).reduce((a, b) => reservasPorCancha[a] > reservasPorCancha[b] ? a : b);
     setCanchaFavorita(canchaFavorita);
-
+  
     // Calcular horario favorito
     const horarioFavoritoIndex = reservasPorHorario.indexOf(Math.max(...reservasPorHorario));
     setHorarioFavorito(horarios[horarioFavoritoIndex]);
-
+  
     // Actualizar los gráficos
     setLineChartData({
       labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
@@ -229,7 +229,7 @@ export default function Dashboard() {
         },
       ],
     });
-
+  
     setBarChartData({
       labels: horarios,
       datasets: [
@@ -242,7 +242,7 @@ export default function Dashboard() {
         },
       ],
     });
-
+  
     const reservasPorDia = Array(7).fill(0);
     const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
     reservas.forEach((reserva) => {
@@ -262,6 +262,7 @@ export default function Dashboard() {
       ],
     });
   };
+  
 
   useEffect(() => {
     const reservasFiltradas = reservas.filter((reserva) => {
