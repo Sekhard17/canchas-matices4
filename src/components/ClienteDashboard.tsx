@@ -101,50 +101,55 @@ export default function Dashboard() {
           .from('reservas')
           .select('id_cancha, canchas(nombre)')
           .eq('rut_usuario', RUT)
-    
+  
         if (errorReservas) throw errorReservas
-    
+  
         setReservas(reservas)
         setTotalReservas(reservas.length)
-    
+  
         // Obtener pagos del usuario
         const { data: pagos, error: errorPagos } = await supabase
           .from('pagos')
           .select('monto')
           .eq('rut_usuario', RUT)
-    
+  
         if (errorPagos) throw errorPagos
-    
+  
         const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0)
         setSaldoGastado(saldoTotal)
-    
+  
         // Procesar los datos para encontrar la cancha favorita en el frontend
         const canchaCount: Record<string, number> = {}
         reservas.forEach((reserva) => {
-          const canchaNombre = reserva.canchas?.[0]?.nombre || 'Desconocida' // Acceder al primer elemento del array
+          const canchaNombre = reserva.canchas?.[0]?.nombre || 'Desconocida'
           if (canchaCount[canchaNombre]) {
             canchaCount[canchaNombre] += 1
           } else {
             canchaCount[canchaNombre] = 1
           }
         })
-    
+  
         const canchaFavorita = Object.keys(canchaCount).reduce((a, b) => canchaCount[a] > canchaCount[b] ? a : b, 'Desconocida')
         setCanchaFavorita(canchaFavorita)
-    
+  
         // Procesar datos para los gráficos
         procesarDatosGraficos(reservas)
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error)
       }
     }
-    
+  
     const token = localStorage.getItem('token')
     if (token) {
       try {
         const decoded: any = jwtDecode(token)
-        setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo, RUT: decoded.RUT })
-        obtenerDatosDashboard(decoded.RUT)
+        if (decoded && decoded.RUT) {
+          setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo, RUT: decoded.RUT })
+          obtenerDatosDashboard(decoded.RUT) // Asegúrate de que el RUT está presente
+        } else {
+          console.error('RUT no está presente en el token')
+          router.replace('/error-404')
+        }
       } catch (error) {
         console.error('Error decoding token:', error)
         localStorage.removeItem('token')
@@ -154,6 +159,7 @@ export default function Dashboard() {
       router.replace('/error-404')
     }
   }, [router])
+  
 
   const procesarDatosGraficos = (reservas: any[]) => {
     const reservasPorMes = Array(12).fill(0)
