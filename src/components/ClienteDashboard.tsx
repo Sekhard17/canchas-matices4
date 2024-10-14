@@ -96,37 +96,49 @@ export default function Dashboard() {
   useEffect(() => {
     const obtenerDatosDashboard = async (RUT: string) => {
       try {
+        // Obtener reservas del usuario junto con el nombre de la cancha
         const { data: reservas, error: errorReservas } = await supabase
           .from('reservas')
-          .select('*')
+          .select('id_cancha, canchas(nombre)')
           .eq('rut_usuario', RUT)
-
+    
         if (errorReservas) throw errorReservas
-
+    
         setReservas(reservas)
         setTotalReservas(reservas.length)
-
+    
+        // Obtener pagos del usuario
         const { data: pagos, error: errorPagos } = await supabase
           .from('pagos')
           .select('monto')
           .eq('rut_usuario', RUT)
-
+    
         if (errorPagos) throw errorPagos
-
+    
         const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0)
         setSaldoGastado(saldoTotal)
-
-        const { data: canchaFavoritaData } = await supabase
-          .rpc('cancha_favorita', { rut_usuario: RUT })
-          
-        setCanchaFavorita(canchaFavoritaData?.nombre_cancha || 'Desconocida')
-
+    
+        // Procesar los datos para encontrar la cancha favorita en el frontend
+        const canchaCount: Record<string, number> = {}
+        reservas.forEach((reserva) => {
+          const canchaNombre = reserva.canchas?.[0]?.nombre || 'Desconocida' // Acceder al primer elemento del array
+          if (canchaCount[canchaNombre]) {
+            canchaCount[canchaNombre] += 1
+          } else {
+            canchaCount[canchaNombre] = 1
+          }
+        })
+    
+        const canchaFavorita = Object.keys(canchaCount).reduce((a, b) => canchaCount[a] > canchaCount[b] ? a : b, 'Desconocida')
+        setCanchaFavorita(canchaFavorita)
+    
+        // Procesar datos para los gráficos
         procesarDatosGraficos(reservas)
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error)
       }
     }
-
+    
     const token = localStorage.getItem('token')
     if (token) {
       try {
