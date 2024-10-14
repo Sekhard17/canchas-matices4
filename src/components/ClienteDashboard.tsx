@@ -103,28 +103,50 @@ export default function Dashboard() {
     const obtenerDatosDashboard = async (RUT: string, shouldSetLoading = true) => {
       try {
         if (shouldSetLoading) setLoading(true);
-    
+  
+        // Consulta para obtener las reservas del usuario
         const { data: reservas, error: errorReservas } = await supabase
           .from('reservas')
           .select('*')
           .eq('rut_usuario', RUT);
-    
+  
         if (errorReservas) throw errorReservas;
-    
+  
         setReservas(reservas);
         setTotalReservas(reservas.length);
-    
+  
+        // Consulta para obtener los pagos del usuario
         const { data: pagos, error: errorPagos } = await supabase
           .from('pagos')
           .select('monto')
           .eq('rut_usuario', RUT);
-    
+  
         if (errorPagos) throw errorPagos;
-    
+  
         const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0);
         setSaldoGastado(saldoTotal);
-    
-        procesarDatosGraficos(reservas);
+  
+        // Consulta para obtener los nombres de las canchas
+        const { data: canchas, error: errorCanchas } = await supabase
+          .from('canchas')
+          .select('id_cancha, nombre');
+  
+        if (errorCanchas) throw errorCanchas;
+  
+        // Crea un mapa de id_cancha a nombre de cancha
+        const mapaCanchas: { [key: string]: string } = {};
+        canchas.forEach((cancha: { id_cancha: string, nombre: string }) => {
+          mapaCanchas[cancha.id_cancha] = cancha.nombre;
+        });
+  
+        // Reemplaza id_cancha por el nombre correspondiente
+        const reservasConNombre = reservas.map((reserva) => ({
+          ...reserva,
+          cancha: mapaCanchas[reserva.id_cancha] || 'Cancha desconocida',
+        }));
+  
+        // Procesa los datos de los gráficos con los nombres de las canchas
+        procesarDatosGraficos(reservasConNombre);
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error);
       } finally {
@@ -488,7 +510,7 @@ export default function Dashboard() {
       { title: "Total de Reservas", value: totalReservas, icon: CalendarIcon, color: "bg-blue-500" },
       { title: "Saldo Gastado", value: saldoGastado, icon: DollarSign, color: "bg-green-500" },
       { title: "Cancha Favorita", value: canchaFavorita, icon: MapPin, color: "bg-yellow-500" },
-      { title: "Horario Preferido", value: horarioFavorito, icon: Clock, color: "bg-pink-500" },
+      { title: "Hora Preferida", value: horarioFavorito, icon: Clock, color: "bg-pink-500" },
     ].map((item, index) => (
       <motion.div
         key={index}
