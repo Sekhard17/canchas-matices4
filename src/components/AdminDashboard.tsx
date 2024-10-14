@@ -1,33 +1,33 @@
-'use client'
+'use client';
 
-import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { jwtDecode } from 'jwt-decode'
-import { motion } from 'framer-motion'
-import { Bar, Line } from 'react-chartjs-2'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { PuffLoader } from 'react-spinners'
-import { UserIcon, CalendarIcon, BellIcon, SettingsIcon, LogOutIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, DollarSignIcon, ActivityIcon } from 'lucide-react'
-import { createClient } from '@supabase/supabase-js'
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import {jwtDecode} from 'jwt-decode';
+import { motion } from 'framer-motion';
+import { Bar, Line } from 'react-chartjs-2';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { PuffLoader } from 'react-spinners';
+import { UserIcon, CalendarIcon, BellIcon, SettingsIcon, LogOutIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, DollarSignIcon, ActivityIcon } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend)
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-const supabase = createClient(supabaseUrl!, supabaseKey!)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl!, supabaseKey!);
 
-const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
-const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-const horas = Array.from({ length: 9 }, (_, i) => i + 16) // 16:00 PM a 0:00 AM
+const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+const horas = Array.from({ length: 9 }, (_, i) => i + 16); // 16:00 PM a 0:00 AM
 
 const chartOptions = {
   responsive: true,
@@ -54,7 +54,7 @@ const chartOptions = {
       },
     },
   },
-}
+};
 
 interface Reserva {
   id: number;
@@ -63,136 +63,140 @@ interface Reserva {
   cliente: string;
 }
 
-
 type EstadisticasDetalladas = {
-  total: number
-  confirmadas?: number
-  pendientes?: number
-  nuevos?: number
-  recurrentes?: number
-  reservas?: number
-  otros?: number
-  disponibles?: number
-  enMantenimiento?: number
-}
+  total: number;
+  confirmadas?: number;
+  pendientes?: number;
+  nuevos?: number;
+  recurrentes?: number;
+  reservas?: number;
+  otros?: number;
+  disponibles?: number;
+  enMantenimiento?: number;
+};
 
 export default function AdminDashboard() {
-  const [darkMode, setDarkMode] = useState(false)
-  const [fechaActual, setFechaActual] = useState(new Date())
-  const [vistaCalendario, setVistaCalendario] = useState('semana')
-  const [modalAbierto, setModalAbierto] = useState(false)
-  const [estadisticasDetalladas, setEstadisticasDetalladas] = useState<EstadisticasDetalladas | null>(null)
-  const [user, setUser] = useState<any>(null)
-  const [reservas, setReservas] = useState<any[]>([])
-  const [totalReservas, setTotalReservas] = useState(0)
-  const [ingresos, setIngresos] = useState(0)
-  const [canchasDisponibles, setCanchasDisponibles] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
+  const [darkMode, setDarkMode] = useState(false);
+  const [fechaActual, setFechaActual] = useState(new Date());
+  const [vistaCalendario, setVistaCalendario] = useState('semana');
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [estadisticasDetalladas, setEstadisticasDetalladas] = useState<EstadisticasDetalladas | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [reservas, setReservas] = useState<any[]>([]);
+  const [totalReservas, setTotalReservas] = useState(0);
+  const [ingresos, setIngresos] = useState(0);
+  const [canchasDisponibles, setCanchasDisponibles] = useState({ disponibles: 0, total: 0 });
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const obtenerDatosAdmin = async (RUT: string) => {
       try {
-        setLoading(true)
+        setLoading(true);
 
-        // Obtener reservas
-        const { data: reservas, error: errorReservas } = await supabase
+        // Obtener reservas de hoy
+        const today = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
+        const { data: reservasHoyData, error: errorReservasHoy } = await supabase
           .from('reservas')
           .select('*')
+          .eq('fecha', today);
 
-        if (errorReservas) throw errorReservas
-        setReservas(reservas)
-        setTotalReservas(reservas.length)
+        if (errorReservasHoy) throw errorReservasHoy;
+        setReservas(reservasHoyData || []);
+        setTotalReservas(reservasHoyData?.length || 0);
 
-        // Obtener ingresos
+        // Obtener total de reservas
+        const { data: totalReservasData, error: errorTotalReservas } = await supabase.from('reservas').select('*');
+        if (errorTotalReservas) throw errorTotalReservas;
+
+        // Obtener ingresos del mes actual
+        const currentMonth = new Date().getMonth() + 1; // Mes actual
         const { data: pagos, error: errorPagos } = await supabase
           .from('pagos')
           .select('monto')
+          .filter('extract(month from fecha)', 'eq', currentMonth);
 
-        if (errorPagos) throw errorPagos
-        const totalIngresos = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0)
-        setIngresos(totalIngresos)
+        if (errorPagos) throw errorPagos;
+        const totalIngresosMes = pagos?.reduce((acc, curr) => acc + curr.monto, 0) || 0;
+        setIngresos(totalIngresosMes);
 
-        // Obtener canchas disponibles
-        const { data: canchas, error: errorCanchas } = await supabase
-          .from('canchas')
-          .select('*')
-
-        if (errorCanchas) throw errorCanchas
-        const disponibles = canchas.filter((cancha: any) => cancha.estado === 'Disponible').length
-        setCanchasDisponibles(disponibles)
-
+        // Obtener canchas disponibles y totales
+        const { data: canchasData, error: errorCanchas } = await supabase.from('canchas').select('*');
+        if (errorCanchas) throw errorCanchas;
+        const totalCanchas = canchasData?.length || 0;
+        const canchasDisponiblesCount = canchasData?.filter((cancha) => cancha.estado === 'Disponible').length || 0;
+        setCanchasDisponibles({ disponibles: canchasDisponiblesCount, total: totalCanchas });
       } catch (error) {
-        console.error('Error obteniendo datos del administrador:', error)
+        console.error('Error obteniendo datos del administrador:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decoded: any = jwtDecode(token)
+        const decoded: any = jwtDecode(token);
         if (decoded && decoded.rol === 'Administrador') {
-          setUser({ nombre: decoded.nombre, correo: decoded.correo })
-          obtenerDatosAdmin(decoded.id)
+          setUser({ nombre: decoded.nombre, correo: decoded.correo });
+          obtenerDatosAdmin(decoded.id);
         } else {
-          router.replace('/error-404')
+          router.replace('/error-404');
         }
       } catch (error) {
-        console.error('Error decoding token:', error)
-        router.replace('/error-404')
+        console.error('Error decoding token:', error);
+        router.replace('/error-404');
       }
     } else {
-      router.replace('/error-404')
+      router.replace('/error-404');
     }
-  }, [router])
+  }, [router]);
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode)
-    document.documentElement.classList.toggle('dark')
-  }
+    setDarkMode(!darkMode);
+    document.documentElement.classList.toggle('dark');
+  };
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    setUser(null)
-    router.push('/')
-  }
+    localStorage.removeItem('token');
+    setUser(null);
+    router.push('/');
+  };
 
   const cambiarSemana = (direccion: number) => {
-    const nuevaFecha = new Date(fechaActual)
-    nuevaFecha.setDate(nuevaFecha.getDate() + direccion * 7)
-    setFechaActual(nuevaFecha)
-  }
+    const nuevaFecha = new Date(fechaActual);
+    nuevaFecha.setDate(nuevaFecha.getDate() + direccion * 7);
+    setFechaActual(nuevaFecha);
+  };
 
   const cambiarMes = (direccion: number) => {
-    const nuevaFecha = new Date(fechaActual)
-    nuevaFecha.setMonth(nuevaFecha.getMonth() + direccion)
-    setFechaActual(nuevaFecha)
-  }
+    const nuevaFecha = new Date(fechaActual);
+    nuevaFecha.setMonth(nuevaFecha.getMonth() + direccion);
+    setFechaActual(nuevaFecha);
+  };
 
   const obtenerSemana = () => {
-    const primerDiaSemana = new Date(fechaActual)
-    primerDiaSemana.setDate(fechaActual.getDate() - fechaActual.getDay())
+    const primerDiaSemana = new Date(fechaActual);
+    primerDiaSemana.setDate(fechaActual.getDate() - fechaActual.getDay());
     return Array.from({ length: 7 }, (_, i) => {
-      const dia = new Date(primerDiaSemana)
-      dia.setDate(primerDiaSemana.getDate() + i)
-      return dia
-    })
-  }
+      const dia = new Date(primerDiaSemana);
+      dia.setDate(primerDiaSemana.getDate() + i);
+      return dia;
+    });
+  };
 
   const obtenerDiasMes = () => {
-    const primerDiaMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1)
-    const ultimoDiaMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0)
-    const dias = []
+    const primerDiaMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1);
+    const ultimoDiaMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
+    const dias = [];
     for (let d = new Date(primerDiaMes); d <= ultimoDiaMes; d.setDate(d.getDate() + 1)) {
-      dias.push(new Date(d))
+      dias.push(new Date(d));
     }
-    return dias
-  }
+    return dias;
+  };
 
   const obtenerReservasPorDia = (dia: Date) => {
-    return reservas.filter(reserva => {
+    return reservas.filter((reserva) => {
       const fechaReserva = new Date(reserva.fecha); // Asegurarse de que reserva.fecha sea un objeto Date
       return (
         fechaReserva.getDate() === dia.getDate() &&
@@ -201,7 +205,6 @@ export default function AdminDashboard() {
       );
     });
   };
-  
 
   const renderCalendarioSemana = () => {
     const semana = obtenerSemana();
@@ -241,10 +244,9 @@ export default function AdminDashboard() {
       </div>
     );
   };
-  
 
   const renderCalendarioMes = () => {
-    const diasMes = obtenerDiasMes()
+    const diasMes = obtenerDiasMes();
     return (
       <div className="grid grid-cols-7 gap-2">
         {diasSemana.map((dia, index) => (
@@ -253,7 +255,7 @@ export default function AdminDashboard() {
           </div>
         ))}
         {diasMes.map((dia, index) => {
-          const reservasDia = obtenerReservasPorDia(dia)
+          const reservasDia = obtenerReservasPorDia(dia);
           return (
             <div key={index} className={`border p-2 h-24 ${dia.getMonth() !== fechaActual.getMonth() ? 'opacity-50' : ''}`}>
               <div className="text-right">{dia.getDate()}</div>
@@ -263,17 +265,17 @@ export default function AdminDashboard() {
                 </div>
               ))}
             </div>
-          )
+          );
         })}
       </div>
-    )
-  }
+    );
+  };
 
   const quickAccessData = [
-    { title: "Reservas Hoy", value: `${totalReservas}`, icon: <CalendarIcon />, color: "bg-blue-500", detailedStats: { total: totalReservas } },
-    { title: "Ingresos del Mes", value: `$${ingresos}`, icon: <DollarSignIcon />, color: "bg-yellow-500", detailedStats: { total: ingresos } },
-    { title: "Canchas Disponibles", value: `${canchasDisponibles}/10`, icon: <ActivityIcon />, color: "bg-red-500", detailedStats: { total: canchasDisponibles, disponibles: canchasDisponibles } },
-  ]
+    { title: 'Reservas Hoy', value: `${totalReservas}`, icon: <CalendarIcon />, color: 'bg-blue-500', detailedStats: { total: totalReservas } },
+    { title: 'Ingresos del Mes', value: `$${ingresos}`, icon: <DollarSignIcon />, color: 'bg-yellow-500', detailedStats: { total: ingresos } },
+    { title: 'Canchas Disponibles', value: `${canchasDisponibles.disponibles}/${canchasDisponibles.total}`, icon: <ActivityIcon />, color: 'bg-red-500', detailedStats: { total: canchasDisponibles.disponibles, disponibles: canchasDisponibles.total } },
+  ];
 
   const barData = {
     labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
@@ -286,7 +288,7 @@ export default function AdminDashboard() {
         borderWidth: 2,
       },
     ],
-  }
+  };
 
   const lineData = {
     labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
@@ -299,32 +301,27 @@ export default function AdminDashboard() {
         tension: 0.4,
       },
     ],
-  }
+  };
 
   const abrirModalEstadisticas = (stats: EstadisticasDetalladas) => {
-    setEstadisticasDetalladas(stats)
-    setModalAbierto(true)
-  }
+    setEstadisticasDetalladas(stats);
+    setModalAbierto(true);
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <PuffLoader color="#3498db" loading={loading} size={100} />
       </div>
-    )
+    );
   }
-
 
   return (
     <div className={`min-h-screen p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
       <div className="max-w-7xl mx-auto">
         <header className="flex justify-between items-center mb-8">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h1 className="text-3xl font-bold">Bienvenido, Administrador</h1>
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+            <h1 className="text-3xl font-bold">Bienvenido, {user?.nombre}</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">Última conexión: Hoy, 10:30 AM</p>
           </motion.div>
           <div className="flex items-center space-x-4">
@@ -351,7 +348,7 @@ export default function AdminDashboard() {
                     <AvatarImage src="/placeholder-avatar.jpg" alt="Avatar" />
                     <AvatarFallback>AD</AvatarFallback>
                   </Avatar>
-                  <span>Admin</span>
+                  <span>{user?.nombre}</span>
                   <ChevronDownIcon className="h-4 w-4" />
                 </Button>
               </PopoverTrigger>
@@ -368,26 +365,13 @@ export default function AdminDashboard() {
                 </div>
               </PopoverContent>
             </Popover>
-            <Switch 
-              checked={darkMode} 
-              onCheckedChange={toggleDarkMode}
-              className="data-[state=checked]:bg-blue-600"
-            />
+            <Switch checked={darkMode} onCheckedChange={toggleDarkMode} className="data-[state=checked]:bg-blue-600" />
           </div>
         </header>
 
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
+        <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
           {quickAccessData.map((item, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
+            <motion.div key={index} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} border-none shadow-lg overflow-hidden cursor-pointer`} onClick={() => abrirModalEstadisticas(item.detailedStats)}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
@@ -395,9 +379,7 @@ export default function AdminDashboard() {
                       <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{item.title}</p>
                       <h3 className="text-2xl font-bold mt-1">{item.value}</h3>
                     </div>
-                    <div className={`${item.color} p-3 rounded-full`}>
-                      {item.icon}
-                    </div>
+                    <div className={`${item.color} p-3 rounded-full`}>{item.icon}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -405,12 +387,7 @@ export default function AdminDashboard() {
           ))}
         </motion.div>
 
-        <motion.div 
-          className="mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
+        <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
           <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} border-none shadow-lg`}>
             <CardHeader>
               <div className="flex justify-between items-center">
@@ -425,10 +402,10 @@ export default function AdminDashboard() {
                       <SelectItem value="mes">Vista Mensual</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button variant="outline" onClick={() => vistaCalendario === 'semana' ? cambiarSemana(-1) : cambiarMes(-1)}>
+                  <Button variant="outline" onClick={() => (vistaCalendario === 'semana' ? cambiarSemana(-1) : cambiarMes(-1))}>
                     <ChevronLeftIcon className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" onClick={() => vistaCalendario === 'semana' ? cambiarSemana(1) : cambiarMes(1)}>
+                  <Button variant="outline" onClick={() => (vistaCalendario === 'semana' ? cambiarSemana(1) : cambiarMes(1))}>
                     <ChevronRightIcon className="h-4 w-4" />
                   </Button>
                 </div>
@@ -451,12 +428,7 @@ export default function AdminDashboard() {
           </Card>
         </motion.div>
 
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-        >
+        <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.8 }}>
           <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} border-none shadow-lg`}>
             <CardHeader>
               <CardTitle>Reservas Semanales</CardTitle>
@@ -502,5 +474,5 @@ export default function AdminDashboard() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
