@@ -87,6 +87,8 @@ export default function AdminDashboard() {
   const [reservasMes, setReservasMes] = useState(0)
   const [ingresos, setIngresos] = useState(0)
   const [canchasDisponibles, setCanchasDisponibles] = useState(0)
+  const [totalCanchas, setTotalCanchas] = useState(0)
+  const [reservasHoy, setReservasHoy] = useState(0)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -95,44 +97,42 @@ export default function AdminDashboard() {
       try {
         setLoading(true)
 
-        // Obtener reservas
-        const { data: reservas, error: errorReservas } = await supabase
+        // Obtener reservas de hoy
+        const { data: reservasHoyData, error: errorReservasHoy } = await supabase
           .from('reservas')
           .select('*')
+          .eq('fecha', new Date().toISOString().split('T')[0]) // Reservas hoy
 
-        if (errorReservas) throw errorReservas
-        setReservas(reservas)
-        setTotalReservas(reservas.length)
+        if (errorReservasHoy) throw errorReservasHoy
+        setReservasHoy(reservasHoyData.length)
 
-        // Reservas del mes actual
-        const { data: reservasMesActual, error: errorReservasMes } = await supabase
-        .from('reservas')
-        .select('*')
-        .gte('fecha', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-01`)
-        .lte('fecha', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()}`)
-
-
-        if (errorReservasMes) throw errorReservasMes
-        setReservasMes(reservasMesActual.length)
-
-        // Obtener ingresos del mes desde la tabla 'ganancias'
-        const { data: ganancias, error: errorGanancias } = await supabase
-          .from('ganancias')
-          .select('monto_total')
-          .gte('fecha', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-01`)
-
-        if (errorGanancias) throw errorGanancias
-        const totalIngresos = ganancias.reduce((acc: number, ganancia: { monto_total: number }) => acc + ganancia.monto_total, 0)
-        setIngresos(totalIngresos)
-
-        // Obtener canchas disponibles
-        const { data: canchas, error: errorCanchas } = await supabase
+        // Obtener todas las canchas
+        const { data: todasCanchas, error: errorTodasCanchas } = await supabase
           .from('canchas')
           .select('*')
 
-        if (errorCanchas) throw errorCanchas
-        const disponibles = canchas.filter((cancha: any) => cancha.estado === 'Activa').length
-        setCanchasDisponibles(disponibles)
+        if (errorTodasCanchas) throw errorTodasCanchas
+        setTotalCanchas(todasCanchas.length)
+
+        // Obtener canchas disponibles
+        const { data: canchasDisponiblesData, error: errorCanchasDisponibles } = await supabase
+          .from('canchas')
+          .select('*')
+          .eq('estado', 'Activa')
+
+        if (errorCanchasDisponibles) throw errorCanchasDisponibles
+        setCanchasDisponibles(canchasDisponiblesData.length)
+
+        // Obtener ingresos del mes (de la tabla `ganancias`)
+        const { data: ganancias, error: errorGanancias } = await supabase
+          .from('ganancias')
+          .select('*')
+          .gte('fecha', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-01`)
+          .lte('fecha', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()}`)
+
+        if (errorGanancias) throw errorGanancias
+        const totalIngresosMes = ganancias.reduce((acc: number, ganancia: any) => acc + ganancia.monto_total, 0)
+        setIngresos(totalIngresosMes)
 
       } catch (error) {
         console.error('Error obteniendo datos del administrador:', error)
