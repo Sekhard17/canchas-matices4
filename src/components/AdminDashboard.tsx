@@ -76,81 +76,87 @@ type EstadisticasDetalladas = {
 };
 
 export default function AdminDashboard() {
-  const [darkMode, setDarkMode] = useState(false);
-  const [fechaActual, setFechaActual] = useState(new Date());
-  const [vistaCalendario, setVistaCalendario] = useState('semana');
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const [estadisticasDetalladas, setEstadisticasDetalladas] = useState<EstadisticasDetalladas | null>(null);
-  const [user, setUser] = useState<any>(null);
-  const [reservas, setReservas] = useState<any[]>([]);
-  const [totalReservas, setTotalReservas] = useState(0);
-  const [ingresos, setIngresos] = useState(0);
-  const [canchasDisponibles, setCanchasDisponibles] = useState({ disponibles: 0, total: 0 });
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const [darkMode, setDarkMode] = useState(false)
+  const [fechaActual, setFechaActual] = useState(new Date())
+  const [vistaCalendario, setVistaCalendario] = useState('semana')
+  const [modalAbierto, setModalAbierto] = useState(false)
+  const [estadisticasDetalladas, setEstadisticasDetalladas] = useState<EstadisticasDetalladas | null>(null)
+  const [user, setUser] = useState<any>(null)
+  const [reservas, setReservas] = useState<any[]>([])
+  const [totalReservas, setTotalReservas] = useState(0)
+  const [reservasMes, setReservasMes] = useState(0)
+  const [ingresos, setIngresos] = useState(0)
+  const [canchasDisponibles, setCanchasDisponibles] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     const obtenerDatosAdmin = async (RUT: string) => {
       try {
-        setLoading(true);
+        setLoading(true)
 
-        // Obtener reservas de hoy
-        const today = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
-        const { data: reservasHoyData, error: errorReservasHoy } = await supabase
+        // Obtener reservas
+        const { data: reservas, error: errorReservas } = await supabase
           .from('reservas')
           .select('*')
-          .eq('fecha', today);
 
-        if (errorReservasHoy) throw errorReservasHoy;
-        setReservas(reservasHoyData || []);
-        setTotalReservas(reservasHoyData?.length || 0);
+        if (errorReservas) throw errorReservas
+        setReservas(reservas)
+        setTotalReservas(reservas.length)
 
-        // Obtener total de reservas
-        const { data: totalReservasData, error: errorTotalReservas } = await supabase.from('reservas').select('*');
-        if (errorTotalReservas) throw errorTotalReservas;
+        // Reservas del mes actual
+        const { data: reservasMesActual, error: errorReservasMes } = await supabase
+          .from('reservas')
+          .select('*')
+          .eq('extract(month from fecha)', new Date().getMonth() + 1)
 
-        // Obtener ingresos del mes actual
-        const currentMonth = new Date().getMonth() + 1; // Mes actual
-        const { data: pagos, error: errorPagos } = await supabase
-          .from('pagos')
-          .select('monto')
-          .filter('extract(month from fecha)', 'eq', currentMonth);
+        if (errorReservasMes) throw errorReservasMes
+        setReservasMes(reservasMesActual.length)
 
-        if (errorPagos) throw errorPagos;
-        const totalIngresosMes = pagos?.reduce((acc, curr) => acc + curr.monto, 0) || 0;
-        setIngresos(totalIngresosMes);
+        // Obtener ingresos del mes desde la tabla 'ganancias'
+        const { data: ganancias, error: errorGanancias } = await supabase
+          .from('ganancias')
+          .select('monto_total')
+          .gte('fecha', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-01`)
 
-        // Obtener canchas disponibles y totales
-        const { data: canchasData, error: errorCanchas } = await supabase.from('canchas').select('*');
-        if (errorCanchas) throw errorCanchas;
-        const totalCanchas = canchasData?.length || 0;
-        const canchasDisponiblesCount = canchasData?.filter((cancha) => cancha.estado === 'Disponible').length || 0;
-        setCanchasDisponibles({ disponibles: canchasDisponiblesCount, total: totalCanchas });
+        if (errorGanancias) throw errorGanancias
+        const totalIngresos = ganancias.reduce((acc: number, ganancia: { monto_total: number }) => acc + ganancia.monto_total, 0)
+        setIngresos(totalIngresos)
+
+        // Obtener canchas disponibles
+        const { data: canchas, error: errorCanchas } = await supabase
+          .from('canchas')
+          .select('*')
+
+        if (errorCanchas) throw errorCanchas
+        const disponibles = canchas.filter((cancha: any) => cancha.estado === 'Activa').length
+        setCanchasDisponibles(disponibles)
+
       } catch (error) {
-        console.error('Error obteniendo datos del administrador:', error);
+        console.error('Error obteniendo datos del administrador:', error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     if (token) {
       try {
-        const decoded: any = jwtDecode(token);
+        const decoded: any = jwtDecode(token)
         if (decoded && decoded.rol === 'Administrador') {
-          setUser({ nombre: decoded.nombre, correo: decoded.correo });
-          obtenerDatosAdmin(decoded.id);
+          setUser({ nombre: decoded.nombre, correo: decoded.correo })
+          obtenerDatosAdmin(decoded.id)
         } else {
-          router.replace('/error-404');
+          router.replace('/error-404')
         }
       } catch (error) {
-        console.error('Error decoding token:', error);
-        router.replace('/error-404');
+        console.error('Error decoding token:', error)
+        router.replace('/error-404')
       }
     } else {
-      router.replace('/error-404');
+      router.replace('/error-404')
     }
-  }, [router]);
+  }, [router])
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -272,10 +278,11 @@ export default function AdminDashboard() {
   };
 
   const quickAccessData = [
-    { title: 'Reservas Hoy', value: `${totalReservas}`, icon: <CalendarIcon />, color: 'bg-blue-500', detailedStats: { total: totalReservas } },
-    { title: 'Ingresos del Mes', value: `$${ingresos}`, icon: <DollarSignIcon />, color: 'bg-yellow-500', detailedStats: { total: ingresos } },
-    { title: 'Canchas Disponibles', value: `${canchasDisponibles.disponibles}/${canchasDisponibles.total}`, icon: <ActivityIcon />, color: 'bg-red-500', detailedStats: { total: canchasDisponibles.disponibles, disponibles: canchasDisponibles.total } },
-  ];
+    { title: "Reservas Hoy", value: `${totalReservas}`, icon: <CalendarIcon />, color: "bg-blue-500", detailedStats: { total: totalReservas } },
+    { title: "Reservas del Mes", value: `${reservasMes}`, icon: <CalendarIcon />, color: "bg-blue-300", detailedStats: { total: reservasMes } },
+    { title: "Ingresos del Mes", value: `$${ingresos}`, icon: <DollarSignIcon />, color: "bg-yellow-500", detailedStats: { total: ingresos } },
+    { title: "Canchas Disponibles", value: `${canchasDisponibles}/10`, icon: <ActivityIcon />, color: "bg-red-500", detailedStats: { total: canchasDisponibles } },
+  ]
 
   const barData = {
     labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
