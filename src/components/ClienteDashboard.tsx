@@ -137,6 +137,12 @@ export default function Dashboard() {
   
         console.log('Canchas obtenidas:', canchas); // Verificar las canchas obtenidas
   
+        // Crea el mapa de id_cancha a nombre
+        const mapaCanchas: { [key: string]: string } = {};
+        canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
+          mapaCanchas[cancha.id_cancha.toString()] = cancha.nombre;
+        });
+
         // Verificar que las canchas tienen contenido
         if (canchas && canchas.length > 0) {
           // Crea un mapa de id_cancha a nombre de cancha, usando cadenas
@@ -241,6 +247,8 @@ export default function Dashboard() {
         reservasPorHorario[index]++;
       }
     });
+
+    
   
     // Calcular cancha favorita usando id_cancha
     const canchaFavorita = Object.keys(reservasPorCancha).reduce((a, b) => reservasPorCancha[a] > reservasPorCancha[b] ? a : b);
