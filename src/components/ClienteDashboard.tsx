@@ -112,6 +112,8 @@ export default function Dashboard() {
   
         if (errorReservas) throw errorReservas;
   
+        console.log('Reservas obtenidas:', reservas); // Verificar las reservas obtenidas
+  
         setReservas(reservas);
         setTotalReservas(reservas.length);
   
@@ -133,17 +135,23 @@ export default function Dashboard() {
   
         if (errorCanchas) throw errorCanchas;
   
-        // Crea un mapa de id_cancha a nombre de cancha
+        console.log('Canchas obtenidas:', canchas); // Verificar las canchas obtenidas
+  
+        // Crea un mapa de id_cancha a nombre de cancha, usando cadenas
         const mapaCanchas: { [key: string]: string } = {};
-        canchas.forEach((cancha: { id_cancha: string, nombre: string }) => {
-          mapaCanchas[cancha.id_cancha] = cancha.nombre;
+        canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
+          mapaCanchas[cancha.id_cancha.toString()] = cancha.nombre; // Convertimos el id_cancha a string
         });
   
-        // Reemplaza id_cancha por el nombre correspondiente
+        console.log('Mapa de Canchas:', mapaCanchas); // Verificar el mapa de id_cancha a nombre
+  
+        // Reemplaza id_cancha por el nombre correspondiente, asegurándonos de comparar como cadenas
         const reservasConNombre = reservas.map((reserva) => ({
           ...reserva,
-          cancha: mapaCanchas[reserva.id_cancha] || 'Cancha desconocida',
+          cancha: mapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida', // Convertimos el id_cancha a string
         }));
+  
+        console.log('Reservas con nombre de cancha:', reservasConNombre); // Verificar las reservas con los nombres de canchas
   
         // Procesa los datos de los gráficos con los nombres de las canchas
         procesarDatosGraficos(reservasConNombre);
