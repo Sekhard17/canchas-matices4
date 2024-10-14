@@ -267,6 +267,11 @@ export default function Dashboard() {
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
+    if (darkMode) {
+      document.documentElement.classList.remove('dark')
+    } else {
+      document.documentElement.classList.add('dark')
+    }
   }
 
   const handleLogout = () => {
@@ -282,7 +287,7 @@ export default function Dashboard() {
       </div>
     );
   }
-  
+
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
       {/* Header */}
