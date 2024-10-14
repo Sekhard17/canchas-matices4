@@ -106,9 +106,11 @@ export default function AdminDashboard() {
 
         // Reservas del mes actual
         const { data: reservasMesActual, error: errorReservasMes } = await supabase
-          .from('reservas')
-          .select('*')
-          .eq('extract(month from fecha)', new Date().getMonth() + 1)
+        .from('reservas')
+        .select('*')
+        .gte('fecha', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-01`)
+        .lte('fecha', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()}`)
+
 
         if (errorReservasMes) throw errorReservasMes
         setReservasMes(reservasMesActual.length)
