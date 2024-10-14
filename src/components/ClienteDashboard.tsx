@@ -18,215 +18,222 @@ import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity,
 import { Line, Bar } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
 import Image from 'next/image'
+import { createClient } from '@supabase/supabase-js'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ChartTooltip, Legend)
 
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    layout: {
-      padding: {
-        top: 20,
-        bottom: 20,
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabase = createClient(supabaseUrl!, supabaseKey!)
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  layout: {
+    padding: {
+      top: 20,
+      bottom: 20,
+    },
+  },
+  plugins: {
+    legend: {
+      display: true,
+    },
+    tooltip: {
+      enabled: true,
+    },
+    title: {
+      display: false,
+      text: 'No hay datos, realiza una reserva para empezar a tener datos',
+      color: '#666',
+      font: {
+        size: 16,
+        weight: 'normal' as 'normal' | 'bold' | 'bolder' | 'lighter',
+        family: 'Arial',
       },
     },
-    plugins: {
-      legend: {
-        display: true,
-      },
-      tooltip: {
-        enabled: true,
-      },
-      title: {
-        display: false,
-        text: 'No hay datos, realiza una reserva para empezar a tener datos',
-        color: '#666',
-        font: {
-          size: 16,
-          weight: 'normal' as 'normal' | 'bold' | 'bolder' | 'lighter',
-          family: 'Arial',
-        },
-      },
-    },
-    scales: {
-      y: {
-        ticks: {
-          stepSize: 2,
-          callback: (value: any) => {
-            if ([1, 3, 5, 7, 10, 13, 15, 20].includes(value)) return value;
-            return '';
-          }
+  },
+  scales: {
+    y: {
+      ticks: {
+        stepSize: 2,
+        callback: (value: any) => {
+          if ([1, 3, 5, 7, 10, 13, 15, 20].includes(value)) return value;
+          return '';
         }
       }
     }
-  };
-  
-  export default function Dashboard() {
-    const [darkMode, setDarkMode] = useState(false)
-    const [sidebarOpen, setSidebarOpen] = useState(false)
-    const [user, setUser] = useState<any>(null)
-    const [reservas, setReservas] = useState<any[]>([])
-    const [pagos, setPagos] = useState<any[]>([])
-    const [notificaciones, setNotificaciones] = useState<any[]>([])
-    const [date, setDate] = useState<Date | undefined>()
-    const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false)
-    const [lineChartData, setLineChartData] = useState<any>({
-      labels: [],
-      datasets: []
-    })
-    const [barChartData, setBarChartData] = useState<any>({
-      labels: [],
-      datasets: []
-    })
-    const [daysChartData, setDaysChartData] = useState<any>({
-      labels: [],
-      datasets: []
-    })
-    const [totalReservas, setTotalReservas] = useState(0)
-    const [saldoGastado, setSaldoGastado] = useState(0)
-    const [canchaFavorita, setCanchaFavorita] = useState('')
-    const [horarioFavorito, setHorarioFavorito] = useState('')
-    const router = useRouter()
-  
-    useEffect(() => {
-      const obtenerDatosDashboard = async (token: string) => {
-        try {
-          const response = await fetch('https://canchas-back-4.onrender.com/api/dashboard', {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          })
-          if (response.ok) {
-            const data = await response.json()
-            setReservas(data.reservas)
-            setPagos(data.pagos)
-            setTotalReservas(data.totalReservas)
-            setSaldoGastado(data.saldoGastado)
-            setCanchaFavorita(data.canchaFavorita)
-            setHorarioFavorito(data.horarioFavorito)
-            procesarDatosGraficos(data.reservas)
-          } else {
-            console.error('Error al obtener los datos del dashboard:', response.statusText)
-          }
-        } catch (error) {
-          console.error('Error de red al obtener los datos del dashboard:', error)
-        }
+  }
+}
+
+export default function Dashboard() {
+  const [darkMode, setDarkMode] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [reservas, setReservas] = useState<any[]>([])
+  const [totalReservas, setTotalReservas] = useState(0)
+  const [saldoGastado, setSaldoGastado] = useState(0)
+  const [canchaFavorita, setCanchaFavorita] = useState('')
+  const [horarioFavorito, setHorarioFavorito] = useState('')
+  const [lineChartData, setLineChartData] = useState<any>({
+    labels: [],
+    datasets: []
+  })
+  const [barChartData, setBarChartData] = useState<any>({
+    labels: [],
+    datasets: []
+  })
+  const [daysChartData, setDaysChartData] = useState<any>({
+    labels: [],
+    datasets: []
+  })
+  const [notificaciones, setNotificaciones] = useState<any[]>([])
+  const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false)
+  const [date, setDate] = useState<Date | null>(null)
+  const [filteredReservas, setFilteredReservas] = useState<any[]>([])
+  const router = useRouter()
+
+  useEffect(() => {
+    const obtenerDatosDashboard = async (RUT: string) => {
+      try {
+        const { data: reservas, error: errorReservas } = await supabase
+          .from('Reservas')
+          .select('*')
+          .eq('Rut_usuario', RUT)
+
+        if (errorReservas) throw errorReservas
+
+        setReservas(reservas)
+        setTotalReservas(reservas.length)
+
+        const { data: pagos, error: errorPagos } = await supabase
+          .from('Pagos')
+          .select('Monto')
+          .eq('Rut_usuario', RUT)
+
+        if (errorPagos) throw errorPagos
+
+        const saldoTotal = pagos.reduce((acc: number, pago: { Monto: number }) => acc + pago.Monto, 0)
+        setSaldoGastado(saldoTotal)
+
+        const { data: canchaFavoritaData } = await supabase
+          .rpc('cancha_favorita', { rut_usuario: RUT })
+          
+        setCanchaFavorita(canchaFavoritaData?.nombre_cancha || 'Desconocida')
+
+        procesarDatosGraficos(reservas)
+      } catch (error) {
+        console.error('Error obteniendo datos del dashboard:', error)
       }
-  
-      const token = localStorage.getItem('token')
-      if (token) {
-        try {
-          const decoded: any = jwtDecode(token)
-          setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo, RUT: decoded.RUT })
-          obtenerDatosDashboard(token)
-        } catch (error) {
-          console.error('Error decoding token:', error)
-          localStorage.removeItem('token')
-          router.replace('/error-404')
-        }
-      } else {
+    }
+
+    const token = localStorage.getItem('token')
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token)
+        setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo, RUT: decoded.RUT })
+        obtenerDatosDashboard(decoded.RUT)
+      } catch (error) {
+        console.error('Error decoding token:', error)
+        localStorage.removeItem('token')
         router.replace('/error-404')
       }
-    }, [router])
-  
-    const procesarDatosGraficos = (reservas: any[]) => {
-      const reservasPorMes = Array(12).fill(0)
-      reservas.forEach((reserva) => {
-        const mes = new Date(reserva.fecha).getMonth()
-        reservasPorMes[mes]++
-      })
-      setLineChartData({
-        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-        datasets: [
-          {
-            label: 'Reservas por Mes',
-            data: reservasPorMes,
-            borderColor: 'rgb(99, 102, 241)',
-            backgroundColor: 'rgba(99, 102, 241, 0.5)',
-            tension: 0.3
-          }
-        ]
-      })
-  
-      const reservasPorHorario = Array(9).fill(0)
-      const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00']
-  
-      reservas.forEach((reserva) => {
-        if (reserva.hora_inicio && typeof reserva.hora_inicio === 'string') {
-          const horaInicio = parseInt(reserva.hora_inicio.split(':')[0])
-          const index = horaInicio - 16
-          if (index >= 0 && index < reservasPorHorario.length) {
-            reservasPorHorario[index]++
-          }
-        } else {
-          console.error('hora_inicio inválida o indefinida en la reserva:', reserva)
+    } else {
+      router.replace('/error-404')
+    }
+  }, [router])
+
+  const procesarDatosGraficos = (reservas: any[]) => {
+    const reservasPorMes = Array(12).fill(0)
+    reservas.forEach((reserva) => {
+      const mes = new Date(reserva.fecha).getMonth()
+      reservasPorMes[mes]++
+    })
+    setLineChartData({
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+      datasets: [
+        {
+          label: 'Reservas por Mes',
+          data: reservasPorMes,
+          borderColor: 'rgb(99, 102, 241)',
+          backgroundColor: 'rgba(99, 102, 241, 0.5)',
+          tension: 0.3
         }
-      })
-  
-      setBarChartData({
-        labels: horarios,
-        datasets: [
-          {
-            label: 'Reservas por Horario',
-            data: reservasPorHorario,
-            backgroundColor: 'rgba(52, 211, 153, 0.6)',
-            borderColor: 'rgb(52, 211, 153)',
-            borderWidth: 1
-          }
-        ]
-      })
-  
-      const reservasPorDia = Array(7).fill(0)
-      const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
-      reservas.forEach((reserva) => {
-        const dia = new Date(reserva.fecha).getDay()
-        reservasPorDia[(dia + 6) % 7]++
-      })
-      setDaysChartData({
-        labels: dias,
-        datasets: [
-          {
-            label: 'Días Preferidos del Mes',
-            data: reservasPorDia,
-            backgroundColor: 'rgba(251, 146, 60, 0.6)',
-            borderColor: 'rgb(251, 146, 60)',
-            borderWidth: 1
-          }
-        ]
-      })
-    }
-  
-    const marcarNotificacionesComoLeidas = () => {
-      setNotificaciones((prevNotificaciones) =>
-        prevNotificaciones.map((notificacion) => ({
-          ...notificacion,
-          leida: true,
-        }))
-      )
-    }
-  
-    const toggleDarkMode = () => {
-      setDarkMode(!darkMode)
-      if (darkMode) {
-        document.documentElement.classList.remove('dark')
-      } else {
-        document.documentElement.classList.add('dark')
+      ]
+    })
+
+    const reservasPorHorario = Array(9).fill(0)
+    const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00']
+
+    reservas.forEach((reserva) => {
+      const horaInicio = parseInt(reserva.hora_inicio.split(':')[0])
+      const index = horaInicio - 16
+      if (index >= 0 && index < reservasPorHorario.length) {
+        reservasPorHorario[index]++
       }
-    }
+    })
+
+    setBarChartData({
+      labels: horarios,
+      datasets: [
+        {
+          label: 'Reservas por Horario',
+          data: reservasPorHorario,
+          backgroundColor: 'rgba(52, 211, 153, 0.6)',
+          borderColor: 'rgb(52, 211, 153)',
+          borderWidth: 1
+        }
+      ]
+    })
+
+    const reservasPorDia = Array(7).fill(0)
+    const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+    reservas.forEach((reserva) => {
+      const dia = new Date(reserva.fecha).getDay()
+      reservasPorDia[(dia + 6) % 7]++
+    })
+    setDaysChartData({
+      labels: dias,
+      datasets: [
+        {
+          label: 'Días Preferidos del Mes',
+          data: reservasPorDia,
+          backgroundColor: 'rgba(251, 146, 60, 0.6)',
+          borderColor: 'rgb(251, 146, 60)',
+          borderWidth: 1
+        }
+      ]
+    })
+  }
+
+  useEffect(() => {
+    const reservasFiltradas = reservas.filter((reserva) => {
+      if (!date) return true
+      const reservaDate = new Date(reserva.fecha)
+      return reservaDate.toDateString() === date?.toDateString()
+    })
+    setFilteredReservas(reservasFiltradas)
+  }, [date, reservas])
+
+  const marcarNotificacionesComoLeidas = () => {
+    setNotificaciones((prevNotificaciones) =>
+      prevNotificaciones.map((notificacion: any) => ({
+        ...notificacion,
+        leida: true,
+      }))
+    )
+  }
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    setUser(null)
+    router.push('/')
+  }
   
-    const handleLogout = () => {
-      localStorage.removeItem('token')
-      setUser(null)
-      router.push('/')
-    }
-  
-    const filteredReservas = reservas.filter((reserva) => {
-      if (!date) return true;
-      const reservaDate = new Date(reserva.fecha);
-      return reservaDate.toDateString() === date.toDateString();
-    });
   
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
@@ -463,12 +470,14 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="end">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      initialFocus
-                    />
+                  <Calendar
+                          mode="single"
+                          selected={date || undefined}
+                          onSelect={(day) => {
+                            if (day) setDate(day) // Asegúrate de que `day` no sea undefined
+                          }}
+                        />
+
                   </PopoverContent>
                 </Popover>
               </CardTitle>
