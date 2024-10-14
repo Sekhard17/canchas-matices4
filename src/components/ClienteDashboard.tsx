@@ -100,40 +100,38 @@ export default function Dashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    const obtenerDatosDashboard = async (RUT: string) => {
+    const obtenerDatosDashboard = async (RUT: string, shouldSetLoading = true) => {
       try {
-        setLoading(true);
-
-        // Obtener reservas del usuario
+        if (shouldSetLoading) setLoading(true);
+    
         const { data: reservas, error: errorReservas } = await supabase
           .from('reservas')
           .select('*')
           .eq('rut_usuario', RUT);
-
+    
         if (errorReservas) throw errorReservas;
-
+    
         setReservas(reservas);
         setTotalReservas(reservas.length);
-
-        // Obtener pagos del usuario
+    
         const { data: pagos, error: errorPagos } = await supabase
           .from('pagos')
           .select('monto')
           .eq('rut_usuario', RUT);
-
+    
         if (errorPagos) throw errorPagos;
-
+    
         const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0);
         setSaldoGastado(saldoTotal);
-
-        // Procesar datos para los gráficos y calcular cancha favorita y horario preferido
+    
         procesarDatosGraficos(reservas);
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error);
       } finally {
-        setLoading(false);
+        if (shouldSetLoading) setLoading(false);
       }
     };
+    
 
     const token = localStorage.getItem('token');
     if (token) {
@@ -157,29 +155,27 @@ export default function Dashboard() {
 
     // Suscripción a tiempo real en la tabla de reservas
     const reservasSubscription = supabase
-      .channel('reservas')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, (payload) => {
-        console.log('Cambio detectado en la tabla reservas:', payload);
-        const token = localStorage.getItem('token');
-        if (token) {
-          const decoded: any = jwtDecode(token);
-          obtenerDatosDashboard(decoded.id); // Actualizar dashboard en tiempo real
-        }
-      })
-      .subscribe();
+  .channel('reservas')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, (payload) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded: any = jwtDecode(token);
+      obtenerDatosDashboard(decoded.id, false); // No activar loading en tiempo real
+    }
+  })
+  .subscribe();
 
     // Suscripción a tiempo real en la tabla de pagos
     const pagosSubscription = supabase
-      .channel('pagos')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'pagos' }, (payload) => {
-        console.log('Cambio detectado en la tabla pagos:', payload);
-        const token = localStorage.getItem('token');
-        if (token) {
-          const decoded: any = jwtDecode(token);
-          obtenerDatosDashboard(decoded.id); // Actualizar dashboard en tiempo real
-        }
-      })
-      .subscribe();
+  .channel('pagos')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'pagos' }, (payload) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded: any = jwtDecode(token);
+      obtenerDatosDashboard(decoded.id, false); // No activar loading en tiempo real
+    }
+  })
+  .subscribe();
 
     // Limpiar suscripciones cuando el componente se desmonta
     return () => {
