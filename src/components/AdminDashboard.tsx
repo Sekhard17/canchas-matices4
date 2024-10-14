@@ -1,6 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { jwtDecode } from 'jwt-decode'
 import { motion } from 'framer-motion'
 import { Bar, Line } from 'react-chartjs-2'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,22 +14,47 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { PuffLoader } from 'react-spinners'
 import { UserIcon, CalendarIcon, BellIcon, SettingsIcon, LogOutIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, DollarSignIcon, ActivityIcon } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend)
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabase = createClient(supabaseUrl!, supabaseKey!)
 
 const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 const horas = Array.from({ length: 9 }, (_, i) => i + 16) // 16:00 PM a 0:00 AM
 
-const reservasMock = [
-  { id: 1, fecha: new Date(2023, 5, 15, 10, 0), cancha: 'Fútbol 5', cliente: 'Juan Pérez' },
-  { id: 2, fecha: new Date(2023, 5, 15, 14, 0), cancha: 'Fútbol 7', cliente: 'María González' },
-  { id: 3, fecha: new Date(2023, 5, 16, 16, 0), cancha: 'Fútbol 11', cliente: 'Carlos Rodríguez' },
-  { id: 4, fecha: new Date(2023, 5, 17, 18, 0), cancha: 'Fútbol 5', cliente: 'Ana Martínez' },
-  { id: 5, fecha: new Date(2023, 5, 18, 20, 0), cancha: 'Fútbol 7', cliente: 'Luis Sánchez' },
-]
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: 'top' as const,
+      labels: {
+        color: '#000',
+      },
+    },
+    title: {
+      display: false,
+    },
+  },
+  scales: {
+    x: {
+      ticks: {
+        color: '#000',
+      },
+    },
+    y: {
+      ticks: {
+        color: '#000',
+      },
+    },
+  },
+}
 
 type EstadisticasDetalladas = {
   total: number
@@ -41,16 +68,87 @@ type EstadisticasDetalladas = {
   enMantenimiento?: number
 }
 
-export default function Component() {
+export default function AdminDashboard() {
   const [darkMode, setDarkMode] = useState(false)
   const [fechaActual, setFechaActual] = useState(new Date())
   const [vistaCalendario, setVistaCalendario] = useState('semana')
   const [modalAbierto, setModalAbierto] = useState(false)
   const [estadisticasDetalladas, setEstadisticasDetalladas] = useState<EstadisticasDetalladas | null>(null)
+  const [user, setUser] = useState<any>(null)
+  const [reservas, setReservas] = useState<any[]>([])
+  const [totalReservas, setTotalReservas] = useState(0)
+  const [ingresos, setIngresos] = useState(0)
+  const [canchasDisponibles, setCanchasDisponibles] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+
+  useEffect(() => {
+    const obtenerDatosAdmin = async (RUT: string) => {
+      try {
+        setLoading(true)
+
+        // Obtener reservas
+        const { data: reservas, error: errorReservas } = await supabase
+          .from('reservas')
+          .select('*')
+
+        if (errorReservas) throw errorReservas
+        setReservas(reservas)
+        setTotalReservas(reservas.length)
+
+        // Obtener ingresos
+        const { data: pagos, error: errorPagos } = await supabase
+          .from('pagos')
+          .select('monto')
+
+        if (errorPagos) throw errorPagos
+        const totalIngresos = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0)
+        setIngresos(totalIngresos)
+
+        // Obtener canchas disponibles
+        const { data: canchas, error: errorCanchas } = await supabase
+          .from('canchas')
+          .select('*')
+
+        if (errorCanchas) throw errorCanchas
+        const disponibles = canchas.filter((cancha: any) => cancha.estado === 'Disponible').length
+        setCanchasDisponibles(disponibles)
+
+      } catch (error) {
+        console.error('Error obteniendo datos del administrador:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    const token = localStorage.getItem('token')
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token)
+        if (decoded && decoded.rol === 'Administrador') {
+          setUser({ nombre: decoded.nombre, correo: decoded.correo })
+          obtenerDatosAdmin(decoded.id)
+        } else {
+          router.replace('/error-404')
+        }
+      } catch (error) {
+        console.error('Error decoding token:', error)
+        router.replace('/error-404')
+      }
+    } else {
+      router.replace('/error-404')
+    }
+  }, [router])
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
     document.documentElement.classList.toggle('dark')
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    setUser(null)
+    router.push('/')
   }
 
   const cambiarSemana = (direccion: number) => {
@@ -86,7 +184,7 @@ export default function Component() {
   }
 
   const obtenerReservasPorDia = (dia: Date) => {
-    return reservasMock.filter(reserva => 
+    return reservas.filter(reserva => 
       reserva.fecha.getDate() === dia.getDate() &&
       reserva.fecha.getMonth() === dia.getMonth() &&
       reserva.fecha.getFullYear() === dia.getFullYear()
@@ -156,10 +254,9 @@ export default function Component() {
   }
 
   const quickAccessData = [
-    { title: "Reservas Hoy", value: "12", icon: <CalendarIcon />, color: "bg-blue-500", detailedStats: { total: 12, confirmadas: 10, pendientes: 2 } },
-    { title: "Usuarios Activos", value: "1,234", icon: <UserIcon />, color: "bg-green-500", detailedStats: { total: 1234, nuevos: 56, recurrentes: 1178 } },
-    { title: "Ingresos del Mes", value: "$15,678", icon: <DollarSignIcon />, color: "bg-yellow-500", detailedStats: { total: 15678, reservas: 12500, otros: 3178 } },
-    { title: "Canchas Disponibles", value: "8/10", icon: <ActivityIcon />, color: "bg-red-500", detailedStats: { total: 10, disponibles: 8, enMantenimiento: 2 } },
+    { title: "Reservas Hoy", value: `${totalReservas}`, icon: <CalendarIcon />, color: "bg-blue-500", detailedStats: { total: totalReservas } },
+    { title: "Ingresos del Mes", value: `$${ingresos}`, icon: <DollarSignIcon />, color: "bg-yellow-500", detailedStats: { total: ingresos } },
+    { title: "Canchas Disponibles", value: `${canchasDisponibles}/10`, icon: <ActivityIcon />, color: "bg-red-500", detailedStats: { total: canchasDisponibles, disponibles: canchasDisponibles } },
   ]
 
   const barData = {
@@ -188,40 +285,19 @@ export default function Component() {
     ],
   }
 
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-        labels: {
-          color: darkMode ? '#fff' : '#000',
-        },
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-        },
-        ticks: {
-          color: darkMode ? '#fff' : '#000',
-        },
-      },
-      y: {
-        grid: {
-          color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-        },
-        ticks: {
-          color: darkMode ? '#fff' : '#000',
-        },
-      },
-    },
-  }
-
   const abrirModalEstadisticas = (stats: EstadisticasDetalladas) => {
     setEstadisticasDetalladas(stats)
     setModalAbierto(true)
   }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <PuffLoader color="#3498db" loading={loading} size={100} />
+      </div>
+    )
+  }
+
 
   return (
     <div className={`min-h-screen p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
@@ -269,7 +345,7 @@ export default function Component() {
                     <SettingsIcon className="mr-2 h-4 w-4" />
                     Configuración
                   </Button>
-                  <Button variant="ghost" className="justify-start">
+                  <Button variant="ghost" className="justify-start" onClick={handleLogout}>
                     <LogOutIcon className="mr-2 h-4 w-4" />
                     Cerrar sesión
                   </Button>
