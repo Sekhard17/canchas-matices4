@@ -282,7 +282,7 @@ export default function AdminDashboard() {
   };
 
   const quickAccessData = [
-    { title: "Reservas Hoy", value: `${totalReservas}`, icon: <CalendarIcon />, color: "bg-blue-500", detailedStats: { total: totalReservas } },
+    { title: "Reservas Hoy", value: `${reservasHoy}`, icon: <CalendarIcon />, color: "bg-blue-500", detailedStats: { total: totalReservas } },
     { title: "Reservas del Mes", value: `${reservasMes}`, icon: <CalendarIcon />, color: "bg-blue-300", detailedStats: { total: reservasMes } },
     { title: "Ingresos del Mes", value: `$${ingresos}`, icon: <DollarSignIcon />, color: "bg-yellow-500", detailedStats: { total: ingresos } },
     { title: "Canchas Disponibles", value: `${canchasDisponibles}/10`, icon: <ActivityIcon />, color: "bg-red-500", detailedStats: { total: canchasDisponibles } },
