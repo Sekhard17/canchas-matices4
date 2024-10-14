@@ -91,7 +91,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
     useEffect(() => {
       const obtenerDatosDashboard = async (token: string) => {
         try {
-          const response = await fetch('https://canchas-matices.fly.dev/api/dashboard', {
+          const response = await fetch('https://canchas-back-4.onrender.com/api/dashboard', {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
