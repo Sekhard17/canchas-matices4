@@ -111,54 +111,54 @@ export default function Dashboard() {
           procesarDatosGraficos(parsedData.reservas);
           return; // Terminar la función si ya tenemos datos cacheados
         }
-  
+
         // Si no hay datos en el cache, obtenerlos desde Supabase
         const { data: reservas, error: errorReservas } = await supabase
           .from('reservas')
           .select('*')
           .eq('rut_usuario', RUT);
-  
+
         if (errorReservas) throw errorReservas;
-  
+
         setReservas(reservas);
         setTotalReservas(reservas.length);
-  
+
         const { data: pagos, error: errorPagos } = await supabase
           .from('pagos')
           .select('monto')
           .eq('rut_usuario', RUT);
-  
+
         if (errorPagos) throw errorPagos;
-  
+
         const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0);
         setSaldoGastado(saldoTotal);
-  
+
         const canchaFrecuencia = reservas.reduce((acc: any, reserva: any) => {
           acc[reserva.id_cancha] = (acc[reserva.id_cancha] || 0) + 1;
           return acc;
         }, {});
-  
+
         const canchaFavoritaId = Object.keys(canchaFrecuencia).reduce((a, b) => canchaFrecuencia[a] > canchaFrecuencia[b] ? a : b);
-  
+
         const { data: canchaFavoritaData, error: errorCancha } = await supabase
           .from('canchas')
           .select('nombre')
           .eq('id_cancha', canchaFavoritaId)
           .single();
-  
+
         if (errorCancha) throw errorCancha;
-  
+
         setCanchaFavorita(canchaFavoritaData.nombre || 'Desconocida');
-  
+
         const horarioFrecuencia = reservas.reduce((acc: any, reserva: any) => {
           acc[reserva.hora_inicio] = (acc[reserva.hora_inicio] || 0) + 1;
           return acc;
         }, {});
-  
+
         const horarioFavorito = Object.keys(horarioFrecuencia).reduce((a, b) => horarioFrecuencia[a] > horarioFrecuencia[b] ? a : b);
-  
+
         setHorarioFavorito(horarioFavorito || 'No definido');
-  
+
         // Guardar los datos en localStorage para futuras consultas
         const dashboardData = {
           reservas,
@@ -168,20 +168,20 @@ export default function Dashboard() {
           horarioFavorito,
         };
         localStorage.setItem('dashboardData', JSON.stringify(dashboardData));
-  
+
         procesarDatosGraficos(reservas);
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error);
       }
     };
-  
+
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const decoded: any = jwtDecode(token);
-        if (decoded && decoded.id) { 
+        if (decoded && decoded.id) {
           setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo, RUT: decoded.id });
-          obtenerDatosDashboard(decoded.id);  
+          obtenerDatosDashboard(decoded.id);
         } else {
           console.error('RUT no está presente en el token');
           router.replace('/error-404');
