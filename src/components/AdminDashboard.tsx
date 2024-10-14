@@ -96,69 +96,86 @@ export default function AdminDashboard() {
     const obtenerDatosAdmin = async (RUT: string) => {
       try {
         setLoading(true)
-
+  
         // Obtener reservas de hoy
+        const fechaHoy = new Date().toLocaleDateString('en-CA'); // Formato YYYY-MM-DD
         const { data: reservasHoyData, error: errorReservasHoy } = await supabase
           .from('reservas')
           .select('*')
-          .eq('fecha', new Date().toISOString().split('T')[0]) // Reservas hoy
-
-        if (errorReservasHoy) throw errorReservasHoy
-        setReservasHoy(reservasHoyData.length)
-
+          .eq('fecha', fechaHoy); // Comparación con formato correcto
+  
+        if (errorReservasHoy) throw errorReservasHoy;
+        setReservasHoy(reservasHoyData.length);
+  
         // Obtener todas las canchas
         const { data: todasCanchas, error: errorTodasCanchas } = await supabase
           .from('canchas')
-          .select('*')
-
-        if (errorTodasCanchas) throw errorTodasCanchas
-        setTotalCanchas(todasCanchas.length)
-
+          .select('*');
+  
+        if (errorTodasCanchas) throw errorTodasCanchas;
+        setTotalCanchas(todasCanchas.length);
+  
         // Obtener canchas disponibles
         const { data: canchasDisponiblesData, error: errorCanchasDisponibles } = await supabase
           .from('canchas')
           .select('*')
-          .eq('estado', 'Activa')
-
-        if (errorCanchasDisponibles) throw errorCanchasDisponibles
-        setCanchasDisponibles(canchasDisponiblesData.length)
-
+          .eq('estado', 'Activa');
+  
+        if (errorCanchasDisponibles) throw errorCanchasDisponibles;
+        setCanchasDisponibles(canchasDisponiblesData.length);
+  
         // Obtener ingresos del mes (de la tabla `ganancias`)
+        const anioActual = new Date().getFullYear();
+        const mesActual = (new Date().getMonth() + 1).toString().padStart(2, '0'); // Asegura que el mes siempre sea de dos dígitos
+        const primerDiaMes = `${anioActual}-${mesActual}-01`;
+        const ultimoDiaMes = `${anioActual}-${mesActual}-${new Date(anioActual, new Date().getMonth() + 1, 0).getDate()}`; // Último día del mes
+  
         const { data: ganancias, error: errorGanancias } = await supabase
           .from('ganancias')
           .select('*')
-          .gte('fecha', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-01`)
-          .lte('fecha', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()}`)
-
-        if (errorGanancias) throw errorGanancias
-        const totalIngresosMes = ganancias.reduce((acc: number, ganancia: any) => acc + ganancia.monto_total, 0)
-        setIngresos(totalIngresosMes)
-
+          .gte('fecha', primerDiaMes)
+          .lte('fecha', ultimoDiaMes);
+  
+        if (errorGanancias) throw errorGanancias;
+        const totalIngresosMes = ganancias.reduce((acc: number, ganancia: any) => acc + ganancia.monto_total, 0);
+        setIngresos(totalIngresosMes);
+  
+        // Obtener total de reservas del mes
+        const { data: reservasMesData, error: errorReservasMes } = await supabase
+          .from('reservas')
+          .select('*')
+          .gte('fecha', primerDiaMes)
+          .lte('fecha', ultimoDiaMes);
+  
+        if (errorReservasMes) throw errorReservasMes;
+        setReservasMes(reservasMesData.length);
+  
       } catch (error) {
-        console.error('Error obteniendo datos del administrador:', error)
+        console.error('Error obteniendo datos del administrador:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-
-    const token = localStorage.getItem('token')
+  
+    const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decoded: any = jwtDecode(token)
+        const decoded: any = jwtDecode(token);
         if (decoded && decoded.rol === 'Administrador') {
-          setUser({ nombre: decoded.nombre, correo: decoded.correo })
-          obtenerDatosAdmin(decoded.id)
+          setUser({ nombre: decoded.nombre, correo: decoded.correo });
+          obtenerDatosAdmin(decoded.id);
         } else {
-          router.replace('/error-404')
+          router.replace('/error-404');
         }
       } catch (error) {
-        console.error('Error decoding token:', error)
-        router.replace('/error-404')
+        console.error('Error decoding token:', error);
+        router.replace('/error-404');
       }
     } else {
-      router.replace('/error-404')
+      router.replace('/error-404');
     }
-  }, [router])
+  }, [router]);
+  
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
