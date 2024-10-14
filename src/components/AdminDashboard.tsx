@@ -97,23 +97,17 @@ export default function AdminDashboard() {
       try {
         setLoading(true)
   
-        // Obtener reservas de hoy
-        // Definir los límites de la fecha de hoy (inicio y final del día)
-      const fechaHoy = new Date();
-      const inicioHoy = new Date(fechaHoy.getFullYear(), fechaHoy.getMonth(), fechaHoy.getDate(), 0, 0, 0);
-      const finHoy = new Date(fechaHoy.getFullYear(), fechaHoy.getMonth(), fechaHoy.getDate(), 23, 59, 59);
-
-      // Convertir las fechas a formato ISO para que coincidan con la base de datos
+         // Obtener reservas de hoy (ajustado)
+      const fechaHoy = new Date().toLocaleDateString('en-CA'); // Formato YYYY-MM-DD
       const { data: reservasHoyData, error: errorReservasHoy } = await supabase
         .from('reservas')
         .select('*')
-        .gte('fecha', inicioHoy.toISOString())  // Fecha mayor o igual al inicio del día
-        .lte('fecha', finHoy.toISOString());    // Fecha menor o igual al final del día
+        .eq('fecha', fechaHoy); // Comparar con formato correcto
 
       if (errorReservasHoy) throw errorReservasHoy;
       setReservasHoy(reservasHoyData.length);
 
-      
+
   
         // Obtener ingresos del mes (de la tabla `ganancias`)
         const anioActual = new Date().getFullYear();
