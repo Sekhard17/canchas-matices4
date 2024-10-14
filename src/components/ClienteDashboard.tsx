@@ -137,32 +137,36 @@ export default function Dashboard() {
   
         console.log('Canchas obtenidas:', canchas); // Verificar las canchas obtenidas
   
-        // Crea un mapa de id_cancha a nombre de cancha, usando cadenas
-        const mapaCanchas: { [key: string]: string } = {};
-        canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
-          mapaCanchas[cancha.id_cancha.toString()] = cancha.nombre; // Convertimos el id_cancha a string
-        });
+        // Verificar que las canchas tienen contenido
+        if (canchas && canchas.length > 0) {
+          // Crea un mapa de id_cancha a nombre de cancha, usando cadenas
+          const mapaCanchas: { [key: string]: string } = {};
+          canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
+            mapaCanchas[cancha.id_cancha.toString()] = cancha.nombre; // Convertimos el id_cancha a string
+          });
   
-        console.log('Mapa de Canchas:', mapaCanchas); // Verificar el mapa de id_cancha a nombre
+          console.log('Mapa de Canchas:', mapaCanchas); // Verificar el mapa de id_cancha a nombre
   
-        // Reemplaza id_cancha por el nombre correspondiente, asegurándonos de comparar como cadenas
-        const reservasConNombre = reservas.map((reserva) => ({
-          ...reserva,
-          cancha: mapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida', // Convertimos el id_cancha a string
-        }));
+          // Reemplaza id_cancha por el nombre correspondiente
+          const reservasConNombre = reservas.map((reserva) => ({
+            ...reserva,
+            cancha: mapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida', // Convertimos el id_cancha a string
+          }));
   
-        console.log('Reservas con nombre de cancha:', reservasConNombre); // Verificar las reservas con los nombres de canchas
+          console.log('Reservas con nombre de cancha:', reservasConNombre); // Verificar las reservas con los nombres de canchas
   
-        // Procesa los datos de los gráficos con los nombres de las canchas
-        procesarDatosGraficos(reservasConNombre);
+          // Procesa los datos de los gráficos con los nombres de las canchas
+          procesarDatosGraficos(reservasConNombre);
+        } else {
+          console.error('No se obtuvieron canchas');
+        }
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error);
       } finally {
         if (shouldSetLoading) setLoading(false);
       }
     };
-    
-
+  
     const token = localStorage.getItem('token');
     if (token) {
       try {
