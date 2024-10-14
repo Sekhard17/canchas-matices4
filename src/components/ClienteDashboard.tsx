@@ -19,6 +19,7 @@ import { Line, Bar } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
 import Image from 'next/image'
 import { createClient } from '@supabase/supabase-js'
+import { PuffLoader } from 'react-spinners'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ChartTooltip, Legend)
 
@@ -94,63 +95,68 @@ export default function Dashboard() {
   const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false)
   const [date, setDate] = useState<Date | null>(null)
   const [filteredReservas, setFilteredReservas] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
     const obtenerDatosDashboard = async (RUT: string) => {
       try {
+        setLoading(true); // Iniciar estado de carga
+
         const { data: reservas, error: errorReservas } = await supabase
           .from('reservas')
           .select('*')
           .eq('rut_usuario', RUT);
-  
+
         if (errorReservas) throw errorReservas;
-  
+
         setReservas(reservas);
         setTotalReservas(reservas.length);
-  
+
         const { data: pagos, error: errorPagos } = await supabase
           .from('pagos')
           .select('monto')
           .eq('rut_usuario', RUT);
-  
+
         if (errorPagos) throw errorPagos;
-  
+
         const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0);
         setSaldoGastado(saldoTotal);
-  
+
         const canchaFrecuencia = reservas.reduce((acc: Record<string, number>, reserva: { id_cancha: string }) => {
           acc[reserva.id_cancha] = (acc[reserva.id_cancha] || 0) + 1;
           return acc;
         }, {});
-  
+
         const canchaFavoritaId = Object.keys(canchaFrecuencia).reduce((a, b) => canchaFrecuencia[a] > canchaFrecuencia[b] ? a : b);
-  
+
         const { data: canchaFavoritaData, error: errorCancha } = await supabase
           .from('canchas')
           .select('nombre')
           .eq('id_cancha', canchaFavoritaId)
           .single();
-  
+
         if (errorCancha) throw errorCancha;
-  
+
         setCanchaFavorita(canchaFavoritaData.nombre || 'Desconocida');
-  
+
         const horarioFrecuencia = reservas.reduce((acc: Record<string, number>, reserva: { hora_inicio: string }) => {
           acc[reserva.hora_inicio] = (acc[reserva.hora_inicio] || 0) + 1;
           return acc;
         }, {});
-  
+
         const horarioFavorito = Object.keys(horarioFrecuencia).reduce((a, b) => horarioFrecuencia[a] > horarioFrecuencia[b] ? a : b);
-  
+
         setHorarioFavorito(horarioFavorito || 'No definido');
-  
+
         procesarDatosGraficos(reservas);
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error);
+      } finally {
+        setLoading(false); // Finalizar estado de carga
       }
     };
-  
+
     const token = localStorage.getItem('token');
     if (token) {
       try {
@@ -158,29 +164,6 @@ export default function Dashboard() {
         if (decoded && decoded.id) {
           setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo, RUT: decoded.id });
           obtenerDatosDashboard(decoded.id);
-  
-          // Usamos el canal realtime para suscripciones
-          const reservasChannel = supabase
-            .channel('reservas')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, (payload: { eventType: string; new: any }) => {
-              console.log('Cambio en reservas:', payload);
-              obtenerDatosDashboard(decoded.id);
-            })
-            .subscribe();
-  
-          const pagosChannel = supabase
-            .channel('pagos')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'pagos' }, (payload: { eventType: string; new: any }) => {
-              console.log('Cambio en pagos:', payload);
-              obtenerDatosDashboard(decoded.id);
-            })
-            .subscribe();
-  
-          // Limpiar las suscripciones al desmontar el componente
-          return () => {
-            supabase.removeChannel(reservasChannel);
-            supabase.removeChannel(pagosChannel);
-          };
         } else {
           console.error('RUT no está presente en el token');
           router.replace('/error-404');
@@ -194,9 +177,6 @@ export default function Dashboard() {
       router.replace('/error-404');
     }
   }, [router]);
-  
-
-  
   
 
   const procesarDatosGraficos = (reservas: any[]) => {
@@ -295,6 +275,13 @@ export default function Dashboard() {
     router.push('/')
   }
   
+   if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <PuffLoader color="#3498db" loading={loading} size={100} />
+      </div>
+    );
+  }
   
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
