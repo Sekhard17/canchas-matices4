@@ -126,7 +126,7 @@ export default function Dashboard() {
         const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0);
         setSaldoGastado(saldoTotal);
 
-        // Procesar datos para los gráficos
+        // Procesar datos para los gráficos y calcular cancha favorita y horario preferido
         procesarDatosGraficos(reservas);
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error);
@@ -187,14 +187,40 @@ export default function Dashboard() {
       supabase.removeChannel(pagosSubscription);
     };
   }, [router]);
-  
 
   const procesarDatosGraficos = (reservas: any[]) => {
     const reservasPorMes = Array(12).fill(0);
+    const reservasPorCancha: { [key: string]: number } = {};
+    const reservasPorHorario = Array(9).fill(0);
+    const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00'];
+
     reservas.forEach((reserva) => {
+      // Procesar las reservas por mes
       const mes = new Date(reserva.fecha).getMonth();
       reservasPorMes[mes]++;
+
+      // Procesar las reservas por cancha
+      const cancha = reserva.cancha;
+      if (!reservasPorCancha[cancha]) reservasPorCancha[cancha] = 0;
+      reservasPorCancha[cancha]++;
+
+      // Procesar las reservas por horario
+      const horaInicio = parseInt(reserva.hora_inicio.split(':')[0]);
+      const index = horaInicio - 16;
+      if (index >= 0 && index < reservasPorHorario.length) {
+        reservasPorHorario[index]++;
+      }
     });
+
+    // Calcular cancha favorita
+    const canchaFavorita = Object.keys(reservasPorCancha).reduce((a, b) => reservasPorCancha[a] > reservasPorCancha[b] ? a : b);
+    setCanchaFavorita(canchaFavorita);
+
+    // Calcular horario favorito
+    const horarioFavoritoIndex = reservasPorHorario.indexOf(Math.max(...reservasPorHorario));
+    setHorarioFavorito(horarios[horarioFavoritoIndex]);
+
+    // Actualizar los gráficos
     setLineChartData({
       labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
       datasets: [
@@ -206,17 +232,6 @@ export default function Dashboard() {
           tension: 0.3,
         },
       ],
-    });
-  
-    const reservasPorHorario = Array(9).fill(0);
-    const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00'];
-
-    reservas.forEach((reserva) => {
-      const horaInicio = parseInt(reserva.hora_inicio.split(':')[0]);
-      const index = horaInicio - 16;
-      if (index >= 0 && index < reservasPorHorario.length) {
-        reservasPorHorario[index]++;
-      }
     });
 
     setBarChartData({
@@ -284,8 +299,8 @@ export default function Dashboard() {
     setUser(null)
     router.push('/')
   }
-  
-   if (loading) {
+
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <PuffLoader color="#3498db" loading={loading} size={100} />
