@@ -143,9 +143,9 @@ export default function Dashboard() {
     if (token) {
       try {
         const decoded: any = jwtDecode(token)
-        if (decoded && decoded.RUT) {
-          setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo, RUT: decoded.RUT })
-          obtenerDatosDashboard(decoded.RUT) // Asegúrate de que el RUT está presente
+        if (decoded && decoded.id) {  // Usar el campo "id" como RUT
+          setUser({ nombre: decoded.nombre, apellido: decoded.apellido, correo: decoded.correo, RUT: decoded.id })
+          obtenerDatosDashboard(decoded.id)  // Pasar el "id" como RUT
         } else {
           console.error('RUT no está presente en el token')
           router.replace('/error-404')
@@ -159,6 +159,7 @@ export default function Dashboard() {
       router.replace('/error-404')
     }
   }, [router])
+  
   
 
   const procesarDatosGraficos = (reservas: any[]) => {
