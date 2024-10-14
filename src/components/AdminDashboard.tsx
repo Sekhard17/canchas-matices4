@@ -56,6 +56,14 @@ const chartOptions = {
   },
 }
 
+interface Reserva {
+  id: number;
+  fecha: string | Date; // dependiendo de cómo recibas el dato
+  cancha: string;
+  cliente: string;
+}
+
+
 type EstadisticasDetalladas = {
   total: number
   confirmadas?: number
@@ -184,12 +192,16 @@ export default function AdminDashboard() {
   }
 
   const obtenerReservasPorDia = (dia: Date) => {
-    return reservas.filter(reserva => 
-      reserva.fecha.getDate() === dia.getDate() &&
-      reserva.fecha.getMonth() === dia.getMonth() &&
-      reserva.fecha.getFullYear() === dia.getFullYear()
-    )
-  }
+    return reservas.filter(reserva => {
+      const fechaReserva = new Date(reserva.fecha); // Asegurarse de que reserva.fecha sea un objeto Date
+      return (
+        fechaReserva.getDate() === dia.getDate() &&
+        fechaReserva.getMonth() === dia.getMonth() &&
+        fechaReserva.getFullYear() === dia.getFullYear()
+      );
+    });
+  };
+  
 
   const renderCalendarioSemana = () => {
     const semana = obtenerSemana()
