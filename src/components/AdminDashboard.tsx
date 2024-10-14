@@ -204,7 +204,7 @@ export default function AdminDashboard() {
   
 
   const renderCalendarioSemana = () => {
-    const semana = obtenerSemana()
+    const semana = obtenerSemana();
     return (
       <div className="grid grid-cols-8 gap-2">
         <div className="col-span-1"></div>
@@ -219,8 +219,11 @@ export default function AdminDashboard() {
           <React.Fragment key={indexHora}>
             <div className="text-right pr-2">{`${hora}:00`}</div>
             {semana.map((dia, indexDia) => {
-              const reservasDia = obtenerReservasPorDia(dia)
-              const reservaHora = reservasDia.find(r => r.fecha.getHours() === hora)
+              const reservasDia = obtenerReservasPorDia(dia);
+              const reservaHora = reservasDia.find((r: Reserva) => {
+                const fechaReserva = new Date(r.fecha); // Convierte 'fecha' a un objeto Date
+                return fechaReserva.getHours() === hora;
+              });
               return (
                 <div key={`${indexHora}-${indexDia}`} className="border p-1 h-16">
                   {reservaHora && (
@@ -231,13 +234,14 @@ export default function AdminDashboard() {
                     </div>
                   )}
                 </div>
-              )
+              );
             })}
           </React.Fragment>
         ))}
       </div>
-    )
-  }
+    );
+  };
+  
 
   const renderCalendarioMes = () => {
     const diasMes = obtenerDiasMes()
