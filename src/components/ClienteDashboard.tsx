@@ -116,18 +116,7 @@ export default function Dashboard() {
     
         setTotalReservas(reservas.length);
     
-        // Obtener los pagos del usuario
-        const { data: pagos, error: errorPagos } = await supabase
-          .from('pagos')
-          .select('monto')
-          .eq('rut_usuario', RUT);
-    
-        if (errorPagos) throw errorPagos;
-    
-        const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0);
-        setSaldoGastado(saldoTotal);
-    
-        // Obtener los nombres de las canchas
+        // Obtener todas las canchas con sus nombres
         const { data: canchas, error: errorCanchas } = await supabase
           .from('canchas')
           .select('id_cancha, nombre');
@@ -136,18 +125,18 @@ export default function Dashboard() {
     
         console.log('Canchas obtenidas:', canchas); // Verificación
     
-        // Crear el mapa de id_cancha a nombre
+        // Crear el mapa de id_cancha a nombre como cadenas
         const mapaCanchas: { [key: string]: string } = {};
-        canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
-          mapaCanchas[cancha.id_cancha.toString()] = cancha.nombre;
+        canchas.forEach(({ id_cancha, nombre }) => {
+          mapaCanchas[id_cancha.toString()] = nombre; // Convertir el ID a string
         });
     
         console.log('Mapa de Canchas:', mapaCanchas); // Verificación
     
-        // Transformar reservas para incluir el nombre de la cancha
+        // Transformar las reservas para incluir el nombre de la cancha
         const reservasConNombre = reservas.map((reserva) => ({
           ...reserva,
-          cancha: mapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida',
+          cancha: mapaCanchas[reserva.id_cancha?.toString()] || 'Cancha desconocida', // Aseguramos que el ID sea string
         }));
     
         console.log('Reservas con nombre de cancha:', reservasConNombre); // Verificación
