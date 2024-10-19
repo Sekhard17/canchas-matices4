@@ -228,21 +228,8 @@ export default function Dashboard() {
         });
         setMapaCanchas(nuevoMapaCanchas);
 
-        // Verificar que las canchas tienen contenido
-        if (canchas && canchas.length > 0) {
-          // Reemplaza id_cancha por el nombre correspondiente
-          const reservasConNombre = reservas.map((reserva) => ({
-            ...reserva,
-            cancha: nuevoMapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida',
-          }));
-
-          console.log('Reservas con nombre de cancha:', reservasConNombre); // Verificar las reservas con los nombres de canchas
-
-          // Procesa los datos de los gráficos con los nombres de las canchas
-          procesarDatosGraficos(reservasConNombre);
-        } else {
-          console.error('No se obtuvieron canchas');
-        }
+        // Procesa los datos de los gráficos con las reservas obtenidas
+        procesarDatosGraficos(reservas);
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error);
       } finally {
@@ -277,7 +264,9 @@ export default function Dashboard() {
         const token = localStorage.getItem('token');
         if (token) {
           const decoded: any = jwtDecode(token);
-          obtenerDatosDashboard(decoded.id, false); // No activar loading en tiempo real
+          if (decoded && decoded.id) {
+            obtenerDatosDashboard(decoded.id, false); // No activar loading en tiempo real
+          }
         }
       })
       .subscribe();
@@ -289,7 +278,9 @@ export default function Dashboard() {
         const token = localStorage.getItem('token');
         if (token) {
           const decoded: any = jwtDecode(token);
-          obtenerDatosDashboard(decoded.id, false); // No activar loading en tiempo real
+          if (decoded && decoded.id) {
+            obtenerDatosDashboard(decoded.id, false); // No activar loading en tiempo real
+          }
         }
       })
       .subscribe();
