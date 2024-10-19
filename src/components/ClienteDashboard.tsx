@@ -89,12 +89,7 @@ export default function Dashboard() {
   const [mapaCanchas, setMapaCanchas] = useState<{ [key: string]: string }>({})
   const router = useRouter()
 
-  const procesarDatosGraficos = useCallback((reservas: any[]) => {
-    if (Object.keys(mapaCanchas).length === 0) {
-      console.error('El mapa de canchas no está listo aún.')
-      return
-    }
-
+  const procesarDatosGraficos = useCallback((reservas: any[], mapaCanchas: { [key: string]: string }) => {
     const reservasPorMes = Array(12).fill(0)
     const reservasPorCancha: { [key: number]: number } = {}
     const reservasPorHorario = Array(9).fill(0)
@@ -171,7 +166,7 @@ export default function Dashboard() {
       reservasPorCancha[Number(a)] > reservasPorCancha[Number(b)] ? a : b
     )
     setCanchaFavorita(mapaCanchas[Number(canchaFavoritaId)] || 'No disponible')
-  }, [mapaCanchas])
+  }, [])
 
   useEffect(() => {
     const obtenerDatosDashboard = async (RUT: string, shouldSetLoading = true) => {
@@ -204,24 +199,19 @@ export default function Dashboard() {
 
         if (errorCanchas) throw errorCanchas
 
-        const nuevoMapaCanchas: { [key: number]: string } = {}
+        const nuevoMapaCanchas: { [key: string]: string } = {}
         canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
-          nuevoMapaCanchas[cancha.id_cancha] = cancha.nombre
+          nuevoMapaCanchas[cancha.id_cancha.toString()] = cancha.nombre
         })
         setMapaCanchas(nuevoMapaCanchas)
 
         if (canchas && canchas.length > 0) {
-          const mapaCanchas: { [key: string]: string } = {}
-          canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
-            mapaCanchas[cancha.id_cancha.toString()] = cancha.nombre
-          })
-
           const reservasConNombre = reservas.map((reserva) => ({
             ...reserva,
-            cancha: mapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida',
+            cancha: nuevoMapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida',
           }))
 
-          procesarDatosGraficos(reservasConNombre)
+          procesarDatosGraficos(reservasConNombre, nuevoMapaCanchas)
         }
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error)
@@ -323,11 +313,11 @@ export default function Dashboard() {
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-lg fixed top-0 left-0 right-0 z-10">
-        <div  className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <Button variant="ghost" size="icon" className="mr-4 lg:hidden" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                {sidebarOpen ?   <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -580,7 +570,7 @@ export default function Dashboard() {
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-400 to-pink-500 text-white border-none">
-                      {date ? date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }) : 'Seleccionar fecha'}
+                      {date ? date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }) : '  Seleccionar fecha'}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="end">
