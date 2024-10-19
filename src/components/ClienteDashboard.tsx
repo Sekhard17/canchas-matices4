@@ -238,7 +238,7 @@ export default function Dashboard() {
       reservasPorMes[mes]++
   
       // Procesar las reservas por cancha usando id_cancha como número
-      const canchaId = reserva.id_cancha
+      const canchaId = Number(reserva.id_cancha) // Asegura que siempre sea número
       if (!reservasPorCancha[canchaId]) reservasPorCancha[canchaId] = 0
       reservasPorCancha[canchaId]++
   
@@ -250,12 +250,16 @@ export default function Dashboard() {
       }
     })
   
+    console.log('Reservas por Cancha:', reservasPorCancha) // Verificar conteo
+  
     // Calcular cancha favorita usando id_cancha y luego traducir al nombre
     const canchaFavoritaId = Object.keys(reservasPorCancha)
-      .map(Number) // Asegura que los IDs se manejen como enteros
+      .map(Number) // Asegura que las claves sean números
       .reduce((a, b) =>
         reservasPorCancha[a] > reservasPorCancha[b] ? a : b
       )
+  
+    console.log('ID de Cancha Favorita:', canchaFavoritaId) // Verifica el ID
   
     // Usa el mapa de canchas para obtener el nombre de la cancha favorita
     const nombreCanchaFavorita = mapaCanchas[canchaFavoritaId] || 'Cancha desconocida'
