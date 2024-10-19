@@ -103,75 +103,66 @@ export default function Dashboard() {
     const obtenerDatosDashboard = async (RUT: string, shouldSetLoading = true) => {
       try {
         if (shouldSetLoading) setLoading(true);
-  
-        // Consulta para obtener las reservas del usuario
+    
+        // Obtener reservas del usuario
         const { data: reservas, error: errorReservas } = await supabase
           .from('reservas')
           .select('*')
           .eq('rut_usuario', RUT);
-  
+    
         if (errorReservas) throw errorReservas;
-  
-        console.log('Reservas obtenidas:', reservas); // Verificar las reservas obtenidas
-  
-        setReservas(reservas);
+    
+        console.log('Reservas obtenidas:', reservas); // Verificación
+    
         setTotalReservas(reservas.length);
-  
-        // Consulta para obtener los pagos del usuario
+    
+        // Obtener los pagos del usuario
         const { data: pagos, error: errorPagos } = await supabase
           .from('pagos')
           .select('monto')
           .eq('rut_usuario', RUT);
-  
+    
         if (errorPagos) throw errorPagos;
-  
+    
         const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0);
         setSaldoGastado(saldoTotal);
-  
-        // Consulta para obtener los nombres de las canchas
+    
+        // Obtener los nombres de las canchas
         const { data: canchas, error: errorCanchas } = await supabase
           .from('canchas')
           .select('id_cancha, nombre');
-  
+    
         if (errorCanchas) throw errorCanchas;
-  
-        console.log('Canchas obtenidas:', canchas); // Verificar las canchas obtenidas
-  
-        // Crea el mapa de id_cancha a nombre
+    
+        console.log('Canchas obtenidas:', canchas); // Verificación
+    
+        // Crear el mapa de id_cancha a nombre
         const mapaCanchas: { [key: string]: string } = {};
         canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
           mapaCanchas[cancha.id_cancha.toString()] = cancha.nombre;
         });
-
-        // Verificar que las canchas tienen contenido
-        if (canchas && canchas.length > 0) {
-          // Crea un mapa de id_cancha a nombre de cancha, usando cadenas
-          const mapaCanchas: { [key: string]: string } = {};
-          canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
-            mapaCanchas[cancha.id_cancha.toString()] = cancha.nombre; // Convertimos el id_cancha a string
-          });
-  
-          console.log('Mapa de Canchas:', mapaCanchas); // Verificar el mapa de id_cancha a nombre
-  
-          // Reemplaza id_cancha por el nombre correspondiente
-          const reservasConNombre = reservas.map((reserva) => ({
-            ...reserva,
-            cancha: mapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida', // Convertimos el id_cancha a string
-          }));
-  
-          console.log('Reservas con nombre de cancha:', reservasConNombre); // Verificar las reservas con los nombres de canchas
-  
-          // Procesa los datos de los gráficos con los nombres de las canchas
-          procesarDatosGraficos(reservasConNombre);
-        } else {
-          console.error('No se obtuvieron canchas');
-        }
+    
+        console.log('Mapa de Canchas:', mapaCanchas); // Verificación
+    
+        // Transformar reservas para incluir el nombre de la cancha
+        const reservasConNombre = reservas.map((reserva) => ({
+          ...reserva,
+          cancha: mapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida',
+        }));
+    
+        console.log('Reservas con nombre de cancha:', reservasConNombre); // Verificación
+    
+        setReservas(reservasConNombre);
+    
+        // Procesar los datos para los gráficos
+        procesarDatosGraficos(reservasConNombre);
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error);
       } finally {
         if (shouldSetLoading) setLoading(false);
       }
     };
+    
   
     const token = localStorage.getItem('token');
     if (token) {
