@@ -1,7 +1,20 @@
+// src/components/DashboardCards.tsx
 import { Card, CardContent } from '@/components/ui/card'
 import { CalendarIcon, DollarSign, MapPin, Clock } from 'lucide-react'
 
-export default function DashboardCards({ totalReservas, saldoGastado, canchaFavorita, horarioFavorito }) {
+interface DashboardCardsProps {
+  totalReservas: number
+  saldoGastado: number
+  canchaFavorita: string
+  horarioFavorito: string
+}
+
+export default function DashboardCards({
+  totalReservas,
+  saldoGastado,
+  canchaFavorita,
+  horarioFavorito,
+}: DashboardCardsProps) {
   const cards = [
     { title: 'Total de Reservas', value: totalReservas, icon: CalendarIcon },
     { title: 'Saldo Gastado', value: `$${saldoGastado}`, icon: DollarSign },
