@@ -6,8 +6,8 @@ import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import Image from 'next/image'
-import { Line, Bar, Doughnut } from 'react-chartjs-2'
-import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
+import { Line, Bar } from 'react-chartjs-2'
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
 import { PuffLoader } from 'react-spinners'
 import MotionNumber from 'motion-number'
 
@@ -22,10 +22,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, BarChart, TrendingUp, Bell, QrCode, PlusCircle, DollarSign, Sun, Moon, Home, MessageCircle, Calendar as CalendarIcon2, ChevronDown, Inbox, Search, Check, Zap, Trophy, Users, Repeat, Sparkles } from 'lucide-react'
+import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, BarChart, TrendingUp, Bell, QrCode, PlusCircle, DollarSign, Sun, Moon, Home, MessageCircle, Calendar as CalendarIcon2, ChevronDown, Inbox, Search, Check, Zap } from 'lucide-react'
 
-ChartJS.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ChartTooltip, Legend)
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ChartTooltip, Legend)
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -53,11 +52,10 @@ const chartOptions = {
     y: {
       beginAtZero: true,
       grid: {
-        color: 'rgba(255, 255, 255, 0.1)',
+        color: 'rgba(0, 0, 0, 0.1)',
       },
       ticks: {
-        color: 'rgba(255, 255, 255, 0.7)',
-        stepSize: 5,
+        color: 'rgba(0, 0, 0, 0.6)',
       },
     },
     x: {
@@ -65,13 +63,13 @@ const chartOptions = {
         display: false,
       },
       ticks: {
-        color: 'rgba(255, 255, 255, 0.7)',
+        color: 'rgba(0, 0, 0, 0.6)',
       },
     },
   },
 }
 
-export default function EnhancedSportsDashboard() {
+export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -83,7 +81,6 @@ export default function EnhancedSportsDashboard() {
   const [lineChartData, setLineChartData] = useState<any>({ labels: [], datasets: [] })
   const [barChartData, setBarChartData] = useState<any>({ labels: [], datasets: [] })
   const [daysChartData, setDaysChartData] = useState<any>({ labels: [], datasets: [] })
-  const [doughnutChartData, setDoughnutChartData] = useState<any>({ labels: [], datasets: [] })
   const [notificaciones, setNotificaciones] = useState<any[]>([])
   const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false)
   const [date, setDate] = useState<Date | undefined>(undefined)
@@ -122,8 +119,8 @@ export default function EnhancedSportsDashboard() {
         {
           label: 'Reservas por Mes',
           data: reservasPorMes,
-          borderColor: 'rgb(59, 130, 246)',
-          backgroundColor: 'rgba(59, 130, 246, 0.5)',
+          borderColor: 'rgb(99, 102, 241)',
+          backgroundColor: 'rgba(99, 102, 241, 0.5)',
           tension: 0.3,
           fill: true,
         },
@@ -136,8 +133,8 @@ export default function EnhancedSportsDashboard() {
         {
           label: 'Reservas por Horario',
           data: reservasPorHorario,
-          backgroundColor: 'rgba(16, 185, 129, 0.6)',
-          borderColor: 'rgb(16, 185, 129)',
+          backgroundColor: 'rgba(52, 211, 153, 0.6)',
+          borderColor: 'rgb(52, 211, 153)',
           borderWidth: 1,
         },
       ],
@@ -157,46 +154,18 @@ export default function EnhancedSportsDashboard() {
         {
           label: 'Días Preferidos del Mes',
           data: reservasPorDia,
-          backgroundColor: 'rgba(249, 115, 22, 0.6)',
-          borderColor: 'rgb(249, 115, 22)',
+          backgroundColor: 'rgba(251, 146, 60, 0.6)',
+          borderColor: 'rgb(251, 146, 60)',
           borderWidth: 1,
         },
       ],
     })
 
-    // Determinar la cancha favorita y preparar datos para el gráfico de donut
+    // Determinar la cancha favorita
     const canchaFavoritaId = Object.keys(reservasPorCancha).reduce((a, b) => 
       reservasPorCancha[Number(a)] > reservasPorCancha[Number(b)] ? a : b
     )
     setCanchaFavorita(mapaCanchas[Number(canchaFavoritaId)] || 'No disponible')
-
-    const doughnutData = Object.entries(reservasPorCancha).map(([id, count]) => ({
-      name: mapaCanchas[id] || `Cancha ${id}`,
-      value: count
-    }))
-
-    setDoughnutChartData({
-      labels: doughnutData.map(item => item.name),
-      datasets: [{
-        data: doughnutData.map(item => item.value),
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.8)',
-          'rgba(54, 162, 235, 0.8)',
-          'rgba(255, 206, 86, 0.8)',
-          'rgba(75, 192, 192, 0.8)',
-          'rgba(153, 102, 255, 0.8)',
-        ],
-        borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-        ],
-        borderWidth: 1,
-      }],
-    })
-
   }, [])
 
   useEffect(() => {
@@ -317,8 +286,6 @@ export default function EnhancedSportsDashboard() {
     )
   }
 
-  
-
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
     if (darkMode) {
@@ -336,32 +303,125 @@ export default function EnhancedSportsDashboard() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-500 via-teal-400 to-green-500">
+      <div className="flex justify-center items-center h-screen bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
         <PuffLoader color="#ffffff" loading={loading} size={100} />
       </div>
     )
   }
 
   return (
-    <div className={`min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
-      {/* Enhanced Navbar */}
-      <nav className="bg-white dark:bg-gray-800 shadow-lg fixed top-0 left-0 right-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
+      {/* Header */}
+      <header className="bg-white dark:bg-gray-800 shadow-lg fixed top-0 left-0 right-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
             <div className="flex items-center">
-              <Sparkles className="h-8 w-8 text-blue-500 dark:text-blue-400" />
-              <span className="ml-2 text-2xl font-bold text-blue-600 dark:text-blue-400">SportSync</span>
+              <Button variant="ghost" size="icon" className="mr-4 lg:hidden" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                {sidebarOpen ?   <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex items-center"
+              >
+                <Zap className="h-8 w-8 text-purple-600 dark:text-purple-400 mr-2" />
+                <h1 className="text-2xl font-bold text-purple-600 dark:text-purple-400">Matices</h1>
+              </motion.div>
             </div>
+
+            <div className="hidden lg:flex items-center space-x-4">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="bg-purple-100 dark:bg-purple-900 rounded-lg p-2 flex items-center"
+              >
+                <MapPin className="h-5 w-5 text-purple-600 dark:text-purple-400 mr-2" />
+                <span className="text-sm font-medium text-purple-800 dark:text-purple-200">Cancha Favorita:</span>
+                <span className="text-sm font-bold text-purple-600 dark:text-purple-300 ml-2">{canchaFavorita}</span>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="bg-pink-100 dark:bg-pink-900 rounded-lg p-2 flex items-center"
+              >
+                <Clock className="h-5 w-5 text-pink-600 dark:text-pink-400 mr-2" />
+                <span className="text-sm font-medium text-pink-800 dark:text-pink-200">Horario Favorito:</span>
+                <span className="text-sm font-bold text-pink-600 dark:text-pink-300 ml-2">{horarioFavorito}</span>
+              </motion.div>
+            </div>
+
             <div className="flex items-center space-x-4">
-              <div className="hidden md:flex space-x-4">
-                <Button variant="ghost">Dashboard</Button>
-                <Button variant="ghost">Reservas</Button>
-                <Button variant="ghost">Canchas</Button>
-                <Button variant="ghost">Perfil</Button>
+              <div className="relative hidden md:block">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Buscar..."
+                  className="pl-10 pr-4 py-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
               </div>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="icon" onClick={toggleDarkMode} className="bg-gradient-to-r from-purple-400 to-pink-500 text-white border-none">
+                      {darkMode ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{darkMode ? 'Activar modo claro' : 'Activar modo oscuro'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <DropdownMenu open={notificacionesAbiertas} onOpenChange={setNotificacionesAbiertas}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="relative bg-gradient-to-r from-purple-400 to-pink-500 text-white border-none">
+                    <Bell className="h-[1.2rem] w-[1.2rem]" />
+                    {notificaciones.some(n => !n.leida) && (
+                      <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full" />
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80 md:w-96">
+                  <DropdownMenuLabel className="flex justify-between items-center">
+                    <span>Notificaciones</span>
+                    <Button variant="ghost" size="sm" onClick={marcarNotificacionesComoLeidas}>
+                      Marcar como leídas
+                    </Button>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <ScrollArea className="h-[300px]">
+                    {notificaciones.length > 0 ? (
+                      notificaciones.map((notificacion) => (
+                        <DropdownMenuItem key={notificacion.id} className="flex items-start py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <div className={`mr-3 mt-1 p-2 rounded-full ${notificacion.leida ? 'bg-gray-200 dark:bg-gray-600' : 'bg-purple-100 dark:bg-purple-900'}`}>
+                            <notificacion.icono className="h-4 w-4 text-purple-500 dark:text-purple-300" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{notificacion.mensaje}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{notificacion.fecha}</p>
+                          </div>
+                          {!notificacion.leida && (
+                            <div className="w-2 h-2 bg-purple-500 rounded-full mt-2" />
+                          )}
+                        </DropdownMenuItem>
+                      ))
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                        <Bell className="h-12 w-12 text-gray-400 mb-2" />
+                        <p className="text-gray-600 dark:text-gray-300">No tienes notificaciones</p>
+                      </div>
+                    )}
+                  </ScrollArea>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src="https://avatar.iran.liara.run/public/18" alt={user ? `${user.nombre} ${user.apellido}` : '@username'} />
                       <AvatarFallback>{user && user.nombre ? user.nombre.charAt(0) : 'U'}</AvatarFallback>
@@ -370,6 +430,8 @@ export default function EnhancedSportsDashboard() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>{user ? `${user.nombre} ${user.apellido}` : 'Usuario Anónimo'}</DropdownMenuLabel>
+                  <p className="px-2 py-1 text-sm text-gray-500">{user ? user.correo : 'usuario@ejemplo.com'}</p>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => router.push('/mi-perfil')}>
                     <User className="mr-2 h-4 w-4" />
                     <span>Mi Perfil</span>
@@ -385,235 +447,247 @@ export default function EnhancedSportsDashboard() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" onClick={toggleDarkMode} className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white">
-                      {darkMode ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{darkMode ? 'Activar modo claro' : 'Activar modo oscuro'}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
           </div>
         </div>
-      </nav>
+      </header>
+
+      {/* Sidebar */}
+      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700`}>
+        <div className="h-full px-3 py-4 overflow-y-auto">
+          <nav className="space-y-6 pt-20">
+            <div>
+              <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Principal</h2>
+              <div className="space-y-1">
+                <Button variant="ghost" className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900">
+                  <Home className="mr-2 h-4 w-4" />
+                  Inicio
+                </Button>
+                <Button variant="ghost" className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  Mis Reservas
+                </Button>
+                <Button variant="ghost" className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900">
+                  <MapPin className="mr-2 h-4 w-4" />
+                  Canchas
+                </Button>
+              </div>
+            </div>
+            <div>
+              <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Aplicaciones</h2>
+              <div className="space-y-1">
+                <Button variant="ghost" className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Chat
+                </Button>
+                <Button variant="ghost" className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900">
+                  <CalendarIcon2 className="mr-2 h-4 w-4" />
+                  Calendario
+                </Button>
+              </div>
+            </div>
+            <div>
+              <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Otros</h2>
+              <div className="space-y-1">
+                <Button variant="ghost" className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900">
+                  <Inbox className="mr-2 h-4 w-4" />
+                  Módulo de Solicitudes
+                </Button>
+                <Button variant="ghost" className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Configuración
+                </Button>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </aside>
 
       {/* Main Content */}
-      <main className="pt-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          {/* Enhanced Welcome Section */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8 bg-gradient-to-r from-blue-500 to-teal-400 rounded-lg p-6 text-white"
-          >
-            <h1 className="text-3xl font-bold">¡Bienvenido de vuelta, {user?.nombre}!</h1>
-            <p className="mt-2 text-lg">Aquí tienes un resumen de tu actividad deportiva reciente.</p>
-          </motion.div>
-
-          {/* Enhanced Stats Overview */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { title: "Total Reservas", value: totalReservas, icon: CalendarIcon, color: "from-blue-500 to-blue-600" },
-              { title: "Saldo Gastado", value: saldoGastado, icon: DollarSign, color: "from-green-500 to-green-600", format: 'currency' },
-              { title: "Cancha Favorita", value: canchaFavorita, icon: MapPin, color: "from-yellow-500 to-yellow-600" },
-              { title: "Horario Favorito", value: horarioFavorito, icon: Clock, color: "from-purple-500 to-purple-600" },
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className={`bg-gradient-to-br ${item.color} text-white overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-105`}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
-                    <item.icon className="h-4 w-4 text-white opacity-75" />
-                  </CardHeader>
-                  <CardContent>
-                    <MotionNumber
-                      value={item.value}
-                      format={item.format === 'currency' 
-                        ? { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }
-                        : { maximumFractionDigits: 0 }}
-                      locales="es-CL"
-                      className="text-2xl font-bold"
-                    />
-                    <p className="text-xs mt-1 opacity-75">+20% que el mes pasado</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Enhanced Charts Section */}
-          <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
-            <Card className="bg-white dark:bg-gray-800">
-              <CardHeader>
-                <CardTitle>Tendencia de Reservas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <Line data={lineChartData} options={chartOptions} />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-white dark:bg-gray-800">
-              <CardHeader>
-                <CardTitle>Distribución por Cancha</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <Doughnut data={doughnutChartData} options={{
-                    ...chartOptions,
-                    cutout: '70%',
-                    plugins: {
-                      ...chartOptions.plugins,
-                      legend: {
-                        display: true,
-                        position: 'right' as const,
-                      },
-                    },
-                  }} />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-white dark:bg-gray-800">
-              <CardHeader>
-                <CardTitle>Horarios Preferidos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  
-                  <Bar data={barChartData} options={chartOptions} />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-white dark:bg-gray-800">
-              <CardHeader>
-                <CardTitle>Días Preferidos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <Bar data={daysChartData} options={chartOptions} />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Enhanced Reservations Section */}
-          <div className="mt-8">
-            <Card className="bg-white dark:bg-gray-800">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold flex items-center justify-between">
-                  <div className="flex items-center">
-                    <CalendarIcon className="mr-2 h-5 w-5 text-blue-500" />
-                    Mis Reservas
+      <main className="lg:ml-64 pt-20 px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[
+            { title: "Total de Reservas", value: totalReservas, icon: CalendarIcon, color: "from-purple-400 to-pink-500" },
+            { title: "Saldo Gastado", value: saldoGastado, icon: DollarSign, color: "from-green-400 to-cyan-500" },
+            { title: "Cancha Favorita", value: canchaFavorita, icon: MapPin, color: "from-yellow-400 to-orange-500" },
+            { title: "Hora Preferida", value: horarioFavorito, icon: Clock, color: "from-red-400 to-pink-500" },
+          ].map((item, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="w-full"
+            >
+              <Card className={`bg-gradient-to-r ${item.color} text-white overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-105`}>
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium opacity-75">{item.title}</p>
+                    {index === 0 || index === 1 ? (
+                      <MotionNumber
+                        value={item.value}
+                        format={index === 1 
+                          ? { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }
+                          : { maximumFractionDigits: 0 }}
+                        locales="es-CL"
+                        className="text-2xl font-bold mt-1"
+                      />              
+                    ) : (
+                      <p className="text-2xl font-bold mt-1">{item.value}</p>
+                    )}
                   </div>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        {date ? date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }) : 'Seleccionar fecha'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="end">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={(day) => setDate(day)}
-                        className="rounded-md border"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[400px] w-full pr-4">
-                  {filteredReservas.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <AnimatePresence>
-                        {filteredReservas.map((reserva, index) => (
-                          <motion.div
-                            key={reserva.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ delay: index * 0.1 }}
-                          >
-                            <Card className="bg-gradient-to-br from-blue-50 to-teal-50 dark:from-blue-900 dark:to-teal-900 overflow-hidden hover:shadow-md transition-all duration-200">
-                              <CardContent className="p-4">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center space-x-4">
-                                    <div className="bg-blue-500 p-3 rounded-full">
-                                      <Trophy className="h-6 w-6 text-white" />
-                                    </div>
-                                    <div>
-                                      <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{reserva.cancha}</h3>
-                                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {reserva.fecha} - {reserva.hora}
-                                      </div>
-                                    </div>
+                  <div className={`p-3 rounded-full bg-white bg-opacity-30`}>
+                    <item.icon className="h-6 w-6" />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <Card className="lg:col-span-2 overflow-hidden hover:shadow-lg transition-all duration-300">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold flex items-center">
+                <BarChart className="mr-2 h-5 w-5 text-purple-500" />
+                Días Preferidos del Mes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <Bar data={daysChartData} options={chartOptions} />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="overflow-hidden hover:shadow-lg transition-all duration-300">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold flex items-center justify-between">
+                <div className="flex items-center">
+                  <CalendarIcon className="mr-2 h-5 w-5 text-purple-500" />
+                  Mis Reservas
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-400 to-pink-500 text-white border-none">
+                      {date ? date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }) : '  Seleccionar fecha'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={(day) => setDate(day)}
+                      className="rounded-md border"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[300px] w-full pr-4">
+                {filteredReservas.length > 0 ? (
+                  <AnimatePresence>
+                    {filteredReservas.map((reserva, index) => (
+                      <motion.div
+                        key={reserva.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="mb-4 last:mb-0"
+                      >
+                        <Card className="overflow-hidden hover:shadow-md transition-all duration-200 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900">
+                          <CardContent className="p-4 flex items-center justify-between">
+                            <div>
+                              <h3 className="font-semibold text-lg text-purple-600 dark:text-purple-300">{reserva.cancha}</h3>
+                              <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                <CalendarIcon className="mr-2 h-4 w-4 text-pink-500" />
+                                {reserva.fecha} - {reserva.hora}
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge
+                                variant={
+                                  reserva.estado === 'Confirmada'
+                                    ? 'default'
+                                    : reserva.estado === 'Realizada'
+                                    ? 'secondary'
+                                    : 'destructive'
+                                }
+                                className="bg-gradient-to-r from-green-400 to-blue-500 text-white"
+                              >
+                                {reserva.estado}
+                              </Badge>
+
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-400 to-pink-500 text-white border-none">
+                                    <QrCode className="h-4 w-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-md">
+                                  <DialogHeader>
+                                    <DialogTitle>Código QR de Reserva</DialogTitle>
+                                    <DialogDescription>
+                                      Muestra este código al llegar al complejo deportivo.
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div className="flex justify-center py-4">
+                                    <Image src={reserva.qrCode} alt="Código QR de la reserva" width={192} height={192} />
                                   </div>
-                                  <div className="flex items-center space-x-2">
-                                    <Badge
-                                      variant={
-                                        reserva.estado === 'Confirmada'
-                                          ? 'default'
-                                          : reserva.estado === 'Realizada'
-                                          ? 'secondary'
-                                          : 'destructive'
-                                      }
-                                    >
-                                      {reserva.estado}
-                                    </Badge>
-                                    <Dialog>
-                                      <DialogTrigger asChild>
-                                        <Button variant="outline" size="sm">
-                                          <QrCode className="h-4 w-4" />
-                                        </Button>
-                                      </DialogTrigger>
-                                      <DialogContent className="sm:max-w-md">
-                                        <DialogHeader>
-                                          <DialogTitle>Código QR de Reserva</DialogTitle>
-                                          <DialogDescription>
-                                            Muestra este código al llegar al complejo deportivo.
-                                          </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="flex justify-center py-4">
-                                          <Image src={reserva.qrCode} alt="Código QR de la reserva" width={192} height={192} />
-                                        </div>
-                                        <div className="text-center">
-                                          <p className="font-semibold">{reserva.cancha}</p>
-                                          <p>{reserva.fecha} - {reserva.hora}</p>
-                                        </div>
-                                      </DialogContent>
-                                    </Dialog>
+                                  <div className="text-center">
+                                    <p className="font-semibold">{reserva.cancha}</p>
+                                    <p>{reserva.fecha} - {reserva.hora}</p>
                                   </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-center">
-                      <CalendarIcon className="h-16 w-16 text-gray-400 mb-4" />
-                      <p className="text-xl font-semibold text-gray-600 dark:text-gray-300">No has realizado reservas</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">¡Haz tu primera reserva y comienza a disfrutar!</p>
-                      <Button className="mt-4" onClick={() => router.push('/reservar')}>Reservar Ahora</Button>
-                    </div>
-                  )}
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </div>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <CalendarIcon className="h-16 w-16 text-gray-400 mb-4" />
+                    <p className="text-xl font-semibold text-gray-600 dark:text-gray-300">No has realizado reservas</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">¡Haz tu primera reserva y comienza a disfrutar!</p>
+                    <Button className="mt-4 bg-gradient-to-r from-purple-400 to-pink-500 text-white" onClick={() => router.push('/reservar')}>Reservar Ahora</Button>
+                  </div>
+                )}
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <Card className="overflow-hidden hover:shadow-lg transition-all duration-300">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Clock className="mr-2 h-5 w-5 text-purple-500" />
+                Horarios Favoritos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <Bar data={barChartData} options={chartOptions} />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="overflow-hidden hover:shadow-lg transition-all duration-300">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <TrendingUp className="mr-2 h-5 w-5 text-purple-500" />
+                Tendencia de Reservas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <Line data={lineChartData} options={chartOptions} />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>
