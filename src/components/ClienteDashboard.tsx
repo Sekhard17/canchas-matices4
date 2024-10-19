@@ -102,60 +102,76 @@ export default function Dashboard() {
   useEffect(() => {
     const obtenerDatosDashboard = async (RUT: string, shouldSetLoading = true) => {
       try {
-        if (shouldSetLoading) setLoading(true)
-    
-        // Obtener reservas del usuario
+        if (shouldSetLoading) setLoading(true);
+  
+        // Consulta para obtener las reservas del usuario
         const { data: reservas, error: errorReservas } = await supabase
           .from('reservas')
           .select('*')
-          .eq('rut_usuario', RUT)
-    
-        if (errorReservas) throw errorReservas
-    
-        console.log('Reservas obtenidas:', reservas) // Verificar las reservas obtenidas
-    
-        setTotalReservas(reservas.length)
-    
-        // Obtener todas las canchas con sus nombres
+          .eq('rut_usuario', RUT);
+  
+        if (errorReservas) throw errorReservas;
+  
+        console.log('Reservas obtenidas:', reservas); // Verificar las reservas obtenidas
+  
+        setReservas(reservas);
+        setTotalReservas(reservas.length);
+  
+        // Consulta para obtener los pagos del usuario
+        const { data: pagos, error: errorPagos } = await supabase
+          .from('pagos')
+          .select('monto')
+          .eq('rut_usuario', RUT);
+  
+        if (errorPagos) throw errorPagos;
+  
+        const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0);
+        setSaldoGastado(saldoTotal);
+  
+        // Consulta para obtener los nombres de las canchas
         const { data: canchas, error: errorCanchas } = await supabase
           .from('canchas')
-          .select('id_cancha, nombre')
-    
-        if (errorCanchas) throw errorCanchas
-    
-        console.log('Canchas obtenidas:', canchas) // Verificar las canchas obtenidas
-    
-        // Crear el mapa de id_cancha a nombre
-        const mapaCanchas: { [key: string]: string } = {}
-        canchas.forEach(({ id_cancha, nombre }) => {
-          mapaCanchas[id_cancha.toString()] = nombre
-        })
-    
-        console.log('Mapa de Canchas:', mapaCanchas) // Verificar el mapa
-    
-        // Transformar reservas para incluir el nombre de la cancha
-        const reservasConNombre = reservas.map((reserva) => {
-          console.log('Reserva:', reserva) // Verificar cada reserva
-    
-          return {
+          .select('id_cancha, nombre');
+  
+        if (errorCanchas) throw errorCanchas;
+  
+        console.log('Canchas obtenidas:', canchas); // Verificar las canchas obtenidas
+  
+        // Crea el mapa de id_cancha a nombre
+        const mapaCanchas: { [key: string]: string } = {};
+        canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
+          mapaCanchas[cancha.id_cancha.toString()] = cancha.nombre;
+        });
+
+        // Verificar que las canchas tienen contenido
+        if (canchas && canchas.length > 0) {
+          // Crea un mapa de id_cancha a nombre de cancha, usando cadenas
+          const mapaCanchas: { [key: string]: string } = {};
+          canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
+            mapaCanchas[cancha.id_cancha.toString()] = cancha.nombre; // Convertimos el id_cancha a string
+          });
+  
+          console.log('Mapa de Canchas:', mapaCanchas); // Verificar el mapa de id_cancha a nombre
+  
+          // Reemplaza id_cancha por el nombre correspondiente
+          const reservasConNombre = reservas.map((reserva) => ({
             ...reserva,
-            cancha: mapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida',
-          }
-        })
-    
-        console.log('Reservas con nombre de cancha:', reservasConNombre) // Verificar reservas transformadas
-    
-        setReservas(reservasConNombre)
-    
-        // Procesar los datos para los gráficos
-        procesarDatosGraficos(reservasConNombre)
+            cancha: mapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida', // Convertimos el id_cancha a string
+          }));
+  
+          console.log('Reservas con nombre de cancha:', reservasConNombre); // Verificar las reservas con los nombres de canchas
+  
+          // Procesa los datos de los gráficos con los nombres de las canchas
+          procesarDatosGraficos(reservasConNombre);
+        } else {
+          console.error('No se obtuvieron canchas');
+        }
       } catch (error) {
-        console.error('Error obteniendo datos del dashboard:', error)
+        console.error('Error obteniendo datos del dashboard:', error);
       } finally {
-        if (shouldSetLoading) setLoading(false)
+        if (shouldSetLoading) setLoading(false);
       }
-    }
-    
+    };
   
     const token = localStorage.getItem('token');
     if (token) {
