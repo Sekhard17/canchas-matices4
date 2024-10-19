@@ -3,7 +3,21 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Sun, Moon, Menu, X, LogOut, Home, Settings } from 'lucide-react'
 
-export default function Header({ user, toggleDarkMode, sidebarOpen, setSidebarOpen }) {
+interface HeaderProps {
+  user: { nombre?: string } | null
+  toggleDarkMode: () => void
+  sidebarOpen: boolean
+  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>
+  darkMode: boolean
+}
+
+export default function Header({
+  user,
+  toggleDarkMode,
+  sidebarOpen,
+  setSidebarOpen,
+  darkMode,
+}: HeaderProps) {
   return (
     <header className="bg-white dark:bg-gray-800 shadow-lg fixed top-0 left-0 right-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">

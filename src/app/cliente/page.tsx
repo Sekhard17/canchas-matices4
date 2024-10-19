@@ -7,7 +7,17 @@ import { Sidebar, Header, DashboardCards, DashboardCharts } from '../../componen
 import { useState } from 'react'
 
 export default function Dashboard() {
-  const { reservas, saldoGastado, canchaFavorita, horarioFavorito, user, loading } = useDashboard()
+  const { 
+    reservas, 
+    saldoGastado, 
+    canchaFavorita, 
+    horarioFavorito, 
+    barChartData, 
+    lineChartData, 
+    user, 
+    loading 
+  } = useDashboard()
+
   const [darkMode, setDarkMode] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -26,12 +36,14 @@ export default function Dashboard() {
 
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${darkMode ? 'dark' : ''}`}>
-      <Header
-        user={user}
-        toggleDarkMode={toggleDarkMode}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-      />
+      <Header 
+  user={user}
+  toggleDarkMode={toggleDarkMode}
+  sidebarOpen={sidebarOpen}
+  setSidebarOpen={setSidebarOpen}
+  darkMode={darkMode}
+/>
+
       <Sidebar sidebarOpen={sidebarOpen} />
 
       <main className="lg:ml-64 pt-20 px-4 sm:px-6 lg:px-8 py-8">
@@ -41,7 +53,11 @@ export default function Dashboard() {
           canchaFavorita={canchaFavorita}
           horarioFavorito={horarioFavorito}
         />
-        <DashboardCharts />
+        <DashboardCharts 
+          barChartData={barChartData} 
+          lineChartData={lineChartData} 
+          chartOptions={{ responsive: true }} 
+        />
       </main>
     </div>
   )

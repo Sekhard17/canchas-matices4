@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/utils/supabaseClient'
 import { jwtDecode } from 'jwt-decode'
 
-// Definimos los tipos explícitos
+// Definición de tipos explícitos
 interface Cancha {
   id_cancha: number
   nombre: string
@@ -28,13 +28,21 @@ interface Usuario {
   id: string
 }
 
+interface ChartData {
+  labels: string[]
+  datasets: any[]
+}
+
 export function useDashboard() {
   const [reservas, setReservas] = useState<Reserva[]>([])
   const [saldoGastado, setSaldoGastado] = useState<number>(0)
   const [canchaFavorita, setCanchaFavorita] = useState<string>('No disponible')
-  const [horarioFavorito, setHorarioFavorito] = useState<string>('')
+  const [horarioFavorito, setHorarioFavorito] = useState<string>('No definido')
+  const [barChartData, setBarChartData] = useState<ChartData>({ labels: [], datasets: [] })
+  const [lineChartData, setLineChartData] = useState<ChartData>({ labels: [], datasets: [] })
   const [user, setUser] = useState<Usuario | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
+
   const router = useRouter()
 
   const cargarDatos = useCallback(async (RUT: string) => {
@@ -69,6 +77,39 @@ export function useDashboard() {
 
       setCanchaFavorita(mapaCanchas[Number(canchaMasReservada?.[0])] || 'No disponible')
 
+      const horarios = reservas.map(reserva => reserva.hora_inicio.split(':')[0])
+      const horarioMasFrecuente = horarios.reduce((acc: { [key: string]: number }, hora) => {
+        acc[hora] = (acc[hora] || 0) + 1
+        return acc
+      }, {})
+
+      const horarioFavorito = Object.entries(horarioMasFrecuente).sort((a, b) => b[1] - a[1])[0]?.[0] || 'No definido'
+      setHorarioFavorito(`${horarioFavorito}:00`)
+
+      // Preparar datos para los gráficos
+      setBarChartData({
+        labels: Object.keys(horarioMasFrecuente),
+        datasets: [
+          {
+            label: 'Reservas por Horario',
+            data: Object.values(horarioMasFrecuente),
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+          },
+        ],
+      })
+
+      setLineChartData({
+        labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        datasets: [
+          {
+            label: 'Reservas por Mes',
+            data: reservas.map(reserva => new Date(reserva.fecha).getMonth() + 1),
+            fill: false,
+            borderColor: 'rgba(75, 192, 192, 1)',
+          },
+        ],
+      })
+
       setLoading(false)
     } catch (error) {
       console.error('Error cargando datos del dashboard:', error)
@@ -98,6 +139,8 @@ export function useDashboard() {
     saldoGastado,
     canchaFavorita,
     horarioFavorito,
+    barChartData,
+    lineChartData,
     user,
     loading,
   }
