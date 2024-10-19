@@ -227,51 +227,56 @@ export default function Dashboard() {
   }, [router,]);
 
   const procesarDatosGraficos = (reservas: any[]) => {
-    const reservasPorMes = Array(12).fill(0)
-    const reservasPorCancha: { [key: number]: number } = {}
-    const reservasPorHorario = Array(9).fill(0)
-    const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00']
+    if (Object.keys(mapaCanchas).length === 0) {
+      console.error('El mapa de canchas no está listo aún.');
+      return; // Salimos si el mapa no está listo
+    }
+  
+    const reservasPorMes = Array(12).fill(0); // Inicializa meses de enero a diciembre
+    const reservasPorCancha: { [key: number]: number } = {}; // Canchas y conteo de reservas
+    const reservasPorHorario = Array(9).fill(0); // Intervalos de horarios de 16:00 a 00:00
+    const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00'];
   
     reservas.forEach((reserva) => {
       // Procesar las reservas por mes
-      const mes = new Date(reserva.fecha).getMonth()
-      reservasPorMes[mes]++
+      const mes = new Date(reserva.fecha).getMonth();
+      reservasPorMes[mes]++;
   
-      // Procesar las reservas por cancha usando id_cancha como número
-      const canchaId = Number(reserva.id_cancha) // Asegura que siempre sea número
-      if (!reservasPorCancha[canchaId]) reservasPorCancha[canchaId] = 0
-      reservasPorCancha[canchaId]++
+      // Procesar las reservas por cancha
+      const canchaId = Number(reserva.id_cancha); // Asegurar que sea un número
+      if (!reservasPorCancha[canchaId]) reservasPorCancha[canchaId] = 0;
+      reservasPorCancha[canchaId]++;
   
       // Procesar las reservas por horario
-      const horaInicio = parseInt(reserva.hora_inicio.split(':')[0])
-      const index = horaInicio - 16
+      const horaInicio = parseInt(reserva.hora_inicio.split(':')[0]);
+      const index = horaInicio - 16; // Rango desde 16:00
       if (index >= 0 && index < reservasPorHorario.length) {
-        reservasPorHorario[index]++
+        reservasPorHorario[index]++;
       }
-    })
+    });
   
-    console.log('Reservas por Cancha:', reservasPorCancha) // Verificar conteo
+    console.log('Reservas por Cancha:', reservasPorCancha); // Depuración del conteo por cancha
   
+    // Calcular la cancha favorita por conteo de reservas
     const canchaFavoritaId = Object.keys(reservasPorCancha)
-  .map(Number) // Convertimos las claves a números
-  .reduce((a, b) =>
-    reservasPorCancha[a] > reservasPorCancha[b] ? a : b
-  )
-
-console.log('ID de Cancha Favorita:', canchaFavoritaId) // Verifica el ID
-
-// Accedemos al nombre usando el ID numérico
-const nombreCanchaFavorita = mapaCanchas[canchaFavoritaId] || 'Cancha desconocida'
-setCanchaFavorita(nombreCanchaFavorita)
-
-console.log(`Cancha favorita: ${nombreCanchaFavorita}`)
-
+      .map(Number) // Convertimos las claves a números
+      .reduce((a, b) =>
+        reservasPorCancha[a] > reservasPorCancha[b] ? a : b
+      );
   
-    // Calcular horario favorito
-    const horarioFavoritoIndex = reservasPorHorario.indexOf(Math.max(...reservasPorHorario))
-    setHorarioFavorito(horarios[horarioFavoritoIndex])
+    console.log('ID de Cancha Favorita:', canchaFavoritaId); // Verifica el ID favorito
   
-    // Actualizar los gráficos
+    // Usar el ID para obtener el nombre desde el mapa
+    const nombreCanchaFavorita = mapaCanchas[canchaFavoritaId] || 'Cancha desconocida';
+    setCanchaFavorita(nombreCanchaFavorita); // Actualiza el estado
+  
+    console.log(`Cancha favorita: ${nombreCanchaFavorita}`); // Depuración del nombre de la cancha
+  
+    // Calcular el horario favorito basado en el máximo número de reservas
+    const horarioFavoritoIndex = reservasPorHorario.indexOf(Math.max(...reservasPorHorario));
+    setHorarioFavorito(horarios[horarioFavoritoIndex]); // Actualiza el estado del horario favorito
+  
+    // Actualización de gráficos con los datos procesados
     setLineChartData({
       labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
       datasets: [
@@ -283,7 +288,7 @@ console.log(`Cancha favorita: ${nombreCanchaFavorita}`)
           tension: 0.3,
         },
       ],
-    })
+    });
   
     setBarChartData({
       labels: horarios,
@@ -296,14 +301,16 @@ console.log(`Cancha favorita: ${nombreCanchaFavorita}`)
           borderWidth: 1,
         },
       ],
-    })
+    });
   
-    const reservasPorDia = Array(7).fill(0)
-    const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+    const reservasPorDia = Array(7).fill(0); // Inicialización de días de la semana
+    const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  
     reservas.forEach((reserva) => {
-      const dia = new Date(reserva.fecha).getDay()
-      reservasPorDia[(dia + 6) % 7]++
-    })
+      const dia = new Date(reserva.fecha).getDay();
+      reservasPorDia[(dia + 6) % 7]++; // Ajusta el índice para comenzar el lunes
+    });
+  
     setDaysChartData({
       labels: dias,
       datasets: [
@@ -315,8 +322,8 @@ console.log(`Cancha favorita: ${nombreCanchaFavorita}`)
           borderWidth: 1,
         },
       ],
-    })
-  }
+    });
+  };
   
   
 
