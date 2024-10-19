@@ -125,21 +125,21 @@ export default function Dashboard() {
     
         console.log('Canchas obtenidas:', canchas) // Verificar las canchas obtenidas
     
-        // Crear el mapa de id_cancha a nombre como cadenas
+        // Crear el mapa de id_cancha a nombre
         const mapaCanchas: { [key: string]: string } = {}
         canchas.forEach(({ id_cancha, nombre }) => {
-          mapaCanchas[id_cancha.toString()] = nombre // Convertimos el ID a string
+          mapaCanchas[id_cancha.toString()] = nombre
         })
     
         console.log('Mapa de Canchas:', mapaCanchas) // Verificar el mapa
     
         // Transformar reservas para incluir el nombre de la cancha
         const reservasConNombre = reservas.map((reserva) => {
-          console.log('Reserva antes de la transformación:', reserva) // Verificar cada reserva
+          console.log('Reserva:', reserva) // Verificar cada reserva
     
           return {
             ...reserva,
-            cancha: mapaCanchas[reserva.id_cancha?.toString()] || 'Cancha desconocida', // Aseguramos que el ID sea string
+            cancha: mapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida',
           }
         })
     
