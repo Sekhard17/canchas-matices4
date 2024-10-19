@@ -224,7 +224,7 @@ export default function Dashboard() {
       supabase.removeChannel(reservasSubscription);
       supabase.removeChannel(pagosSubscription);
     };
-  }, [router]);
+  }, [router,]);
 
   const procesarDatosGraficos = (reservas: any[]) => {
     const reservasPorMes = Array(12).fill(0);
@@ -249,13 +249,16 @@ export default function Dashboard() {
         reservasPorHorario[index]++;
       }
     });
-
     
-  
     // Calcular cancha favorita usando id_cancha y luego traducir al nombre
     const canchaFavoritaId = Object.keys(reservasPorCancha).reduce((a, b) =>
       reservasPorCancha[a] > reservasPorCancha[b] ? a : b
     );
+
+    // Usa el mapa de canchas para obtener el nombre de la cancha favorita
+    const nombreCanchaFavorita = mapaCanchas[canchaFavoritaId] || 'Cancha desconocida';
+    setCanchaFavorita(nombreCanchaFavorita);
+    
   
     // Calcular horario favorito
     const horarioFavoritoIndex = reservasPorHorario.indexOf(Math.max(...reservasPorHorario));
