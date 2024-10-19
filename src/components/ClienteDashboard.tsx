@@ -102,55 +102,59 @@ export default function Dashboard() {
   useEffect(() => {
     const obtenerDatosDashboard = async (RUT: string, shouldSetLoading = true) => {
       try {
-        if (shouldSetLoading) setLoading(true);
+        if (shouldSetLoading) setLoading(true)
     
         // Obtener reservas del usuario
         const { data: reservas, error: errorReservas } = await supabase
           .from('reservas')
           .select('*')
-          .eq('rut_usuario', RUT);
+          .eq('rut_usuario', RUT)
     
-        if (errorReservas) throw errorReservas;
+        if (errorReservas) throw errorReservas
     
-        console.log('Reservas obtenidas:', reservas); // Verificación
+        console.log('Reservas obtenidas:', reservas) // Verificar las reservas obtenidas
     
-        setTotalReservas(reservas.length);
+        setTotalReservas(reservas.length)
     
         // Obtener todas las canchas con sus nombres
         const { data: canchas, error: errorCanchas } = await supabase
           .from('canchas')
-          .select('id_cancha, nombre');
+          .select('id_cancha, nombre')
     
-        if (errorCanchas) throw errorCanchas;
+        if (errorCanchas) throw errorCanchas
     
-        console.log('Canchas obtenidas:', canchas); // Verificación
+        console.log('Canchas obtenidas:', canchas) // Verificar las canchas obtenidas
     
         // Crear el mapa de id_cancha a nombre como cadenas
-        const mapaCanchas: { [key: string]: string } = {};
+        const mapaCanchas: { [key: string]: string } = {}
         canchas.forEach(({ id_cancha, nombre }) => {
-          mapaCanchas[id_cancha.toString()] = nombre; // Convertir el ID a string
-        });
+          mapaCanchas[id_cancha.toString()] = nombre // Convertimos el ID a string
+        })
     
-        console.log('Mapa de Canchas:', mapaCanchas); // Verificación
+        console.log('Mapa de Canchas:', mapaCanchas) // Verificar el mapa
     
-        // Transformar las reservas para incluir el nombre de la cancha
-        const reservasConNombre = reservas.map((reserva) => ({
-          ...reserva,
-          cancha: mapaCanchas[reserva.id_cancha?.toString()] || 'Cancha desconocida', // Aseguramos que el ID sea string
-        }));
+        // Transformar reservas para incluir el nombre de la cancha
+        const reservasConNombre = reservas.map((reserva) => {
+          console.log('Reserva antes de la transformación:', reserva) // Verificar cada reserva
     
-        console.log('Reservas con nombre de cancha:', reservasConNombre); // Verificación
+          return {
+            ...reserva,
+            cancha: mapaCanchas[reserva.id_cancha?.toString()] || 'Cancha desconocida', // Aseguramos que el ID sea string
+          }
+        })
     
-        setReservas(reservasConNombre);
+        console.log('Reservas con nombre de cancha:', reservasConNombre) // Verificar reservas transformadas
+    
+        setReservas(reservasConNombre)
     
         // Procesar los datos para los gráficos
-        procesarDatosGraficos(reservasConNombre);
+        procesarDatosGraficos(reservasConNombre)
       } catch (error) {
-        console.error('Error obteniendo datos del dashboard:', error);
+        console.error('Error obteniendo datos del dashboard:', error)
       } finally {
-        if (shouldSetLoading) setLoading(false);
+        if (shouldSetLoading) setLoading(false)
       }
-    };
+    }
     
   
     const token = localStorage.getItem('token');
