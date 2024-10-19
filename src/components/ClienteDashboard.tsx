@@ -138,12 +138,12 @@ export default function Dashboard() {
   
         console.log('Canchas obtenidas:', canchas); // Verificar las canchas obtenidas
   
-         // Crea el mapa de id_cancha a nombre y guarda en el estado
-         const nuevoMapaCanchas: { [key: string]: string } = {};
-         canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
-           nuevoMapaCanchas[cancha.id_cancha.toString()] = cancha.nombre;
-         });
-         setMapaCanchas(nuevoMapaCanchas);
+        const nuevoMapaCanchas: { [key: number]: string } = {}
+        canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
+          nuevoMapaCanchas[cancha.id_cancha] = cancha.nombre // Usamos el ID como número
+        })
+        setMapaCanchas(nuevoMapaCanchas)
+        
 
         // Verificar que las canchas tienen contenido
         if (canchas && canchas.length > 0) {
@@ -252,20 +252,20 @@ export default function Dashboard() {
   
     console.log('Reservas por Cancha:', reservasPorCancha) // Verificar conteo
   
-    // Calcular cancha favorita usando id_cancha y luego traducir al nombre
     const canchaFavoritaId = Object.keys(reservasPorCancha)
-      .map(Number) // Asegura que las claves sean números
-      .reduce((a, b) =>
-        reservasPorCancha[a] > reservasPorCancha[b] ? a : b
-      )
-  
-    console.log('ID de Cancha Favorita:', canchaFavoritaId) // Verifica el ID
-  
-    // Usa el mapa de canchas para obtener el nombre de la cancha favorita
-    const nombreCanchaFavorita = mapaCanchas[canchaFavoritaId] || 'Cancha desconocida'
-    setCanchaFavorita(nombreCanchaFavorita)
-  
-    console.log(`Cancha favorita: ${nombreCanchaFavorita}`)
+  .map(Number) // Convertimos las claves a números
+  .reduce((a, b) =>
+    reservasPorCancha[a] > reservasPorCancha[b] ? a : b
+  )
+
+console.log('ID de Cancha Favorita:', canchaFavoritaId) // Verifica el ID
+
+// Accedemos al nombre usando el ID numérico
+const nombreCanchaFavorita = mapaCanchas[canchaFavoritaId] || 'Cancha desconocida'
+setCanchaFavorita(nombreCanchaFavorita)
+
+console.log(`Cancha favorita: ${nombreCanchaFavorita}`)
+
   
     // Calcular horario favorito
     const horarioFavoritoIndex = reservasPorHorario.indexOf(Math.max(...reservasPorHorario))
