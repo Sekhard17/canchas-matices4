@@ -331,7 +331,14 @@ function ServiceCard({ icon, title, description }: ServiceCardProps) {
 function InstallationCard({ image, title, description }: InstallationCardProps) {
   return (
     <Card className="bg-white border-gray-200 shadow-lg overflow-hidden">
-      <Image src={image} alt={title} width={600} height={400} className="w-full h-64 object-cover" />
+      <Image 
+        src={image} 
+        alt={title} 
+        width={600} 
+        height={400} 
+        className="w-full h-64 object-cover" 
+        priority // Forzar carga inmediata 
+      />
       <CardContent className="p-6">
         <h3 className="text-2xl font-semibold mb-2 text-blue-600">{title}</h3>
         <p className="text-gray-600">{description}</p>
@@ -339,6 +346,7 @@ function InstallationCard({ image, title, description }: InstallationCardProps) 
     </Card>
   )
 }
+
 
 function TestimonialCard({ quote, author }: TestimonialCardProps) {
   return (
