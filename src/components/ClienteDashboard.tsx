@@ -227,42 +227,45 @@ export default function Dashboard() {
   }, [router,]);
 
   const procesarDatosGraficos = (reservas: any[]) => {
-    const reservasPorMes = Array(12).fill(0);
-    const reservasPorCancha: { [key: string]: number } = {};
-    const reservasPorHorario = Array(9).fill(0);
-    const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00'];
+    const reservasPorMes = Array(12).fill(0)
+    const reservasPorCancha: { [key: number]: number } = {}
+    const reservasPorHorario = Array(9).fill(0)
+    const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00']
   
     reservas.forEach((reserva) => {
       // Procesar las reservas por mes
-      const mes = new Date(reserva.fecha).getMonth();
-      reservasPorMes[mes]++;
+      const mes = new Date(reserva.fecha).getMonth()
+      reservasPorMes[mes]++
   
-      // Procesar las reservas por cancha usando id_cancha
-      const cancha = reserva.id_cancha;
-      if (!reservasPorCancha[cancha]) reservasPorCancha[cancha] = 0;
-      reservasPorCancha[cancha]++;
+      // Procesar las reservas por cancha usando id_cancha como número
+      const canchaId = reserva.id_cancha
+      if (!reservasPorCancha[canchaId]) reservasPorCancha[canchaId] = 0
+      reservasPorCancha[canchaId]++
   
       // Procesar las reservas por horario
-      const horaInicio = parseInt(reserva.hora_inicio.split(':')[0]);
-      const index = horaInicio - 16;
+      const horaInicio = parseInt(reserva.hora_inicio.split(':')[0])
+      const index = horaInicio - 16
       if (index >= 0 && index < reservasPorHorario.length) {
-        reservasPorHorario[index]++;
+        reservasPorHorario[index]++
       }
-    });
-    
+    })
+  
     // Calcular cancha favorita usando id_cancha y luego traducir al nombre
-    const canchaFavoritaId = Object.keys(reservasPorCancha).reduce((a, b) =>
-      reservasPorCancha[a] > reservasPorCancha[b] ? a : b
-    );
-
+    const canchaFavoritaId = Object.keys(reservasPorCancha)
+      .map(Number) // Asegura que los IDs se manejen como enteros
+      .reduce((a, b) =>
+        reservasPorCancha[a] > reservasPorCancha[b] ? a : b
+      )
+  
     // Usa el mapa de canchas para obtener el nombre de la cancha favorita
-    const nombreCanchaFavorita = mapaCanchas[canchaFavoritaId] || 'Cancha desconocida';
-    setCanchaFavorita(nombreCanchaFavorita);
-    
+    const nombreCanchaFavorita = mapaCanchas[canchaFavoritaId] || 'Cancha desconocida'
+    setCanchaFavorita(nombreCanchaFavorita)
+  
+    console.log(`Cancha favorita: ${nombreCanchaFavorita}`)
   
     // Calcular horario favorito
-    const horarioFavoritoIndex = reservasPorHorario.indexOf(Math.max(...reservasPorHorario));
-    setHorarioFavorito(horarios[horarioFavoritoIndex]);
+    const horarioFavoritoIndex = reservasPorHorario.indexOf(Math.max(...reservasPorHorario))
+    setHorarioFavorito(horarios[horarioFavoritoIndex])
   
     // Actualizar los gráficos
     setLineChartData({
@@ -276,7 +279,7 @@ export default function Dashboard() {
           tension: 0.3,
         },
       ],
-    });
+    })
   
     setBarChartData({
       labels: horarios,
@@ -289,14 +292,14 @@ export default function Dashboard() {
           borderWidth: 1,
         },
       ],
-    });
+    })
   
-    const reservasPorDia = Array(7).fill(0);
-    const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    const reservasPorDia = Array(7).fill(0)
+    const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
     reservas.forEach((reserva) => {
-      const dia = new Date(reserva.fecha).getDay();
-      reservasPorDia[(dia + 6) % 7]++;
-    });
+      const dia = new Date(reserva.fecha).getDay()
+      reservasPorDia[(dia + 6) % 7]++
+    })
     setDaysChartData({
       labels: dias,
       datasets: [
@@ -308,8 +311,9 @@ export default function Dashboard() {
           borderWidth: 1,
         },
       ],
-    });
-  };
+    })
+  }
+  
   
 
   useEffect(() => {
