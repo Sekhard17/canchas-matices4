@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
@@ -69,7 +69,6 @@ const chartOptions = {
   },
 }
 
-
 export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -89,6 +88,90 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [mapaCanchas, setMapaCanchas] = useState<{ [key: string]: string }>({})
   const router = useRouter()
+
+  const procesarDatosGraficos = useCallback((reservas: any[]) => {
+    if (Object.keys(mapaCanchas).length === 0) {
+      console.error('El mapa de canchas no está listo aún.')
+      return
+    }
+
+    const reservasPorMes = Array(12).fill(0)
+    const reservasPorCancha: { [key: number]: number } = {}
+    const reservasPorHorario = Array(9).fill(0)
+    const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00']
+
+    reservas.forEach((reserva) => {
+      const mes = new Date(reserva.fecha).getMonth()
+      reservasPorMes[mes]++
+
+      const canchaId = Number(reserva.id_cancha)
+      if (!reservasPorCancha[canchaId]) reservasPorCancha[canchaId] = 0
+      reservasPorCancha[canchaId]++
+
+      const horaInicio = parseInt(reserva.hora_inicio.split(':')[0])
+      const index = horaInicio - 16
+      if (index >= 0 && index < reservasPorHorario.length) {
+        reservasPorHorario[index]++
+      }
+    })
+
+    const horarioFavoritoIndex = reservasPorHorario.indexOf(Math.max(...reservasPorHorario))
+    setHorarioFavorito(horarios[horarioFavoritoIndex])
+
+    setLineChartData({
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+      datasets: [
+        {
+          label: 'Reservas por Mes',
+          data: reservasPorMes,
+          borderColor: 'rgb(99, 102, 241)',
+          backgroundColor: 'rgba(99, 102, 241, 0.5)',
+          tension: 0.3,
+          fill: true,
+        },
+      ],
+    })
+
+    setBarChartData({
+      labels: horarios,
+      datasets: [
+        {
+          label: 'Reservas por Horario',
+          data: reservasPorHorario,
+          backgroundColor: 'rgba(52, 211, 153, 0.6)',
+          borderColor: 'rgb(52, 211, 153)',
+          borderWidth: 1,
+        },
+      ],
+    })
+
+    const reservasPorDia = Array(7).fill(0)
+    const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+
+    reservas.forEach((reserva) => {
+      const dia = new Date(reserva.fecha).getDay()
+      reservasPorDia[(dia + 6) % 7]++
+    })
+
+    setDaysChartData({
+      labels: dias,
+      datasets: [
+        {
+          label: 'Días Preferidos del Mes',
+          data: reservasPorDia,
+          backgroundColor: 'rgba(251, 146, 60, 0.6)',
+          borderColor: 'rgb(251, 146, 60)',
+          borderWidth: 1,
+        },
+      ],
+    })
+
+    // Determinar la cancha favorita
+    const canchaFavoritaId = Object.keys(reservasPorCancha).reduce((a, b) => 
+      reservasPorCancha[Number(a)] > reservasPorCancha[Number(b)] ? a : b
+    )
+    setCanchaFavorita(mapaCanchas[Number(canchaFavoritaId)] || 'No disponible')
+  }, [mapaCanchas])
 
   useEffect(() => {
     const obtenerDatosDashboard = async (RUT: string, shouldSetLoading = true) => {
@@ -193,91 +276,7 @@ export default function Dashboard() {
       supabase.removeChannel(reservasSubscription)
       supabase.removeChannel(pagosSubscription)
     }
-  }, [router])
-
-  const procesarDatosGraficos = (reservas: any[]) => {
-    if (Object.keys(mapaCanchas).length === 0) {
-      console.error('El mapa de canchas no está listo aún.')
-      return
-    }
-
-    const reservasPorMes = Array(12).fill(0)
-    const reservasPorCancha: { [key: number]: number } = {}
-    const reservasPorHorario = Array(9).fill(0)
-    const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00']
-
-    reservas.forEach((reserva) => {
-      const mes = new Date(reserva.fecha).getMonth()
-      reservasPorMes[mes]++
-
-      const canchaId = Number(reserva.id_cancha)
-      if (!reservasPorCancha[canchaId]) reservasPorCancha[canchaId] = 0
-      reservasPorCancha[canchaId]++
-
-      const horaInicio = parseInt(reserva.hora_inicio.split(':')[0])
-      const index = horaInicio - 16
-      if (index >= 0 && index < reservasPorHorario.length) {
-        reservasPorHorario[index]++
-      }
-    })
-
-    const horarioFavoritoIndex = reservasPorHorario.indexOf(Math.max(...reservasPorHorario))
-    setHorarioFavorito(horarios[horarioFavoritoIndex])
-
-    setLineChartData({
-      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-      datasets: [
-        {
-          label: 'Reservas por Mes',
-          data: reservasPorMes,
-          borderColor: 'rgb(99, 102, 241)',
-          backgroundColor: 'rgba(99, 102, 241, 0.5)',
-          tension: 0.3,
-          fill: true,
-        },
-      ],
-    })
-
-    setBarChartData({
-      labels: horarios,
-      datasets: [
-        {
-          label: 'Reservas por Horario',
-          data: reservasPorHorario,
-          backgroundColor: 'rgba(52, 211, 153, 0.6)',
-          borderColor: 'rgb(52, 211, 153)',
-          borderWidth: 1,
-        },
-      ],
-    })
-
-    const reservasPorDia = Array(7).fill(0)
-    const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
-
-    reservas.forEach((reserva) => {
-      const dia = new Date(reserva.fecha).getDay()
-      reservasPorDia[(dia + 6) % 7]++
-    })
-
-    setDaysChartData({
-      labels: dias,
-      datasets: [
-        {
-          label: 'Días Preferidos del Mes',
-          data: reservasPorDia,
-          backgroundColor: 'rgba(251, 146, 60, 0.6)',
-          borderColor: 'rgb(251, 146, 60)',
-          borderWidth: 1,
-        },
-      ],
-    })
-
-    // Determinar la cancha favorita
-    const canchaFavoritaId = Object.keys(reservasPorCancha).reduce((a, b) => 
-      reservasPorCancha[Number(a)] > reservasPorCancha[Number(b)] ? a : b
-    )
-    setCanchaFavorita(mapaCanchas[Number(canchaFavoritaId)] || 'No disponible')
-  }
+  }, [router, procesarDatosGraficos])
 
   useEffect(() => {
     const reservasFiltradas = reservas.filter((reserva) => {
@@ -324,16 +323,48 @@ export default function Dashboard() {
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-lg fixed top-0 left-0 right-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6  lg:px-8 py-4">
+        <div  className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="mr-4 md:hidden" onClick={() => setSidebarOpen(!sidebarOpen)}>
+              <Button variant="ghost" size="icon" className="mr-4 lg:hidden" onClick={() => setSidebarOpen(!sidebarOpen)}>
                 {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
-              <h1 className="text-2xl font-bold text-gray-800 dark:text-white font-sans">Dashboard</h1>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex items-center"
+              >
+                <Zap className="h-8 w-8 text-purple-600 dark:text-purple-400 mr-2" />
+                <h1 className="text-2xl font-bold text-purple-600 dark:text-purple-400">Matices</h1>
+              </motion.div>
             </div>
-            <div className="hidden md:flex items-center space-x-4">
-              <div className="relative">
+
+            <div className="hidden lg:flex items-center space-x-4">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="bg-purple-100 dark:bg-purple-900 rounded-lg p-2 flex items-center"
+              >
+                <MapPin className="h-5 w-5 text-purple-600 dark:text-purple-400 mr-2" />
+                <span className="text-sm font-medium text-purple-800 dark:text-purple-200">Cancha Favorita:</span>
+                <span className="text-sm font-bold text-purple-600 dark:text-purple-300 ml-2">{canchaFavorita}</span>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="bg-pink-100 dark:bg-pink-900 rounded-lg p-2 flex items-center"
+              >
+                <Clock className="h-5 w-5 text-pink-600 dark:text-pink-400 mr-2" />
+                <span className="text-sm font-medium text-pink-800 dark:text-pink-200">Horario Favorito:</span>
+                <span className="text-sm font-bold text-pink-600 dark:text-pink-300 ml-2">{horarioFavorito}</span>
+              </motion.div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <div className="relative hidden md:block">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <Input
                   type="text"
@@ -341,8 +372,7 @@ export default function Dashboard() {
                   className="pl-10 pr-4 py-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
-            </div>
-            <div className="flex items-center space-x-4">
+
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -355,8 +385,7 @@ export default function Dashboard() {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              
-              {/* Notificaciones */}
+
               <DropdownMenu open={notificacionesAbiertas} onOpenChange={setNotificacionesAbiertas}>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" className="relative bg-gradient-to-r from-purple-400 to-pink-500 text-white border-none">
@@ -400,7 +429,6 @@ export default function Dashboard() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Usuario */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -435,14 +463,10 @@ export default function Dashboard() {
       </header>
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700`}>
+      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700`}>
         <div className="h-full px-3 py-4 overflow-y-auto">
-          <div className="flex items-center mb-5 font-semibold text-xl text-purple-600 dark:text-purple-400">
-            <Zap className="mr-2 h-6 w-6" />
-            <span>Matices</span>
-          </div>
-          <nav className="space-y-1">
-            <div className="pb-2">
+          <nav className="space-y-6 pt-20">
+            <div>
               <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Principal</h2>
               <div className="space-y-1">
                 <Button variant="ghost" className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900">
@@ -459,7 +483,7 @@ export default function Dashboard() {
                 </Button>
               </div>
             </div>
-            <div className="py-2">
+            <div>
               <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Aplicaciones</h2>
               <div className="space-y-1">
                 <Button variant="ghost" className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900">
@@ -472,7 +496,7 @@ export default function Dashboard() {
                 </Button>
               </div>
             </div>
-            <div className="py-2">
+            <div>
               <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Otros</h2>
               <div className="space-y-1">
                 <Button variant="ghost" className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900">
@@ -483,19 +507,6 @@ export default function Dashboard() {
                   <Settings className="mr-2 h-4 w-4" />
                   Configuración
                 </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900">
-                      <ChevronDown className="mr-2 h-4 w-4" />
-                      Más opciones
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
-                    <DropdownMenuItem>Opción 1</DropdownMenuItem>
-                    <DropdownMenuItem>Opción 2</DropdownMenuItem>
-                    <DropdownMenuItem>Opción 3</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
             </div>
           </nav>
@@ -503,7 +514,7 @@ export default function Dashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="md:ml-64 pt-20 px-4 sm:px-6 lg:px-8 py-8">
+      <main className="lg:ml-64 pt-20 px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
             { title: "Total de Reservas", value: totalReservas, icon: CalendarIcon, color: "from-purple-400 to-pink-500" },
@@ -545,7 +556,7 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <Card className="lg:col-span-2 order-2 lg:order-1 overflow-hidden hover:shadow-lg transition-all duration-300">
+          <Card className="lg:col-span-2 overflow-hidden hover:shadow-lg transition-all duration-300">
             <CardHeader>
               <CardTitle className="text-xl font-bold flex items-center">
                 <BarChart className="mr-2 h-5 w-5 text-purple-500" />
@@ -559,7 +570,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="order-1 lg:order-2 overflow-hidden hover:shadow-lg transition-all duration-300">
+          <Card className="overflow-hidden hover:shadow-lg transition-all duration-300">
             <CardHeader>
               <CardTitle className="text-xl font-bold flex items-center justify-between">
                 <div className="flex items-center">
@@ -633,7 +644,7 @@ export default function Dashboard() {
                                     </DialogDescription>
                                   </DialogHeader>
                                   <div className="flex justify-center py-4">
-                                    <Image src={reserva.qrCode} alt="Código QR de la reserva" className="w-48 h-48" />
+                                    <Image src={reserva.qrCode} alt="Código QR de la reserva" width={192} height={192} />
                                   </div>
                                   <div className="text-center">
                                     <p className="font-semibold">{reserva.cancha}</p>
