@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -14,7 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, BarChart, TrendingUp, Bell, QrCode, DollarSign, Sun, Moon, Home, MessageCircle, Calendar as CalendarIcon2, ChevronDown, Inbox, Search } from 'lucide-react'
+import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Menu, X, Activity, BarChart, TrendingUp, Bell, QrCode, PlusCircle, DollarSign, Sun, Moon, Home, MessageCircle, Calendar as CalendarIcon2, ChevronDown, Inbox, Search, Check } from 'lucide-react'
 import { Line, Bar } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
 import Image from 'next/image'
@@ -70,6 +70,7 @@ const chartOptions = {
   },
 };
 
+
 export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -99,144 +100,81 @@ export default function Dashboard() {
   const [mapaCanchas, setMapaCanchas] = useState<{ [key: string]: string }>({})
   const router = useRouter()
 
-  const procesarDatosGraficos = useCallback((reservas: any[]) => {
-    const reservasPorMes = Array(12).fill(0);
-    const reservasPorCancha: { [key: string]: number } = {};
-    const reservasPorHorario = Array(9).fill(0);
-    const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00'];
-
-    reservas.forEach((reserva) => {
-      // Procesar las reservas por mes
-      const mes = new Date(reserva.fecha).getMonth();
-      reservasPorMes[mes]++;
-
-      // Procesar las reservas por cancha usando id_cancha
-      const cancha = reserva.id_cancha;
-      if (!reservasPorCancha[cancha]) reservasPorCancha[cancha] = 0;
-      reservasPorCancha[cancha]++;
-
-      // Procesar las reservas por horario
-      const horaInicio = parseInt(reserva.hora_inicio.split(':')[0]);
-      const index = horaInicio - 16;
-      if (index >= 0 && index < reservasPorHorario.length) {
-        reservasPorHorario[index]++;
-      }
-    });
-
-    // Calcular cancha favorita usando id_cancha y luego traducir al nombre
-    const canchaFavoritaId = Object.keys(reservasPorCancha).reduce((a, b) =>
-      reservasPorCancha[a] > reservasPorCancha[b] ? a : b
-    );
-
-    // Usa el mapa de canchas para obtener el nombre de la cancha favorita
-    const nombreCanchaFavorita = mapaCanchas[canchaFavoritaId] || 'Cancha desconocida';
-    setCanchaFavorita(nombreCanchaFavorita);
-
-    // Calcular horario favorito
-    const horarioFavoritoIndex = reservasPorHorario.indexOf(Math.max(...reservasPorHorario));
-    setHorarioFavorito(horarios[horarioFavoritoIndex]);
-
-    // Actualizar los gráficos
-    setLineChartData({
-      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-      datasets: [
-        {
-          label: 'Reservas por Mes',
-          data: reservasPorMes,
-          borderColor: 'rgb(99, 102, 241)',
-          backgroundColor: 'rgba(99, 102, 241, 0.5)',
-          tension: 0.3,
-        },
-      ],
-    });
-
-    setBarChartData({
-      labels: horarios,
-      datasets: [
-        {
-          label: 'Reservas por Horario',
-          data: reservasPorHorario,
-          backgroundColor: 'rgba(52, 211, 153, 0.6)',
-          borderColor: 'rgb(52, 211, 153)',
-          borderWidth: 1,
-        },
-      ],
-    });
-
-    const reservasPorDia = Array(7).fill(0);
-    const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-    reservas.forEach((reserva) => {
-      const dia = new Date(reserva.fecha).getDay();
-      reservasPorDia[(dia + 6) % 7]++;
-    });
-    setDaysChartData({
-      labels: dias,
-      datasets: [
-        {
-          label: 'Días Preferidos del Mes',
-          data: reservasPorDia,
-          backgroundColor: 'rgba(251, 146, 60, 0.6)',
-          borderColor: 'rgb(251, 146, 60)',
-          borderWidth: 1,
-        },
-      ],
-    });
-  }, [mapaCanchas]);
-
   useEffect(() => {
     const obtenerDatosDashboard = async (RUT: string, shouldSetLoading = true) => {
       try {
         if (shouldSetLoading) setLoading(true);
-
+  
         // Consulta para obtener las reservas del usuario
         const { data: reservas, error: errorReservas } = await supabase
           .from('reservas')
           .select('*')
           .eq('rut_usuario', RUT);
-
+  
         if (errorReservas) throw errorReservas;
-
+  
         console.log('Reservas obtenidas:', reservas); // Verificar las reservas obtenidas
-
+  
         setReservas(reservas);
         setTotalReservas(reservas.length);
-
+  
         // Consulta para obtener los pagos del usuario
         const { data: pagos, error: errorPagos } = await supabase
           .from('pagos')
           .select('monto')
           .eq('rut_usuario', RUT);
-
+  
         if (errorPagos) throw errorPagos;
-
+  
         const saldoTotal = pagos.reduce((acc: number, pago: { monto: number }) => acc + pago.monto, 0);
         setSaldoGastado(saldoTotal);
-
+  
         // Consulta para obtener los nombres de las canchas
         const { data: canchas, error: errorCanchas } = await supabase
           .from('canchas')
           .select('id_cancha, nombre');
-
+  
         if (errorCanchas) throw errorCanchas;
-
+  
         console.log('Canchas obtenidas:', canchas); // Verificar las canchas obtenidas
+  
+         // Crea el mapa de id_cancha a nombre y guarda en el estado
+         const nuevoMapaCanchas: { [key: string]: string } = {};
+         canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
+           nuevoMapaCanchas[cancha.id_cancha.toString()] = cancha.nombre;
+         });
+         setMapaCanchas(nuevoMapaCanchas);
 
-        // Crea el mapa de id_cancha a nombre y guarda en el estado
-        const nuevoMapaCanchas: { [key: string]: string } = {};
-        canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
-          nuevoMapaCanchas[cancha.id_cancha.toString()] = cancha.nombre;
-        });
-        setMapaCanchas(nuevoMapaCanchas);
-
-        // Procesa los datos de los gráficos con las reservas obtenidas
-        procesarDatosGraficos(reservas);
+        // Verificar que las canchas tienen contenido
+        if (canchas && canchas.length > 0) {
+          // Crea un mapa de id_cancha a nombre de cancha, usando cadenas
+          const mapaCanchas: { [key: string]: string } = {};
+          canchas.forEach((cancha: { id_cancha: number, nombre: string }) => {
+            mapaCanchas[cancha.id_cancha.toString()] = cancha.nombre; // Convertimos el id_cancha a string
+          });
+  
+          console.log('Mapa de Canchas:', mapaCanchas); // Verificar el mapa de id_cancha a nombre
+  
+          // Reemplaza id_cancha por el nombre correspondiente
+          const reservasConNombre = reservas.map((reserva) => ({
+            ...reserva,
+            cancha: mapaCanchas[reserva.id_cancha.toString()] || 'Cancha desconocida', // Convertimos el id_cancha a string
+          }));
+  
+          console.log('Reservas con nombre de cancha:', reservasConNombre); // Verificar las reservas con los nombres de canchas
+  
+          // Procesa los datos de los gráficos con los nombres de las canchas
+          procesarDatosGraficos(reservasConNombre);
+        } else {
+          console.error('No se obtuvieron canchas');
+        }
       } catch (error) {
         console.error('Error obteniendo datos del dashboard:', error);
       } finally {
         if (shouldSetLoading) setLoading(false);
       }
     };
-
+  
     const token = localStorage.getItem('token');
     if (token) {
       try {
@@ -259,38 +197,117 @@ export default function Dashboard() {
 
     // Suscripción a tiempo real en la tabla de reservas
     const reservasSubscription = supabase
-      .channel('reservas')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, (payload) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const decoded: any = jwtDecode(token);
-          if (decoded && decoded.id) {
-            obtenerDatosDashboard(decoded.id, false); // No activar loading en tiempo real
-          }
-        }
-      })
-      .subscribe();
+  .channel('reservas')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, (payload) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded: any = jwtDecode(token);
+      obtenerDatosDashboard(decoded.id, false); // No activar loading en tiempo real
+    }
+  })
+  .subscribe();
 
     // Suscripción a tiempo real en la tabla de pagos
     const pagosSubscription = supabase
-      .channel('pagos')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'pagos' }, (payload) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const decoded: any = jwtDecode(token);
-          if (decoded && decoded.id) {
-            obtenerDatosDashboard(decoded.id, false); // No activar loading en tiempo real
-          }
-        }
-      })
-      .subscribe();
+  .channel('pagos')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'pagos' }, (payload) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded: any = jwtDecode(token);
+      obtenerDatosDashboard(decoded.id, false); // No activar loading en tiempo real
+    }
+  })
+  .subscribe();
 
     // Limpiar suscripciones cuando el componente se desmonta
     return () => {
       supabase.removeChannel(reservasSubscription);
       supabase.removeChannel(pagosSubscription);
     };
-  }, [router, procesarDatosGraficos]);
+  }, [router]);
+
+  const procesarDatosGraficos = (reservas: any[]) => {
+    const reservasPorMes = Array(12).fill(0);
+    const reservasPorCancha: { [key: string]: number } = {};
+    const reservasPorHorario = Array(9).fill(0);
+    const horarios = ['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00'];
+  
+    reservas.forEach((reserva) => {
+      // Procesar las reservas por mes
+      const mes = new Date(reserva.fecha).getMonth();
+      reservasPorMes[mes]++;
+  
+      // Procesar las reservas por cancha usando id_cancha
+      const cancha = reserva.id_cancha;
+      if (!reservasPorCancha[cancha]) reservasPorCancha[cancha] = 0;
+      reservasPorCancha[cancha]++;
+  
+      // Procesar las reservas por horario
+      const horaInicio = parseInt(reserva.hora_inicio.split(':')[0]);
+      const index = horaInicio - 16;
+      if (index >= 0 && index < reservasPorHorario.length) {
+        reservasPorHorario[index]++;
+      }
+    });
+
+    
+  
+    // Calcular cancha favorita usando id_cancha y luego traducir al nombre
+    const canchaFavoritaId = Object.keys(reservasPorCancha).reduce((a, b) =>
+      reservasPorCancha[a] > reservasPorCancha[b] ? a : b
+    );
+  
+    // Calcular horario favorito
+    const horarioFavoritoIndex = reservasPorHorario.indexOf(Math.max(...reservasPorHorario));
+    setHorarioFavorito(horarios[horarioFavoritoIndex]);
+  
+    // Actualizar los gráficos
+    setLineChartData({
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+      datasets: [
+        {
+          label: 'Reservas por Mes',
+          data: reservasPorMes,
+          borderColor: 'rgb(99, 102, 241)',
+          backgroundColor: 'rgba(99, 102, 241, 0.5)',
+          tension: 0.3,
+        },
+      ],
+    });
+  
+    setBarChartData({
+      labels: horarios,
+      datasets: [
+        {
+          label: 'Reservas por Horario',
+          data: reservasPorHorario,
+          backgroundColor: 'rgba(52, 211, 153, 0.6)',
+          borderColor: 'rgb(52, 211, 153)',
+          borderWidth: 1,
+        },
+      ],
+    });
+  
+    const reservasPorDia = Array(7).fill(0);
+    const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    reservas.forEach((reserva) => {
+      const dia = new Date(reserva.fecha).getDay();
+      reservasPorDia[(dia + 6) % 7]++;
+    });
+    setDaysChartData({
+      labels: dias,
+      datasets: [
+        {
+          label: 'Días Preferidos del Mes',
+          data: reservasPorDia,
+          backgroundColor: 'rgba(251, 146, 60, 0.6)',
+          borderColor: 'rgb(251, 146, 60)',
+          borderWidth: 1,
+        },
+      ],
+    });
+  };
+  
 
   useEffect(() => {
     const reservasFiltradas = reservas.filter((reserva) => {
