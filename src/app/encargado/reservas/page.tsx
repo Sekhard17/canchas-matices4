@@ -1,3 +1,4 @@
+//src/app/encargado/reservas/page.tsx
 'use client';
 
 import React, { useState } from 'react';

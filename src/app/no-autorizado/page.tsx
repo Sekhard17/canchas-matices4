@@ -1,4 +1,5 @@
-"use client"
+//src/app/no-autorizado/page.tsx
+'use client'
 
 import React from 'react'
 import { motion } from 'framer-motion'

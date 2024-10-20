@@ -1,3 +1,4 @@
+//src/app/encargado/verificacion/page.tsx
 "use client"
 
 import { useState } from 'react'

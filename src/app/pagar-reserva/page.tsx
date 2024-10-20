@@ -1,4 +1,5 @@
-"use client";
+//src/app/pagar-reserva/page.tsx
+'use client'
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";

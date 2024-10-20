@@ -1,3 +1,4 @@
+// src/app/admin/encargados/page.tsx
 "use client"
 
 import React, { useState } from 'react'

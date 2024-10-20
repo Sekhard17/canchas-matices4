@@ -1,3 +1,4 @@
+//src/app/cliente/checkout/page.tsx
 'use client'
 
 import { useState } from 'react'
