@@ -1,3 +1,4 @@
+//src/utils/jwtUtils.ts
 import { jwtDecode } from 'jwt-decode' 
 
 // Definimos la interfaz del payload del JWT

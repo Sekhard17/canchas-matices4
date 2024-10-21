@@ -9,76 +9,45 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu"
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { CalendarIcon, Clock, MapPin, User, LogOut, Settings, Search, Menu, X, Activity, QrCode, PlusCircle, Sun, Moon, ChevronRight, BarChart, TrendingUp, Users, DollarSign, Repeat, Zap, Bell, CreditCard, HelpCircle, LayoutDashboard } from 'lucide-react'
+import { 
+  CalendarIcon, Clock, MapPin, User, LogOut, Settings, Search, Menu, X, 
+  Activity, QrCode, PlusCircle, Sun, Moon, ChevronRight, BarChart, TrendingUp, 
+  Users, DollarSign, Repeat, Zap, Bell, CreditCard, HelpCircle, LayoutDashboard 
+} from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar } from "@/components/ui/calendar"
 import { Line, Bar } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
-
+import { useDashboardData } from "@/hooks/useDashboardData"
+import MotionNumber from 'motion-number'
+// Registro de componentes necesarios para ChartJS
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ChartTooltip, Legend)
 
-const reservas = [
-  { id: 1, fecha: '2024-08-20 10:00', cancha: 'Cancha Principal', estado: 'Confirmada', qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Reserva1' },
-  { id: 2, fecha: '2024-08-22 12:00', cancha: 'Cancha 2', estado: 'Realizada', qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Reserva2' },
-  { id: 3, fecha: '2024-08-25 15:00', cancha: 'Cancha de Fútbol 7', estado: 'Anulada', qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Reserva3' },
-  { id: 4, fecha: '2024-08-28 18:00', cancha: 'Cancha Principal', estado: 'Confirmada', qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Reserva4' },
-  { id: 5, fecha: '2024-09-01 14:00', cancha: 'Cancha 2', estado: 'Pendiente', qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Reserva5' },
-]
-
-const lineChartData = {
-  labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-  datasets: [
-    {
-      label: 'Reservas por Mes',
-      data: [12, 19, 3, 5, 2, 3],
-      borderColor: 'rgb(99, 102, 241)',
-      backgroundColor: 'rgba(99, 102, 241, 0.5)',
-      tension: 0.3
-    }
-  ]
-}
-
-const barChartData = {
-  labels: ['Cancha Principal', 'Cancha 2', 'Cancha de Fútbol 7'],
-  datasets: [
-    {
-      label: 'Horas Reservadas',
-      data: [10, 5, 8],
-      backgroundColor: [
-        'rgba(99, 102, 241, 0.6)',
-        'rgba(52, 211, 153, 0.6)',
-        'rgba(251, 191, 36, 0.6)',
-      ],
-      borderColor: [
-        'rgb(99, 102, 241)',
-        'rgb(52, 211, 153)',
-        'rgb(251, 191, 36)',
-      ],
-      borderWidth: 1
-    }
-  ]
-}
-
-const horariosChartData = {
-  labels: ['8:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
-  datasets: [
-    {
-      label: 'Reservas por Horario',
-      data: [2, 5, 3, 7, 6, 8, 4],
-      backgroundColor: 'rgba(99, 102, 241, 0.6)',
-      borderColor: 'rgb(99, 102, 241)',
-      borderWidth: 1
-    }
-  ]
-}
-
 export default function Component() {
+  // Datos traídos del hook personalizado para manejar reservas y estadísticas
+  const { user, reservas, fechaSeleccionada, setFechaSeleccionada, filtrarReservasPorFecha, calcularEstadisticas } = useDashboardData()
+  const nombreCompleto = user ? `${user.nombre} ${user.apellido}` : 'Usuario'
+
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [darkMode, setDarkMode] = useState(false)
   const [filteredReservas, setFilteredReservas] = useState(reservas)
@@ -90,15 +59,24 @@ export default function Component() {
   const [isMobile, setIsMobile] = useState(false)
   const [showFAB, setShowFAB] = useState(true)
 
+  // Cálculo de estadísticas desde los datos obtenidos
+  const { totalReservas, canchaFavorita, horarioPreferido, saldoGastado } = calcularEstadisticas()
+
+  // Control de tamaño de pantalla
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024)
-    }
+    const handleResize = () => setIsMobile(window.innerWidth < 1024)
     handleResize()
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Filtrar reservas cada vez que cambian las reservas o la fecha seleccionada
+  useEffect(() => {
+    setFilteredReservas(filtrarReservasPorFecha())
+  }, [reservas, fechaSeleccionada, filtrarReservasPorFecha])
+  
+
+  // Modo oscuro
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
     if (darkMode) {
@@ -108,6 +86,7 @@ export default function Component() {
     }
   }
 
+  // Mapeo del estado de la reserva al tipo de badge correspondiente
   const mapEstadoToVariant = (estado: string): "default" | "destructive" | "outline" | "secondary" => {
     switch (estado) {
       case 'Confirmada':
@@ -122,58 +101,118 @@ export default function Component() {
         return 'outline'
     }
   }
-  
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-        labels: {
-          color: darkMode ? '#e5e7eb' : '#374151',
-        },
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-        },
-        ticks: {
-          color: darkMode ? '#e5e7eb' : '#374151',
-        },
-      },
-      y: {
-        grid: {
-          color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-        },
-        ticks: {
-          color: darkMode ? '#e5e7eb' : '#374151',
-        },
-      },
-    },
-  }
 
-  const filterReservasByDate = (selectedDate: Date | undefined) => {
-    if (!selectedDate) return
-    const filteredReservas = reservas.filter(reserva => {
-      const reservaDate = new Date(reserva.fecha)
-      return reservaDate.toDateString() === selectedDate.toDateString()
+  const prepareChartData = () => {
+    const canchas = {} as Record<string, number>
+    const horarios = {} as Record<string, number>
+    const meses = {} as Record<string, number>
+
+    reservas.forEach(reserva => {
+      canchas[reserva.cancha] = (canchas[reserva.cancha] || 0) + 1
+      const hora = reserva.hora_inicio.split(':')[0]
+      horarios[hora] = (horarios[hora] || 0) + 1
+      const mes = new Date(reserva.fecha).getMonth()
+      meses[mes] = (meses[mes] || 0) + 1
     })
-    setFilteredReservas(filteredReservas)
-    setIsCalendarOpen(false)
+
+    return { canchas, horarios, meses }
   }
 
+  const { canchas, horarios, meses } = prepareChartData()
+
+  const barChartData = {
+    labels: Object.keys(canchas),
+    datasets: [{
+      label: 'Reservas por Cancha',
+      data: Object.values(canchas),
+      backgroundColor: 'rgba(99, 102, 241, 0.6)',
+      borderColor: 'rgb(99, 102, 241)',
+      borderWidth: 1
+    }]
+  }
+
+  const horariosChartData = {
+    labels: Array.from({ length: 9 }, (_, i) => `${16 + i}:00`), // Etiquetas de horas en formato HH:00
+    datasets: [
+      {
+        label: 'Reservas por Horario',
+        data: Array.from({ length: 9 }, (_, i) => horarios[(16 + i).toString()] || 0),
+        backgroundColor: 'rgba(52, 211, 153, 0.6)',
+        borderColor: 'rgb(52, 211, 153)',
+        borderWidth: 1,
+      },
+    ],
+  }
+  
+
+  const lineChartData = {
+    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+    datasets: [
+      {
+        label: 'Reservas por Mes',
+        data: Array(12).fill(0).map((_, i) => meses[i] || 0),
+        borderColor: 'rgb(251, 191, 36)',
+        backgroundColor: 'rgba(251, 191, 36, 0.5)',
+        tension: 0.3,
+      },
+    ],
+  }
+  
+
+  // Configuración para los gráficos de ChartJS
+  // Configuración para los gráficos de ChartJS
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'top' as const,
+      labels: {
+        color: darkMode ? '#e5e7eb' : '#374151',
+      },
+    },
+  },
+  scales: {
+    x: {
+      grid: {
+        color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+      },
+      ticks: {
+        color: darkMode ? '#e5e7eb' : '#374151',
+        callback: function (value: string | number, index: number) {
+          const hora = 16 + index; // Ajustamos las horas a partir de 16:00
+          return `${hora}:00`;
+        },
+      },
+    },
+    y: {
+      beginAtZero: true,
+      suggestedMin: 0,
+      suggestedMax: 30, // Aumenta el rango máximo a 30
+      ticks: {
+        stepSize: 5, // Incremento de 5 unidades
+        color: darkMode ? '#e5e7eb' : '#374151',
+      },
+      grid: {
+        color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+      },
+    },
+  },
+};
+
+
+  // Función de búsqueda de reservas
   const handleSearch = (query: string) => {
     setSearchQuery(query)
-    const filtered = reservas.filter(reserva => 
-      reserva.cancha.toLowerCase().includes(query.toLowerCase()) ||
-      reserva.fecha.toLowerCase().includes(query.toLowerCase()) ||
-      reserva.estado.toLowerCase().includes(query.toLowerCase())
+    const filtered = reservas.filter((reserva) =>
+      reserva.id_cancha.toString().includes(query) ||
+      reserva.fecha.includes(query) ||
+      reserva.estado.includes(query)
     )
     setFilteredReservas(filtered)
   }
 
+  // Control del acceso rápido y FAB
   const toggleQuickAccess = () => {
     setIsQuickAccessOpen(!isQuickAccessOpen)
     setShowFAB(isQuickAccessOpen)
@@ -288,14 +327,14 @@ export default function Component() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder.svg?height=32&width=32" alt="@username" />
-                      <AvatarFallback>JD</AvatarFallback>
+                      <AvatarImage src="/placeholder.svg?height=32&width=32" alt="{nombreCompleto}" />
+                      <AvatarFallback>{user ? user.nombre[0] + user.apellido[0] : 'NN'}</AvatarFallback>
                     </Avatar>
                     <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-400 ring-2 ring-white dark:ring-gray-800"></span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+                <DropdownMenuLabel>{nombreCompleto}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <User className="mr-2 h-4 w-4" />
@@ -344,34 +383,75 @@ export default function Component() {
         </header>
 
         <main className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {[
-              { title: "Reservas Totales", value: "15", icon: <CalendarIcon className="h-5 w-5 text-indigo-500" />, color: "bg-indigo-100 dark:bg-indigo-800/30" },
-              { title: "Cancha Favorita", value: "C1F5", icon: <MapPin className="h-5 w-5 text-emerald-500" />, color: "bg-emerald-100 dark:bg-emerald-800/30" },
-              { title: "Horario Preferido", value: "18:00", icon: <Clock className="h-5 w-5 text-amber-500" />, color: "bg-amber-100 dark:bg-amber-800/30" },
-              { title: "Saldo Gastado", value: "$450", icon: <DollarSign className="h-5 w-5 text-pink-500" />, color: "bg-pink-100 dark:bg-pink-800/30" },
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className={`${item.color} border-none overflow-hidden group hover:shadow-lg transition-all duration-300`}>
-                  <CardContent className="p-3 flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">{item.title}</CardTitle>
-                      <div className="text-lg font-bold text-gray-800 dark:text-white">{item.value || 'No hay datos'}</div>
-                    </div>
-                    <div className="bg-white dark:bg-gray-700 rounded-full p-2 transition-transform duration-300">
-                      {item.icon}
-                    </div>
-                  </CardContent>
-                  <div className="h-1 w-full bg-gradient-to-r from-transparent via-primary to-transparent opacity-100 transition-opacity duration-300" />
-                </Card>
-              </motion.div>
-            ))}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  {[
+    {
+      title: "Reservas Totales",
+      value: totalReservas,
+      isNumber: true, // Indicamos que es numérico
+      icon: <CalendarIcon className="h-5 w-5 text-indigo-500" />,
+      color: "bg-indigo-100 dark:bg-indigo-800/30"
+    },
+    {
+      title: "Cancha Favorita",
+      value: canchaFavorita,
+      isNumber: false, // No es numérico
+      icon: <MapPin className="h-5 w-5 text-emerald-500" />,
+      color: "bg-emerald-100 dark:bg-emerald-800/30"
+    },
+    {
+      title: "Horario Preferido",
+      value: horarioPreferido,
+      isNumber: false, // No es numérico
+      icon: <Clock className="h-5 w-5 text-amber-500" />,
+      color: "bg-amber-100 dark:bg-amber-800/30"
+    },
+    {
+      title: "Saldo Gastado",
+      value: saldoGastado,
+      isNumber: true, // Indicamos que es numérico
+      icon: <DollarSign className="h-5 w-5 text-pink-500" />,
+      color: "bg-pink-100 dark:bg-pink-800/30"
+    }
+  ].map((item, index) => (
+    <motion.div
+      key={index}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+    >
+      <Card className={`${item.color} border-none overflow-hidden group hover:shadow-lg transition-all duration-300`}>
+        <CardContent className="p-3 flex items-center justify-between">
+          <div>
+            <CardTitle className="text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">
+              {item.title}
+            </CardTitle>
+            <div className="text-lg font-bold text-gray-800 dark:text-white">
+              {item.isNumber ? (
+                <MotionNumber
+                  value={item.value}
+                  format={{
+                    style: item.title === "Saldo Gastado" ? "currency" : "decimal",
+                    currency: item.title === "Saldo Gastado" ? "CLP" : undefined,
+                    maximumFractionDigits: 0
+                  }}
+                  locales="es-CL"
+                />
+              ) : (
+                item.value || "No hay datos"
+              )}
+            </div>
           </div>
+          <div className="bg-white dark:bg-gray-700 rounded-full p-2 transition-transform duration-300">
+            {item.icon}
+          </div>
+        </CardContent>
+        <div className="h-1 w-full bg-gradient-to-r from-transparent via-primary to-transparent opacity-100 transition-opacity duration-300" />
+      </Card>
+    </motion.div>
+  ))}
+</div>
+
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             <Card className="lg:col-span-1">
@@ -400,7 +480,7 @@ export default function Component() {
                         onSelect={(newDate) => {
                           if (newDate instanceof Date) {
                             setDate(newDate)
-                            filterReservasByDate(newDate)
+                            filtrarReservasPorFecha()
                           }
                         }}
                         initialFocus
@@ -450,7 +530,7 @@ export default function Component() {
                                 onSelect={(newDate) => {
                                   if (newDate instanceof Date) {
                                     setDate(newDate)
-                                    filterReservasByDate(newDate)
+                                    filtrarReservasPorFecha()
                                   }
                                 }}
                                 initialFocus
@@ -459,36 +539,43 @@ export default function Component() {
                           </Popover>
                         </div>
                         <ScrollArea className="h-[200px] w-full border rounded-md p-4">
-                          <AnimatePresence>
-                            {filteredReservas.length > 0 ? (
-                              filteredReservas.map((reserva, index) => (
-                                <motion.div
-                                  key={reserva.id}
-                                  initial={{ opacity: 0, y: 20 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  exit={{ opacity: 0, y: -20 }}
-                                  transition={{ delay: index * 0.1 }}
-                                  className="mb-4 last:mb-0"
-                                >
-                                  <div className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                                    <div>
-                                      <h3 className="font-semibold text-sm text-gray-800 dark:text-white">{reserva.cancha}</h3>
-                                      <div className="text-xs text-gray-600 dark:text-gray-300">
-                                        {format(new Date(reserva.fecha), 'PPp', { locale: es })}
-                                      </div>
-                                    </div>
-                                    <Badge variant={mapEstadoToVariant(reserva.estado)}>
-                                      {reserva.estado}
-                                    </Badge>
-                                  </div>
-                                </motion.div>
-                              ))
-                            ) : (
-                              <div className="text-center py-4">
-                                <p className="text-gray-500 dark:text-gray-400">No se encontraron reservas.</p>
-                              </div>
-                            )}
-                          </AnimatePresence>
+                        <AnimatePresence>
+                      {filteredReservas.length > 0 ? (
+                        filteredReservas.map((reserva, index) => (
+                          <motion.div
+                            key={reserva.id || `reserva-${index}`} // Respaldo con `index` si `id` no está presente
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="mb-4 last:mb-0"
+                          >
+        <div className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+          <div>
+            <h3 className="font-semibold text-sm text-gray-800 dark:text-white">
+              {reserva.cancha || 'Cancha no especificada'}
+            </h3>
+            <div className="text-xs text-gray-600 dark:text-gray-300">
+              {reserva.fecha ? (
+                format(new Date(reserva.fecha), 'PPp', { locale: es })
+              ) : (
+                'Fecha no disponible'
+              )}
+            </div>
+          </div>
+          <Badge variant={mapEstadoToVariant(reserva.estado || 'Pendiente')}>
+            {reserva.estado || 'Pendiente'}
+          </Badge>
+        </div>
+      </motion.div>
+    ))
+  ) : (
+    <div className="text-center py-4">
+      <p className="text-gray-500 dark:text-gray-400">No se encontraron reservas.</p>
+    </div>
+  )}
+</AnimatePresence>
+
                         </ScrollArea>
                       </div>
                     </DialogContent>
@@ -503,67 +590,78 @@ export default function Component() {
                   </Button>
                 </div>
                 <ScrollArea className="h-[300px] w-full pr-4">
-                  <AnimatePresence>
-                    {filteredReservas.length > 0 ? (
-                      filteredReservas.map((reserva, index) => (
-                        <motion.div
-                          key={reserva.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -20 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="mb-4 last:mb-0"
-                        >
-                          <Card>
-                            <CardContent className="p-4 flex items-center justify-between">
-                              <div>
-                                <h3 className="font-semibold text-sm text-gray-800 dark:text-white">{reserva.cancha}</h3>
-                                <div className="flex items-center text-xs text-gray-600 dark:text-gray-300 mt-1">
-                                  <CalendarIcon className="mr-2 h-3 w-3" />
-                                  {format(new Date(reserva.fecha), 'PPp', { locale: es })}
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <Badge variant={mapEstadoToVariant(reserva.estado)}>
-                                  {reserva.estado}
-                                </Badge>
-                                <Dialog>
-                                  <DialogTrigger asChild>
-                                    <Button variant="outline" size="sm">
-                                      <QrCode className="h-3 w-3" />
-                                    </Button>
-                                  </DialogTrigger>
-                                  <DialogContent className="sm:max-w-md">
-                                    <DialogHeader>
-                                      <DialogTitle>Código QR de Reserva</DialogTitle>
-                                      <DialogDescription>
-                                        Muestra este código al llegar al complejo deportivo.
-                                      </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="flex justify-center py-4">
-                                      <Image src={reserva.qrCode} alt="Código QR de la reserva" width={150} height={150} />
-                                    </div>
-                                    <div className="text-center">
-                                      <p className="font-semibold">{reserva.cancha}</p>
-                                      <p>{format(new Date(reserva.fecha), 'PPp', { locale: es })}</p>
-                                    </div>
-                                  </DialogContent>
-                                </Dialog>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8">
-                        <p className="text-gray-500 dark:text-gray-400 mb-4">No existen reservas realizadas por ti.</p>
-                        <Button variant="default">
-                          <Activity className="mr-2 h-4 w-4" />
-                          Ir a Reservar
-                        </Button>
-                      </div>
-                    )}
-                  </AnimatePresence>
+                <AnimatePresence>
+  {filteredReservas.length > 0 ? (
+    filteredReservas.map((reserva, index) => (
+      <motion.div
+        key={reserva.id || index} // Respaldo con `index` si `id` no es único o falta
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ delay: index * 0.1 }}
+        className="mb-4 last:mb-0"
+      >
+        <Card>
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-sm text-gray-800 dark:text-white">
+                {reserva.cancha}
+              </h3>
+              <div className="flex items-center text-xs text-gray-600 dark:text-gray-300 mt-1">
+                <CalendarIcon className="mr-2 h-3 w-3" />
+                {format(new Date(reserva.fecha), 'PPp', { locale: es })}
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Badge variant={mapEstadoToVariant(reserva.estado)}>
+                {reserva.estado}
+              </Badge>
+              {reserva.qr_code && (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <QrCode className="h-3 w-3" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Código QR de Reserva</DialogTitle>
+                      <DialogDescription>
+                        Muestra este código al llegar al complejo deportivo.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-center py-4">
+                      <Image
+                        src={reserva.qr_code}
+                        alt="Código QR de la reserva"
+                        width={150}
+                        height={150}
+                      />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-semibold">{reserva.cancha}</p>
+                      <p>{format(new Date(reserva.fecha), 'PPp', { locale: es })}</p>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    ))
+  ) : (
+    <div className="text-center py-8">
+      <p className="text-gray-500 dark:text-gray-400 mb-4">
+        No existen reservas realizadas por ti.
+      </p>
+      <Button variant="default">
+        <Activity className="mr-2 h-4 w-4" />
+        Ir a Reservar
+      </Button>
+    </div>
+  )}
+</AnimatePresence>
                 </ScrollArea>
               </CardContent>
             </Card>

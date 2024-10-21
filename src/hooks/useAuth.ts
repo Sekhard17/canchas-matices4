@@ -1,3 +1,4 @@
+//src/hooks/useAuth.ts
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 import { login } from '@/services/authService'

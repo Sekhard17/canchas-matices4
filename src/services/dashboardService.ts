@@ -1,3 +1,4 @@
+//src/services/dashboardService.ts
 import { supabase } from '@/utils/supabaseClient'
 
 export const obtenerReservas = async (RUT: string) => {
