@@ -61,7 +61,7 @@ export function useAuth() {
     localStorage.removeItem('token')
     setUser(null)
     toast.success('¡Sesión cerrada!')
-    router.push('/login')
+    router.push('/')
   }
 
   return { user, isLoading, handleLogin, handleLogout }

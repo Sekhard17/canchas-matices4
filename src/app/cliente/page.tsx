@@ -40,13 +40,15 @@ import { Line, Bar } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js'
 import { useDashboardData } from "@/hooks/useDashboardData"
 import MotionNumber from 'motion-number'
+import {useAuth} from '@/hooks/useAuth'
 // Registro de componentes necesarios para ChartJS
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ChartTooltip, Legend)
 
 export default function Component() {
   // Datos traídos del hook personalizado para manejar reservas y estadísticas
+  const { user: Usuario, handleLogout } = useAuth() 
   const { user, reservas, fechaSeleccionada, setFechaSeleccionada, filtrarReservasPorFecha, calcularEstadisticas } = useDashboardData()
-  const nombreCompleto = user ? `${user.nombre} ${user.apellido}` : 'Usuario'
+  const nombreCompleto = Usuario ? `${Usuario.nombre} ${Usuario.apellido}` : 'Usuario'
 
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [darkMode, setDarkMode] = useState(false)
@@ -58,6 +60,7 @@ export default function Component() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [showFAB, setShowFAB] = useState(true)
+  
 
   // Cálculo de estadísticas desde los datos obtenidos
   const { totalReservas, canchaFavorita, horarioPreferido, saldoGastado } = calcularEstadisticas()
@@ -328,7 +331,9 @@ const chartOptions = {
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src="/placeholder.svg?height=32&width=32" alt="{nombreCompleto}" />
-                      <AvatarFallback>{user ? user.nombre[0] + user.apellido[0] : 'NN'}</AvatarFallback>
+                      <AvatarFallback>
+              {Usuario ? `${Usuario.nombre[0]}${Usuario.apellido[0]}` : 'NN'}
+            </AvatarFallback>
                     </Avatar>
                     <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-400 ring-2 ring-white dark:ring-gray-800"></span>
                   </Button>
@@ -345,10 +350,10 @@ const chartOptions = {
                     <span>Configuración</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Cerrar Sesión</span>
-                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Cerrar Sesión</span>
+        </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               {!isMobile && (
