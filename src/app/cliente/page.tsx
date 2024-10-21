@@ -41,14 +41,12 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import { useDashboardData } from "@/hooks/useDashboardData"
 import MotionNumber from 'motion-number'
 import {useAuth} from '@/hooks/useAuth'
-import { PuffLoader } from 'react-spinners'
-
 // Registro de componentes necesarios para ChartJS
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ChartTooltip, Legend)
 
 export default function Component() {
   // Datos traídos del hook personalizado para manejar reservas y estadísticas
-  const { user: Usuario, handleLogout, isLoading } = useAuth() 
+  const { user: Usuario, handleLogout } = useAuth() 
   const { user, reservas, fechaSeleccionada, setFechaSeleccionada, filtrarReservasPorFecha, calcularEstadisticas } = useDashboardData()
   const nombreCompleto = Usuario ? `${Usuario.nombre} ${Usuario.apellido}` : 'Usuario'
 
@@ -221,15 +219,6 @@ const chartOptions = {
   const toggleQuickAccess = () => {
     setIsQuickAccessOpen(!isQuickAccessOpen)
     setShowFAB(isQuickAccessOpen)
-  }
-
-  // Mostrar el loader si todavía se está cargando la autenticación
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
-        <PuffLoader size={80} color="#4A90E2" />
-      </div>
-    )
   }
 
   return (
