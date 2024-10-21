@@ -2,17 +2,41 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 import { login } from '@/services/authService'
 import { decodeToken, CustomJwtPayload } from '@/utils/jwtUtils'
+import { useEffect, useState } from 'react'
 
 export function useAuth() {
   const router = useRouter()
+  const [user, setUser] = useState<CustomJwtPayload | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Verificar si el usuario tiene una sesión activa
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      const decodedToken: CustomJwtPayload = decodeToken(token)
+      setUser(decodedToken)
+    } catch (error) {
+      console.error('Token inválido:', error)
+      localStorage.removeItem('token')
+      router.push('/login')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [router])
 
   const handleLogin = async (email: string, password: string) => {
     try {
       const data = await login(email, password)
       localStorage.setItem('token', data.token)
 
-      // Decodificar el token con el tipo definido
       const decodedToken: CustomJwtPayload = decodeToken(data.token)
+      setUser(decodedToken)
 
       toast.success('¡Inicio de sesión exitoso!')
 
@@ -32,5 +56,12 @@ export function useAuth() {
     }
   }
 
-  return { handleLogin }
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    setUser(null)
+    toast.success('¡Sesión cerrada!')
+    router.push('/login')
+  }
+
+  return { user, isLoading, handleLogin, handleLogout }
 }
