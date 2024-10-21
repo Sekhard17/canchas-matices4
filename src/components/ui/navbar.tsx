@@ -1,6 +1,6 @@
 //src/components/ui/navbar.tsx
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Menu, X, Home, Calendar, FileText, BarChart2, Users, User, Settings, LogOut } from 'lucide-react'
@@ -58,7 +58,12 @@ type NavbarProps = {
 
 export default function Navbar({ profile, user }: NavbarProps) {
   const [isOpen, setIsOpen] = React.useState(false)
+  const [isMounted, setIsMounted] = React.useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   return (
     <nav className="bg-[#040038] shadow-lg">
