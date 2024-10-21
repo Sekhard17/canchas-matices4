@@ -9,6 +9,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import Navbar from "@/components/ui/navbar";
 import {
   Dialog,
   DialogContent,
@@ -79,6 +80,11 @@ export default function EnhancedDesktopReserva() {
   const [isLoading, setIsLoading] = useState(false);
   const [showUnavailable, setShowUnavailable] = useState(false);
 
+// Definimos el tipo Profile
+type Profile = 'administrador' | 'encargado' | 'cliente';
+  const user = { name: "Juan", lastName: "Pérez", avatar: "/images/avatar.jpg" };
+  const profile: Profile = "cliente"; // Ajusta esto según el perfil deseado
+
   const handleHoraClick = (slot: (typeof horariosDisponibles)[number]) => {
     setSelectedHoras((prev) => {
       const isAlreadySelected = prev.some((item) => item.hora === slot.hora && item.dia === slot.dia);
@@ -121,6 +127,8 @@ export default function EnhancedDesktopReserva() {
 
   return (
     <div className={`min-h-screen p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
+       {/* Navbar */}
+       <Navbar profile={profile} user={user} />
       <div className="max-w-7xl mx-auto bg-background rounded-xl shadow-lg overflow-hidden">
         <header className="text-center py-10 px-6 bg-primary">
           <motion.h1
